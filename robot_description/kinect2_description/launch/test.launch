@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<launch>
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find kinect2_description)/urdf/kinect2.xacro'" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher"/>
+  <node pkg="tf2_ros" type="static_transform_publisher" name="tf2_static" args="0 0 0 0 3.14159 0 kinect2_link kinect2_rgb_optical_frame" output="screen"/>
+  <node pkg="rviz" type="rviz" name="rviz" args="-s '' -d $(find kinect2_description)/config/config.rviz" output="screen" required="true"/>
+</launch>

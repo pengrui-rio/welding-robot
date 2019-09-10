@@ -1,0 +1,71 @@
+<?xml version="1.0" ?>
+<robot name="weldingtable" xmlns:xacro="http://wiki.ros.org/xacro">
+
+  <!-- Use the original ur3.urdf.xacro, do not change anything there -->
+  <xacro:include filename="$(find ur_description)/urdf/ur3.urdf.xacro" />
+  <xacro:ur3_robot prefix="" joint_limited="true"/>
+
+  <!-- Then include a file that defines the end effector -->
+  <!-- This file is in the same directory -->
+  <!-- In this case the end effector is the welding torch -->
+  <xacro:include filename="welding_torch.xacro" />
+  <!-- Here we include the end-effector by setting the parameters -->
+  <!-- Check that the end-effector link name is tool0 -->
+  <xacro:welding_torch prefix="" connected_to="tool0" />
+
+  <xacro:include filename="$(find kinect2_description)/urdf/kinect2_urdf.xacro" />
+  <xacro:kinect2 prefix=""/>
+
+
+  <link name="world"/>
+
+  <link name="table">
+    <visual>
+      <geometry>
+        <box size="1.0 1.0 0.015875"/>
+      </geometry>
+      <material name="Wooden">
+        <color rgba="1.0 0.831 0.486 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="1.0 1.0 0.015875"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="table_to_robot" type="fixed">
+    <parent link="table"/>
+    <child link="base_link"/>
+<!--    <origin xyz="-0.35 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/> -->
+    <origin xyz="-0.331 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/>
+  </joint>
+
+  <!-- Optical frame -->
+  <link name="kinect2_rgb_optical_frame"/>
+  <joint name="rgb_optical_frame" type="fixed">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+    <parent link="kinect2_link"/>
+    <child link="kinect2_rgb_optical_frame"/>
+  </joint>
+
+
+  <joint name="world_to_table" type="fixed">
+    <parent link="world"/>
+    <child link="table"/>
+<!--    <origin xyz="0.331 0.10 -0.0079375" rpy="0 0 0"/> -->
+    <origin xyz="0.331 0.0 -0.0079375" rpy="0 0 0"/>
+<!--    <origin xyz="0.331 0.0 0.015" rpy="0 0 0"/> -->
+  </joint>
+
+  <joint name="world_to_camera" type="fixed">
+    <parent link="world"/>
+    <child link="kinect2_link"/>
+<!--    <origin xyz="0.436 0 0.78" rpy="0 3.14159 1.5707"/> -->
+<!--    <origin xyz="0.432 -0.108 0.78" rpy="0 3.14159 1.5707"/> -->
+<!--    <origin xyz="0.43 -0.10 0.78" rpy="0 3.14159 1.5707"/> -->
+<!--    <origin xyz="0.43 -0.10 0.78375" rpy="0 3.14159 1.5707"/> -->
+    <origin xyz="0.43 -0.10 0.78535" rpy="0 3.14159 1.5707"/>
+  </joint>
+</robot>

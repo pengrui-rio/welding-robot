@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+<!-- This is a hand-made URDF XACRO file for the Microsoft Kinect-2 sensor (Xbox ONE) -->
+<!-- Copyright Universitaet Bremen - Instititute for Artificial Intelligence. Author: Alexis Maldonado -->
+<!-- License: GPLv3+ -->
+
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="kinect2"> 
+
+  <xacro:macro name="kinect2" params="prefix">
+
+    <material name="Kinect2Grey">
+      <color rgba="0.15 0.15 0.15 1.0"/>
+    </material>
+
+
+    <link name="${prefix}kinect2_frame">
+      <visual>
+        <origin rpy="0 0 0" xyz="0 0 0"/>
+        <geometry>
+          <!-- these meshes were exported in mm, so scale back to m -->
+          <mesh filename="package://kinect2_description/meshes/kinect2_origin_on_rgb_optical_frame.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <material name="Kinect2Grey"/>
+      </visual>
+
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0" />
+        <geometry>
+          <mesh
+            filename="package://kinect2_description/meshes/kinect2_origin_on_rgb_optical_frame.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+      </collision>
+    </link>
+
+    <!-- Optical frame -->
+    <link name="${prefix}kinect2_rgb_optical_frame"/>
+    <joint name="optical_frame" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${prefix}kinect2_rgb_optical_frame"/>
+      <child link="${prefix}kinect2_frame"/>
+    </joint>
+
+  </xacro:macro>
+</robot>

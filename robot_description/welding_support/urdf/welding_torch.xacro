@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro">
+  <!-- Here we define 2 parameters of the macro -->
+  <xacro:macro name="welding_torch" params="prefix connected_to">
+    <!-- Create a fixed joint with a parameterized name. -->
+    <joint name="${prefix}welding_torch_joint" type="fixed">
+      <!-- The parent link must be read from the robot it is attached to. -->
+      <parent link="${connected_to}"/>
+      <child link="${prefix}welding_torch"/>
+      <!-- The tool(welding torch) is directly attached to the flange(tool0). -->
+      <origin rpy="0 0 0" xyz="0 0 0" />
+    </joint>
+    <link name="${prefix}welding_torch">
+      <visual>
+        <geometry>
+          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 -0.012 0.25"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 -0.012 0.25"/>
+      </collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+
+    <!-- TCP frame -->
+    <joint name="${prefix}tcp_joint" type="fixed">
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <parent link="${prefix}welding_torch"/>
+      <child link="${prefix}tcp"/>
+    </joint>
+    <link name="${prefix}tcp"/>
+
+  </xacro:macro>
+</robot>
