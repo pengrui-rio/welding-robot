@@ -158,31 +158,6 @@ int main(int argc, char **argv)
         cloud->points.push_back( p );
         // map->points.push_back(p_transform);
 
-        // //建立点云地图
-        // if (receive_pose_flag == 1)
-        // {
-        //   // 计算世界坐标系下的坐标——坐标转换   rviz里 red->x green->y blue->z
-        //   rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
-        //   rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
-        //   rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z);    
-
-        //   p_transform.x = current_x + p_z.x - 0.035;
-        //   p_transform.y = current_y + p_z.y + 0.080;
-        //   p_transform.z = current_z + p_z.z + 0.036;
-          
-        //   p_transform.b = color_pic.ptr<uchar>(m)[n*3+0];
-        //   p_transform.g = color_pic.ptr<uchar>(m)[n*3+1];
-        //   p_transform.r = color_pic.ptr<uchar>(m)[n*3+2];
-
-        //   map->points.push_back(p_transform);
-
-        //   if (m == depth_pic.rows - 1)
-        //   {
-        //     receive_pose_flag = 0;
-        //     pic_count = 0;
-        //   }
-    
-        // }
         
       }
     }
