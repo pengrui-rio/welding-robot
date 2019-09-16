@@ -1,6 +1,7 @@
 #include <ros/ros.h>
 #include <math.h>
 #include <iostream>   
+#include <vector>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -21,8 +22,21 @@
 #include <pcl/kdtree/kdtree_flann.h>//搜索方法
 #include <boost/thread/thread.hpp>
 
+#include <pcl/ModelCoefficients.h>
+#include <pcl/point_types.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/features/normal_3d.h>
+#include <pcl/kdtree/kdtree.h>
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/segmentation/extract_clusters.h>
+ 
 // 定义点云类型
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
+typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
 typedef pcl::PointCloud<pcl::PointXYZ>  Cloud;
 typedef pcl::PointXYZ PointType;
 
@@ -148,7 +162,7 @@ int main(int argc, char **argv)
   reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
-       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl;
+       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
 
   pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
   ne.setInputCloud (cloud_ptr);
@@ -160,7 +174,7 @@ int main(int argc, char **argv)
   ne.setRadiusSearch (0.005);
   ne.compute (cloud_normals);
 
-  float nan_count = 0;
+  float total_pointcount = 0, ave_normal_x = 0, ave_normal_y = 0, ave_normal_z = 0;
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   { 
     if ( __isnan(cloud_normals[i].curvature) == true)
@@ -168,40 +182,314 @@ int main(int argc, char **argv)
       continue;
     }
 
-    // cout << "cloud_normal XYZ-Curvature: " << cloud_normals[i] << endl;
+    total_pointcount++;
+
+    ave_normal_x += cloud_normals[i].normal_x;
+    ave_normal_y += cloud_normals[i].normal_y;
+    ave_normal_z += cloud_normals[i].normal_z;
+  }
+
+  ave_normal_x = 1.0 * ave_normal_x / total_pointcount;
+  ave_normal_y = 1.0 * ave_normal_y / total_pointcount;
+  ave_normal_z = 1.0 * ave_normal_z / total_pointcount;
+
+  cout << "compute is done!!! " << endl;
+  cout << "cloud_ptr->points.size(): " << cloud_output->points.size() << endl;
+  cout << "nan-point count: " << cloud_normals.size() - total_pointcount << endl;//858
+  cout << "ave_normal_x: " << ave_normal_x << endl;
+  cout << "ave_normal_y: " << ave_normal_y << endl;
+  cout << "ave_normal_z: " << ave_normal_z << endl << endl;
+
+  vector<float> Dir_descriptor ;
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  { 
+    if ( __isnan(cloud_normals[i].curvature) == true)
+    {
+      continue;
+    }
+
+    float dir_descriptor;
+    dir_descriptor = sqrt(pow(cloud_normals[i].normal_x - ave_normal_x, 2) + 
+                          pow(cloud_normals[i].normal_y - ave_normal_y, 2) + 
+                          pow(cloud_normals[i].normal_z - ave_normal_z, 2));
+
+    Dir_descriptor.push_back( dir_descriptor );     
+
 
     pcl::PointXYZRGB p;
-
     p.x = cloud_ptr->points[i].x; 
     p.y = cloud_ptr->points[i].y;
     p.z = cloud_ptr->points[i].z;
     p.b = 200; 
     p.g = 200; 
     p.r = 200; 
-
-    if(cloud_normals[i].normal_z < -0.9)
-    {
-      p.b = 200; 
-      p.g = 0; 
-      p.r = 0; 
-    }
-    
-    cloud_output->points.push_back( p );    
+ 
+    cloud_output->points.push_back( p );        
   }
 
-  cout << "compute is done!!! " << endl;
-  cout << "cloud_normals size():" << cloud_normals.size() << endl;
-  cout << "cloud_ptr->points.size(): " << cloud_output->points.size() << endl;
-  cout << "nan-point count: " << cloud_normals.size() - cloud_output->points.size() << endl;
+  float Dir_descriptor_max = 0, Dir_descriptor_min = 0;
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    if(i == 0)
+    {
+      Dir_descriptor_max = Dir_descriptor[0];
+      Dir_descriptor_min = Dir_descriptor[0];
+    }
+
+    if (Dir_descriptor_max < Dir_descriptor[i])
+    {
+      Dir_descriptor_max = Dir_descriptor[i];
+    }
+
+    if(Dir_descriptor_min > Dir_descriptor[i])
+    {
+      Dir_descriptor_min = Dir_descriptor[i];
+    }
+  }
+
+  cout << "Dir_descriptor_max: "    << Dir_descriptor_max << endl;
+  cout << "Dir_descriptor_min: "    << Dir_descriptor_min << endl;
+
+  cout << "Dir_descriptor size(): " << Dir_descriptor.size()       << endl;
+  cout << "cloud_output size(): "   << cloud_output->points.size() << endl << endl;
+
+  float weight_of_descriptor = 0;
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    weight_of_descriptor = (Dir_descriptor[i] - Dir_descriptor_min) / (Dir_descriptor_max - Dir_descriptor_min);
+
+
+    cloud_output->points[i].b = 255 * weight_of_descriptor;
+    cloud_output->points[i].g = 0;
+    cloud_output->points[i].r = 255 * (1 - weight_of_descriptor);
+  }
+ 
+
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tree (new pcl::PointCloud<pcl::PointXYZ>);
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    pcl::PointXYZ p;
+
+    p.x = cloud_output->points[i].x;
+    p.y = cloud_output->points[i].y;
+    p.z = cloud_output->points[i].z;
+
+    cloud_tree->points.push_back( p );
+  }
+  cout << "cloud_output->points.size(): " << cloud_output->points.size() << endl;
+  cout << "cloud_tree->points.size(): "   << cloud_tree->points.size() << endl << endl;
+
+  // 创建一个 KdTree 对象
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+ 
+  // 将前面创建的随机点云作为 KdTree 输入
+  kdtree.setInputCloud (cloud_tree);
+
+ // 创建两个向量，分别存放近邻的索引值、近邻的中心距
+  vector<int> pointIdxRadiusSearch;
+  vector<float> pointRadiusSquaredDistance;
+ 
+  // 指定随机半径
+  float radius = 0.005;
+
+  vector<float> variance_descriptor ;
+
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    kdtree.radiusSearch (cloud_tree->points[i], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+    float variance = 0, sum = 0, average_kdtree = 0;
+
+    for (float j = 0; j < pointIdxRadiusSearch.size(); j++)
+    {
+      sum += Dir_descriptor[ pointIdxRadiusSearch[j] ];
+    }
+    average_kdtree = sum / pointIdxRadiusSearch.size();
+    // cout << "sum:" << average_kdtree << endl;
+
+    for (float j = 0; j < pointIdxRadiusSearch.size(); j++)
+    {
+      variance += pow(Dir_descriptor[pointIdxRadiusSearch[j]] - average_kdtree, 2);
+    }    
+
+    variance = variance / pointIdxRadiusSearch.size();
+    // cout << "variance:" << variance << endl;
+    variance_descriptor.push_back( variance );
+  }
+
+  float Var_descriptor_max = 0, Var_descriptor_min = 0;
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    if(i == 0)
+    {
+      Var_descriptor_max = variance_descriptor[0];
+      Var_descriptor_min = variance_descriptor[0];
+    }
+
+    if (Var_descriptor_max < variance_descriptor[i])
+    {
+      Var_descriptor_max = variance_descriptor[i];
+    }
+
+    if(Var_descriptor_min > variance_descriptor[i])
+    {
+      Var_descriptor_min = variance_descriptor[i];
+    }
+  }
+
+  cout << "Var_descriptor_max: "    << Var_descriptor_max << endl;
+  cout << "Var_descriptor_min: "    << Var_descriptor_min << endl;
+
+  cout << "cloud_output->points.size(): " << cloud_output->points.size() << endl;
+  cout << "variance_descriptor.size(): "   << variance_descriptor.size() << endl << endl;
+
+  float weight_variance_descriptor = 0;
+  float weight_variance_threshold = 0.05;
+
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    weight_variance_descriptor = (variance_descriptor[i] - Var_descriptor_min) / (Var_descriptor_max - Var_descriptor_min);
+
+    if( weight_variance_descriptor > weight_variance_threshold)
+    {
+      cloud_output->points[i].b = 200;
+      cloud_output->points[i].g = 0;
+      cloud_output->points[i].r = 0;
+    }
+    else
+    {
+      cloud_output->points[i].b = 200;
+      cloud_output->points[i].g = 200;
+      cloud_output->points[i].r = 200;
+    }
+  }
+ 
 
 
 
+  // 创建一个 KdTree 对象
+  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_tree_sreenout (new pcl::PointCloud<pcl::PointXYZ>);
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    pcl::PointXYZ p;
+
+    p.x = cloud_output->points[i].x;
+    p.y = cloud_output->points[i].y;
+    p.z = cloud_output->points[i].z;
+
+    cloud_tree_sreenout->points.push_back( p );
+  }
+  cout << "cloud_output->points.size(): " << cloud_output->points.size() << endl;
+  cout << "cloud_tree_sreenout->points.size(): "   << cloud_tree_sreenout->points.size() << endl << endl;
+
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree_sreenout;
+ 
+  // 将前面创建的随机点云作为 KdTree 输入
+  kdtree_sreenout.setInputCloud (cloud_tree_sreenout);
+
+ // 创建两个向量，分别存放近邻的索引值、近邻的中心距
+  vector<int> pointIdxRadiusSearch_sreenout;
+  vector<float> pointRadiusSquaredDistance_sreenout;
+ 
+  // 指定随机半径
+  float radius_sreenout = 0.005;
+
+  PointCloud::Ptr cloud_output_screenout (new PointCloud);
+
+  for(float i = 0; i < cloud_output->points.size(); i++)
+  { 
+    pcl::PointXYZRGB p;
+
+    kdtree_sreenout.radiusSearch (cloud_tree_sreenout->points[i], radius_sreenout, pointIdxRadiusSearch_sreenout, pointRadiusSquaredDistance_sreenout);  
+
+    float blue_count = 0;
+    for (float j = 0; j < pointIdxRadiusSearch_sreenout.size(); j++)
+    {
+      if (cloud_output->points[ pointIdxRadiusSearch_sreenout[j] ].b == 200 &&
+          cloud_output->points[ pointIdxRadiusSearch_sreenout[j] ].g == 0   &&
+          cloud_output->points[ pointIdxRadiusSearch_sreenout[j] ].r == 0)
+          {
+            blue_count++;
+          }
+    }
+
+    if (1.0 * blue_count / pointIdxRadiusSearch_sreenout.size() > 0.5 && pointIdxRadiusSearch_sreenout.size() > 1)
+    {
+      p.x = cloud_output->points[ i ].x;
+      p.y = cloud_output->points[ i ].y;
+      p.z = cloud_output->points[ i ].z;
+      p.b = 200;
+      p.g = 0;
+      p.r = 0;
+
+      cloud_output_screenout->points.push_back( p );
+    }
+
+  }
+  cout << "cloud_output->points.size(): " << cloud_output->points.size() << endl;
+  cout << "cloud_output_screenout->points.size(): " << cloud_output_screenout->points.size() << endl << endl;
 
 
 
+  //为提取点云时使用的搜素对象利用输入点云cloud_filtered创建Kd树对象tree。
+  pcl::PointCloud<pcl::PointXYZ>::Ptr ec_tree_cloud (new pcl::PointCloud<pcl::PointXYZ>);
+  for(float i = 0; i < cloud_output_screenout->points.size(); i++)
+  { 
+    pcl::PointXYZ p;
 
+    p.x = cloud_output_screenout->points[ i ].x;
+    p.y = cloud_output_screenout->points[ i ].y;
+    p.z = cloud_output_screenout->points[ i ].z;
 
+    ec_tree_cloud->points.push_back( p );
+  }
 
+  pcl::search::KdTree<pcl::PointXYZ>::Ptr ec_tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  ec_tree->setInputCloud (ec_tree_cloud);//创建点云索引向量，用于存储实际的点云信息
+  
+  std::vector<pcl::PointIndices> cluster_indices;
+  pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
+
+  EC.setClusterTolerance (0.01); //设置近邻搜索的搜索半径为2cm
+  EC.setMinClusterSize (1);//设置一个聚类需要的最少点数目为100
+  EC.setMaxClusterSize (100000); //设置一个聚类需要的最大点数目为25000
+  EC.setSearchMethod (ec_tree);//设置点云的搜索机制
+  EC.setInputCloud (ec_tree_cloud);
+  EC.extract (cluster_indices);//从点云中提取聚类，并将点云索引保存在cluster_indices中
+  
+  cout << "ec_tree_cloud->points.size(): "  << ec_tree_cloud->points.size() << endl ;
+  cout << "cluster_indices.size(): " << cluster_indices.size() << endl << endl;
+
+  PointCloud::Ptr cloud_output_goal (new PointCloud);
+
+  for (std::vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+  {
+    pcl::PointXYZRGB p;
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_cluster (new pcl::PointCloud<pcl::PointXYZ>);
+    
+    for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
+    {
+      cloud_cluster->points.push_back (ec_tree_cloud->points[*pit]);  
+    }
+
+    cout << "cloud_cluster->points.size(): " << cloud_cluster->points.size() << endl;
+
+    for(float i = 0; i < cloud_cluster->points.size(); i++)
+    { 
+      p.x = cloud_cluster->points[ i ].x;
+      p.y = cloud_cluster->points[ i ].y;
+      p.z = cloud_cluster->points[ i ].z;
+      p.b = 200;
+      p.g = 0;
+      p.r = 0;
+
+      cloud_output_goal->points.push_back( p ); 
+    }
+
+    break;
+  }
+  cout << "cloud_output_goal->points.size(): " << cloud_output_goal->points.size() << endl << endl;
 
 
 
@@ -260,7 +548,7 @@ int main(int argc, char **argv)
     // pcl::toROSMsg(*cloud, pub_pointcloud);
 
 
-    pcl::toROSMsg(*cloud_output, pub_pointcloud);
+    pcl::toROSMsg(*cloud_output_goal, pub_pointcloud);
     // pcl::toROSMsg(*map  , pub_map);
 
     pub_pointcloud.header.frame_id = "camera_color_optical_frame";
