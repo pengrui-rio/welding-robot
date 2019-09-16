@@ -4,9 +4,9 @@
 
 cd src
 
-git clone https://github.com/IntelRealSense/realsense-ros.git
+git clone https://github.com/IntelRealSense/realsense-ros.git   
 
-cd realsense-ros/
+cd realsense-ros/  然后delete realsense2_description文件夹
 
 git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
 
