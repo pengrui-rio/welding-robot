@@ -147,6 +147,67 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
 }
 
 
+void seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
+{
+  int show_Pointcloud_timeMax = 500;
+
+  //1.读入原始pointcloud
+  PointCloud::Ptr cloud_ptr_show (new PointCloud);
+  Cloud::Ptr cloud_ptr = read_pointcloud(cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+
+  //2.算出所有点的法向量
+  Normal cloud_normals = allPoint_normal_computation(cloud_ptr);
+  ////////////////////////////////////////////////////////////
+
+  //3.计算基准法向量，并返回提出nan点后的点云
+  float basic_normal_x = 0, basic_normal_y = 0, basic_normal_z = 0;
+  basic_normal_computation(cloud_ptr, cloud_normals, &basic_normal_x, &basic_normal_y, &basic_normal_z );
+  ////////////////////////////////////////////////////////////
+
+  //4.计算每个点的方向描述子
+  PointCloud::Ptr descriptor_cloud (new PointCloud);
+  vector<float> Dir_descriptor = Point_descriptor_computation(descriptor_cloud, cloud_ptr, cloud_normals, basic_normal_x, basic_normal_y, basic_normal_z);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, descriptor_cloud, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+
+  //5.计算每个点在邻域内的方差
+  Cloud::Ptr cloud_tree_variance (new Cloud);
+  PointCloud::Ptr cloud_tree_variance_show (new PointCloud);
+  vector<float> variance_descriptor = Point_variance_computation(cloud_tree_variance, cloud_tree_variance_show, descriptor_cloud, Dir_descriptor);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_variance_show, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+
+  //6.提取目标区域点云，可能有干扰
+  PointCloud::Ptr cloud_tree_rm_irrelativePoint (new PointCloud);
+  exact_Target_regionPointcloud(cloud_tree_rm_irrelativePoint, cloud_tree_variance, cloud_tree_variance_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_rm_irrelativePoint, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+
+  //7.利用欧式聚类剔除干扰区域，这里选取聚类数目最多的区域作为最终目标区域
+  PointCloud::Ptr cloud_seamRegion (new PointCloud);
+  Exact_seam_region(cloud_tree_rm_irrelativePoint, cloud_seamRegion);
+  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+
+  //8.分割seam区域并确定path主方向
+  vector< vector<int> > seg_pointcloud = Segment_seam_region(cloud_seamRegion);
+  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+
+  //9.通过梯度下降优化出最佳运动path
+  PointCloud::Ptr path_cloud (new PointCloud);
+  PointCloud::Ptr path_cloud_showRviz (new PointCloud);
+  Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
+  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////
+}
+
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -161,140 +222,22 @@ int main(int argc, char **argv)
  
   //publisher:
   ros::Publisher pointcloud_publisher = nh.advertise<sensor_msgs::PointCloud2>("generated_pc", 1);
-  ros::Publisher map_publisher = nh.advertise<sensor_msgs::PointCloud2>("generated_map", 1);
+  sensor_msgs::PointCloud2 pub_pointcloud;
 
   // 点云变量
   // 使用智能指针，创建一个空点云。这种指针用完会自动释放。
   PointCloud::Ptr cloud ( new PointCloud );
-  PointCloud::Ptr map   ( new PointCloud );
 
-  sensor_msgs::PointCloud2 pub_pointcloud;
-  sensor_msgs::PointCloud2 pub_map;
 
-  pcl::PCDWriter writer;
 
   double sample_rate = 1000.0; // 1000HZ 
   ros::Rate naptime(sample_rate); // use to regulate loop rate 
  
   int initial_flag = 1;
-
   float pic_count = 0;
 
 
-
-
-  int show_Pointcloud_timeMax = 500;
-
-  //读入原始pointcloud
-  Cloud::Ptr cloud_ptr = read_pointcloud();PointCloud::Ptr cloud_ptr_show (new PointCloud);
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[i].x; 
-    p.y = cloud_ptr->points[i].y;
-    p.z = cloud_ptr->points[i].z;
-    p.b = 200; 
-    p.g = 200;
-    p.r = 200;
-    cloud_ptr_show->points.push_back( p );    
-  }
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-
-
-  //算出所有点的法向量
-  Normal cloud_normals = allPoint_normal_computation(cloud_ptr);
-  ////////////////////////////////////////////////////////////
-
-
-  //计算基准法向量，并返回提出nan点后的点云
-  float basic_normal_x = 0, basic_normal_y = 0, basic_normal_z = 0;
-  basic_normal_computation(cloud_ptr, cloud_normals, &basic_normal_x, &basic_normal_y, &basic_normal_z );
-  ////////////////////////////////////////////////////////////
-
-
-  //计算每个点的方向描述子
-  PointCloud::Ptr descriptor_cloud (new PointCloud);
-  vector<float> Dir_descriptor = Point_descriptor_computation(descriptor_cloud, cloud_ptr, cloud_normals, basic_normal_x, basic_normal_y, basic_normal_z);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, descriptor_cloud, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-
-
-  //计算每个点在邻域内的方差
-  float Var_descriptor_min = 0, Var_descriptor_max = 0;
-  Cloud::Ptr cloud_tree_variance (new Cloud);
-  vector<float> variance_descriptor = Point_variance_computation(cloud_tree_variance, descriptor_cloud, Dir_descriptor, &Var_descriptor_min, &Var_descriptor_max);
-
-  PointCloud::Ptr cloud_tree_variance_show (new PointCloud);
-
-  float weight_variance_threshold = 0.05;
-
-  for(float i = 0; i < cloud_tree_variance->points.size(); i++)
-  { 
-    pcl::PointXYZRGB p;
-    p.x = cloud_tree_variance->points[i].x; 
-    p.y = cloud_tree_variance->points[i].y;
-    p.z = cloud_tree_variance->points[i].z;
-
-    float weight_variance_descriptor = (variance_descriptor[i] - Var_descriptor_min) / (Var_descriptor_max - Var_descriptor_min);
-
-    if( weight_variance_descriptor > weight_variance_threshold)
-    {
-      p.b = 200;
-      p.g = 0;
-      p.r = 0;
-    }
-    else
-    {
-      p.b = 200;
-      p.g = 200;
-      p.r = 200;
-    }
-    cloud_tree_variance_show->points.push_back( p );    
-  }
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_variance_show, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-
-
-
-  //提取目标区域点云，可能有干扰
-  PointCloud::Ptr cloud_tree_rm_irrelativePoint (new PointCloud);
-  exact_Target_regionPointcloud(cloud_tree_rm_irrelativePoint, cloud_tree_variance, cloud_tree_variance_show);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_rm_irrelativePoint, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-
-
-
-
-  //利用欧式聚类剔除干扰区域，这里选取聚类数目最多的区域作为最终目标区域
-  PointCloud::Ptr cloud_seamRegion (new PointCloud);
-  Exact_seam_region(cloud_tree_rm_irrelativePoint, cloud_seamRegion);
-  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-
-
-
-
-  //分割seam区域并确定path主方向
-  vector< vector<int> > seg_pointcloud = Segment_seam_region(cloud_seamRegion);
-  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-
-
-
-
-
-  //通过梯度下降优化出最佳运动path
-  PointCloud::Ptr path_cloud (new PointCloud);
-  PointCloud::Ptr path_cloud_showRviz (new PointCloud);
-  Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
-  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
-  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
-
-  
-
-
-
+  seam_detection(pub_pointcloud, pointcloud_publisher);
 
 
   while (ros::ok()) 
@@ -341,28 +284,25 @@ int main(int argc, char **argv)
 
     //   cout << "cloud->points.size()" << cloud->points.size() << endl;
     //   pcl::PCDWriter writer;
-    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test.pcd", *cloud, false) ;
+    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/curve.pcd", *cloud, false) ;
 
     //   initial_flag = 0;
     // }
     // pcl::toROSMsg(*cloud, pub_pointcloud);
+    // cloud->points.clear();
+    // pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    // pub_pointcloud.header.stamp = ros::Time::now();
+    // pointcloud_publisher.publish(pub_pointcloud);
+    // cloud->points.clear();
 
 
-    // pcl::toROSMsg(*cloud_output_goal, pub_pointcloud);
-    // pcl::toROSMsg(*map  , pub_map);
 
-    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
-    pub_pointcloud.header.stamp = ros::Time::now();
-
-    pub_map.header.frame_id = "world";
-    pub_map.header.stamp = ros::Time::now();
-
-    pointcloud_publisher.publish(pub_pointcloud);
-    // map_publisher.publish(pub_map);
+    // pcl::toROSMsg(*cloud, pub_pointcloud);
+    // pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    // pub_pointcloud.header.stamp = ros::Time::now();
+    // pointcloud_publisher.publish(pub_pointcloud);
+    // cloud->points.clear();
  
-    cloud->points.clear();
-    // map->points.clear();
-
     ros::spinOnce(); //allow data update from callback; 
     naptime.sleep(); // wait for remainder of specified period; 
   }

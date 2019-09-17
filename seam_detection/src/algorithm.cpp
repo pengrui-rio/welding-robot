@@ -1,17 +1,29 @@
 #include <algorithm.h>
 
 
-Cloud::Ptr read_pointcloud (void)
+Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 {
   //seam detection
   Cloud::Ptr cloud_ptr (new Cloud);
 
   pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/curve.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
 
+ for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_ptr->points[i].x; 
+    p.y = cloud_ptr->points[i].y;
+    p.z = cloud_ptr->points[i].z;
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
+  
   return cloud_ptr;
 }
 
@@ -135,7 +147,7 @@ vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Clo
 
 
 
-vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor, float *Var_descriptor_min, float *Var_descriptor_max)
+vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor)
 {
   for(float i = 0; i < descriptor_cloud->points.size(); i++)
   { 
@@ -177,29 +189,58 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
     variance_descriptor.push_back( variance );
   }
 
+  float Var_descriptor_min = 0, Var_descriptor_max = 0;
+
   for(float i = 0; i < variance_descriptor.size(); i++)
   { 
     if(i == 0)
     {
-      *Var_descriptor_max = variance_descriptor[0];
-      *Var_descriptor_min = variance_descriptor[0];
+      Var_descriptor_max = variance_descriptor[0];
+      Var_descriptor_min = variance_descriptor[0];
     }
 
-    if (*Var_descriptor_max < variance_descriptor[i])
+    if (Var_descriptor_max < variance_descriptor[i])
     {
-      *Var_descriptor_max = variance_descriptor[i];
+      Var_descriptor_max = variance_descriptor[i];
     }
 
-    if(*Var_descriptor_min > variance_descriptor[i])
+    if(Var_descriptor_min > variance_descriptor[i])
     {
-      *Var_descriptor_min = variance_descriptor[i];
+      Var_descriptor_min = variance_descriptor[i];
     }
   }
-  cout << "Var_descriptor_max: "    << *Var_descriptor_max << endl;
-  cout << "Var_descriptor_min: "    << *Var_descriptor_min << endl;
+  cout << "Var_descriptor_max: "    << Var_descriptor_max << endl;
+  cout << "Var_descriptor_min: "    << Var_descriptor_min << endl;
 
   cout << "cloud_tree_variance->points.size(): " << cloud_tree_variance->points.size() << endl;
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
+
+
+  float weight_variance_threshold = 0.05;
+
+  for(float i = 0; i < cloud_tree_variance->points.size(); i++)
+  { 
+    pcl::PointXYZRGB p;
+    p.x = cloud_tree_variance->points[i].x; 
+    p.y = cloud_tree_variance->points[i].y;
+    p.z = cloud_tree_variance->points[i].z;
+
+    float weight_variance_descriptor = (variance_descriptor[i] - Var_descriptor_min) / (Var_descriptor_max - Var_descriptor_min);
+
+    if( weight_variance_descriptor > weight_variance_threshold)
+    {
+      p.b = 200;
+      p.g = 0;
+      p.r = 0;
+    }
+    else
+    {
+      p.b = 200;
+      p.g = 200;
+      p.r = 200;
+    }
+    cloud_tree_variance_show->points.push_back( p );    
+  }
 
   return variance_descriptor;
 }

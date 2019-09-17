@@ -45,7 +45,7 @@ typedef pcl::PointCloud<pcl::Normal> Normal;
 using namespace cv;
 using namespace std;
 
-Cloud::Ptr read_pointcloud (void);
+Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
 
 Normal allPoint_normal_computation(Cloud::Ptr cloud_ptr);
 
@@ -53,7 +53,7 @@ void basic_normal_computation(Cloud::Ptr cloud_ptr, Normal cloud_normals, float 
 
 vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, Normal cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z);
 
-vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor, float *Var_descriptor_min, float *Var_descriptor_max);
+vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor);
 
 void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint, Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show);
 
