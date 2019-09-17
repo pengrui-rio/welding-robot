@@ -40,15 +40,29 @@ typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;
 typedef pcl::PointCloud<pcl::PointXYZ>  Cloud;
 typedef pcl::PointXYZ PointType;
 
-using namespace cv;
-using namespace std;
-// 定义点云类型
-typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
-typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
-typedef pcl::PointCloud<pcl::PointXYZ>  Cloud;
-typedef pcl::PointXYZ PointType;
+typedef pcl::PointCloud<pcl::Normal> Normal;
 
 using namespace cv;
 using namespace std;
 
 Cloud::Ptr read_pointcloud (void);
+
+Normal allPoint_normal_computation(Cloud::Ptr cloud_ptr);
+
+void basic_normal_computation(Cloud::Ptr cloud_ptr, Normal cloud_normals, float *basic_normal_x, float *basic_normal_y, float *basic_normal_z);
+
+vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, Normal cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z);
+
+vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor, float *Var_descriptor_min, float *Var_descriptor_max);
+
+void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint, Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show);
+
+void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud::Ptr cloud_seamRegion);
+
+vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion);
+
+void Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz);
+
+
+
+
