@@ -7,7 +7,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   Cloud::Ptr cloud_ptr (new Cloud);
 
   pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/curve.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/waide.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
@@ -23,7 +23,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
     p.r = 200;
     cloud_ptr_show->points.push_back( p );    
   }
-  
+
   return cloud_ptr;
 }
 

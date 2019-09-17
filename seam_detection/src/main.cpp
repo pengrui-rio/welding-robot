@@ -119,6 +119,41 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   cout << " \n" << endl; //add two more blank row so that we can see the message more clearly
 }
 
+
+void analyze_realsense_data(PointCloud::Ptr cloud)
+{
+  // 遍历深度图
+  for (int m = 0; m < depth_pic.rows; m++)  //480
+  {
+    for (int n = 0; n < depth_pic.cols; n++) //640
+    {
+      // 获取深度图中(m,n)处的值
+      float d = depth_pic.ptr<float>(m)[n]; 
+      // d 可能没有值，若如此，跳过此点
+      if (d == 0)
+          continue;
+
+      // d 存在值，则向点云增加一个点
+      pcl::PointXYZRGB p, p_z, p_x, p_y;
+      pcl::PointXYZRGB p_transform;
+
+      // 计算这个点的空间坐标
+      p.z = double(d) / camera_factor;
+      p.x = (n - camera_cx) * p.z / camera_fx; 
+      p.y = (m - camera_cy) * p.z / camera_fy;
+
+      // 从rgb图像中获取它的颜色
+      // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
+      p.b = color_pic.ptr<uchar>(m)[n*3];
+      p.g = color_pic.ptr<uchar>(m)[n*3+1];
+      p.r = color_pic.ptr<uchar>(m)[n*3+2];
+
+      cloud->points.push_back( p );        
+    }
+  }
+}
+
+
 void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   PointCloud::Ptr show_Rviz_cloud (new PointCloud);
@@ -213,6 +248,7 @@ int main(int argc, char **argv)
 {
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
+  ros::Rate naptime(1000); // use to regulate loop rate 
 
   //subscriber:
   image_transport::ImageTransport it(nh);
@@ -230,11 +266,9 @@ int main(int argc, char **argv)
 
 
 
-  double sample_rate = 1000.0; // 1000HZ 
-  ros::Rate naptime(sample_rate); // use to regulate loop rate 
- 
-  int initial_flag = 1;
-  float pic_count = 0;
+
+  int initial_flag = 1;float pic_count = 0;
+
 
 
   seam_detection(pub_pointcloud, pointcloud_publisher);
@@ -242,38 +276,8 @@ int main(int argc, char **argv)
 
   while (ros::ok()) 
   {
-    // 遍历深度图
-    for (int m = 0; m < depth_pic.rows; m++)  //480
-    {
-      for (int n = 0; n < depth_pic.cols; n++) //640
-      {
-        // 获取深度图中(m,n)处的值
-        float d = depth_pic.ptr<float>(m)[n]; 
-        // d 可能没有值，若如此，跳过此点
-        if (d == 0)
-            continue;
+    analyze_realsense_data(cloud);
 
-        // d 存在值，则向点云增加一个点
-        pcl::PointXYZRGB p, p_z, p_x, p_y;
-        pcl::PointXYZRGB p_transform;
-
-        // 计算这个点的空间坐标
-        p.z = double(d) / camera_factor;
-        p.x = (n - camera_cx) * p.z / camera_fx; 
-        p.y = (m - camera_cy) * p.z / camera_fy;
-
-        // 从rgb图像中获取它的颜色
-        // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
-        p.b = color_pic.ptr<uchar>(m)[n*3];
-        p.g = color_pic.ptr<uchar>(m)[n*3+1];
-        p.r = color_pic.ptr<uchar>(m)[n*3+2];
-
-        // cout << "p.b:" << p.b << endl;
-        // 把p加入到点云中
-        cloud->points.push_back( p );        
-      }
-    }
- 
     // pic_count++;
     // cout << "pic_count :" << pic_count << endl;
     // if (pic_count >= 2000 && initial_flag == 1)
@@ -284,7 +288,7 @@ int main(int argc, char **argv)
 
     //   cout << "cloud->points.size()" << cloud->points.size() << endl;
     //   pcl::PCDWriter writer;
-    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/curve.pcd", *cloud, false) ;
+    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/waide.pcd", *cloud, false) ;
 
     //   initial_flag = 0;
     // }
@@ -302,6 +306,9 @@ int main(int argc, char **argv)
     // pub_pointcloud.header.stamp = ros::Time::now();
     // pointcloud_publisher.publish(pub_pointcloud);
     // cloud->points.clear();
+
+
+
  
     ros::spinOnce(); //allow data update from callback; 
     naptime.sleep(); // wait for remainder of specified period; 
