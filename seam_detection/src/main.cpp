@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>   
 #include <vector>
+#include <algorithm.h>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -150,19 +151,11 @@ int main(int argc, char **argv)
   float pic_count = 0;
 
 
-  
 
 
-
-  //seam detection
-  Cloud::Ptr cloud_ptr (new Cloud);
   PointCloud::Ptr cloud_output (new PointCloud);
 
-  pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test.pcd", *cloud_ptr);
-  
-  cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
-       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+  Cloud::Ptr cloud_ptr = read_pointcloud();
 
   pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
   ne.setInputCloud (cloud_ptr);
@@ -492,6 +485,317 @@ int main(int argc, char **argv)
   cout << "cloud_output_goal->points.size(): " << cloud_output_goal->points.size() << endl << endl;
 
 
+
+
+  float min_x = 0, max_x = 0;
+  float min_y = 0, max_y = 0;
+  float min_z = 0, max_z = 0;
+  for(float i = 0; i < cloud_output_goal->points.size(); i++)
+  { 
+    if(i == 0)
+    {
+      min_x = cloud_output_goal->points[ i ].x;
+      min_y = cloud_output_goal->points[ i ].y;
+      min_z = cloud_output_goal->points[ i ].z;
+
+      max_x = cloud_output_goal->points[ i ].x;
+      max_y = cloud_output_goal->points[ i ].y;
+      max_z = cloud_output_goal->points[ i ].z;
+    }
+    //x
+    if (max_x < cloud_output_goal->points[ i ].x)
+    {
+      max_x = cloud_output_goal->points[ i ].x;
+    }
+
+    if(min_x > cloud_output_goal->points[ i ].x)
+    {
+      min_x = cloud_output_goal->points[ i ].x;
+    }
+    //y
+    if (max_y < cloud_output_goal->points[ i ].y)
+    {
+      max_y = cloud_output_goal->points[ i ].y;
+    }
+
+    if(min_y > cloud_output_goal->points[ i ].y)
+    {
+      min_y = cloud_output_goal->points[ i ].y;
+    }
+    //z
+    if (max_z < cloud_output_goal->points[ i ].z)
+    {
+      max_z = cloud_output_goal->points[ i ].z;
+    }
+
+    if(min_z > cloud_output_goal->points[ i ].z)
+    {
+      min_z = cloud_output_goal->points[ i ].z;
+    }
+  }
+
+  float range_x = max_x - min_x, range_y = max_y - min_y, range_z = max_z - min_z;
+  cout << "max_x - min_x:  " << range_x << endl;
+  cout << "max_y - min_y:  " << range_y << endl;
+  cout << "max_z - min_z:  " << range_z << endl ;
+
+  char range_max = '0';
+  if( range_x > range_y)
+  {
+    range_max = 'x';
+  }
+  else
+  {
+    range_max = 'y';
+  }
+  
+  if( range_max == range_x)
+  {
+    if( range_x > range_z)
+    {
+      range_max = 'x';
+    }
+    else
+    {
+      range_max = 'z';
+    }
+  }
+  if( range_max == range_y)
+  {
+    if( range_y > range_z)
+    {
+      range_max = 'y';
+    }
+    else
+    {
+      range_max = 'z';
+    }
+  }
+  cout << "range_max:  " << range_max << endl ;
+
+  float segmentation_count = 50, seg_interval = range_x / segmentation_count;
+  vector< vector<int> > seg_pointcloud;
+  seg_pointcloud.resize(segmentation_count);
+
+  switch (range_max)
+  {
+    case 'x':
+      for( int j = 0; j < segmentation_count; j++)
+      {
+        for(float i = 0; i < cloud_output_goal->points.size(); i++)
+        {
+          if(cloud_output_goal->points[i].x >= min_x + seg_interval*(j) && cloud_output_goal->points[i].x < seg_interval*(j+1) + min_x)
+          {
+            seg_pointcloud[j].push_back( i );
+          }
+          if( cloud_output_goal->points[i].x == seg_interval*(segmentation_count) + min_x && j == segmentation_count - 1)
+          {
+            seg_pointcloud[segmentation_count - 1].push_back( i );            
+          }
+        }
+      } 
+      break;
+
+    case 'y':
+      for(float i = 0; i < cloud_output_goal->points.size(); i++)
+      {
+        
+      } 
+      break;
+
+    case 'z':
+      for(float i = 0; i < cloud_output_goal->points.size(); i++)
+      {
+        
+      } 
+      break;
+
+    default:
+      break;
+  }
+
+  float seg_counttt = 0;
+  for( float j = 0; j < seg_pointcloud.size(); j++)
+  {
+    cout << "seg_pointcloud[j].size(): " << seg_pointcloud[j].size() << endl; 
+    seg_counttt += seg_pointcloud[j].size();
+  }
+
+  cout << "seg_counttt:" << seg_counttt << endl;
+  cout << "cloud_output_goal->points.size(): " << cloud_output_goal->points.size() << endl << endl;
+
+  //show segmentation
+
+
+  for(int k = 0; k < seg_pointcloud.size(); k++)
+  {
+    for( float j = 0; j < seg_pointcloud[k].size(); j++)
+    {
+      switch (k % 3)
+      {
+        case 0:
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].b = 200;
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].g = 0;
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].r = 0;
+          break;
+        case 1:
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].b = 0;
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].g = 200;
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].r = 0;
+          break;
+        case 2:
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].b = 0;
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].g = 0;
+          cloud_output_goal->points[ seg_pointcloud[k][j] ].r = 200;
+        break;
+      }
+    }
+  }
+  cout << "seg_pointcloud.size(): " << seg_pointcloud.size() << endl;
+  cout <<"segmentation show!!!" << endl << endl;
+
+
+  PointCloud::Ptr path_cloud (new PointCloud);
+  pcl::PointXYZRGB Xp_goal;
+  Xp_goal.x = 0; Xp_goal.y = 0; Xp_goal.z = 0;
+
+  pcl::PointXYZ Xp;
+  Xp.x = 0; Xp.y = 0; Xp.z = 0;
+
+  pcl::PointXYZ Xpi; 
+  Xpi.x = 0; Xpi.y = 0; Xpi.z = 0;
+
+  float theta = 0.01;
+  float loop_max = 10000;
+  float epsilon = 0.0001;
+  float loss = 0;
+
+  for(int k = 0; k < seg_pointcloud.size(); k++)
+  {
+    for (float loop_count = 0; loop_count < loop_max; loop_count++)
+    {
+      // cost computation:
+      float cost_function = 0;
+      for( float j = 0; j < seg_pointcloud[k].size(); j++)
+      {
+        cost_function += sqrt(pow(Xp.x - cloud_output_goal->points[ seg_pointcloud[k][j] ].x, 2) + 
+                              pow(Xp.y - cloud_output_goal->points[ seg_pointcloud[k][j] ].y, 2) + 
+                              pow(Xp.z - cloud_output_goal->points[ seg_pointcloud[k][j] ].z, 2) );
+      }
+
+      //gradient computation:
+      pcl::PointXYZ Gradient_Xp;
+      for( float j = 0; j < seg_pointcloud[k].size(); j++)
+      {
+        Gradient_Xp.x += (Xp.x - cloud_output_goal->points[ seg_pointcloud[k][j] ].x) / 
+                          sqrt(pow(Xp.x - cloud_output_goal->points[ seg_pointcloud[k][j] ].x, 2) + 
+                               pow(Xp.y - cloud_output_goal->points[ seg_pointcloud[k][j] ].y, 2) + 
+                               pow(Xp.z - cloud_output_goal->points[ seg_pointcloud[k][j] ].z, 2) );
+
+        Gradient_Xp.y += (Xp.y - cloud_output_goal->points[ seg_pointcloud[k][j] ].y) / 
+                          sqrt(pow(Xp.x - cloud_output_goal->points[ seg_pointcloud[k][j] ].x, 2) + 
+                               pow(Xp.y - cloud_output_goal->points[ seg_pointcloud[k][j] ].y, 2) + 
+                               pow(Xp.z - cloud_output_goal->points[ seg_pointcloud[k][j] ].z, 2) );
+
+        Gradient_Xp.z += (Xp.z - cloud_output_goal->points[ seg_pointcloud[k][j] ].z) / 
+                          sqrt(pow(Xp.x - cloud_output_goal->points[ seg_pointcloud[k][j] ].x, 2) + 
+                               pow(Xp.y - cloud_output_goal->points[ seg_pointcloud[k][j] ].y, 2) + 
+                               pow(Xp.z - cloud_output_goal->points[ seg_pointcloud[k][j] ].z, 2) );
+      }
+
+      Xpi.x = Xp.x - theta * Gradient_Xp.x;
+      Xpi.y = Xp.y - theta * Gradient_Xp.y;
+      Xpi.z = Xp.z - theta * Gradient_Xp.z;
+
+      float cost_function_update = 0;
+      for( float j = 0; j < seg_pointcloud[k].size(); j++)
+      {
+        cost_function_update += sqrt(pow(Xpi.x - cloud_output_goal->points[ seg_pointcloud[k][j] ].x, 2) + 
+                                     pow(Xpi.y - cloud_output_goal->points[ seg_pointcloud[k][j] ].y, 2) + 
+                                     pow(Xpi.z - cloud_output_goal->points[ seg_pointcloud[k][j] ].z, 2) );
+      }
+
+      //判断loss是否小于阈值
+      loss = cost_function - cost_function_update;
+      // cout << "loss: " << loss << endl << endl;
+
+      if(loss > epsilon)
+      {
+        Xp.x = Xpi.x;
+        Xp.y = Xpi.y;
+        Xp.z = Xpi.z;
+
+        cost_function = cost_function_update;
+      }
+
+      else if(cost_function_update - cost_function > epsilon)
+      {
+        theta = theta * 0.8;
+      }
+
+      else
+      {
+        Xp_goal.x = Xp.x;
+        Xp_goal.y = Xp.y;
+        Xp_goal.z = Xp.z;
+        Xp_goal.b = 0;
+        Xp_goal.g = 0;
+        Xp_goal.r = 0;
+        cloud_output_goal->points.push_back( Xp_goal ) ; 
+
+        break;
+      }
+
+    }
+    cout << "seg_count: " << k+1 << endl;
+    cout << "Xp_goal: " << Xp_goal << endl << endl;
+    path_cloud->points.push_back( Xp_goal );
+
+    if(k > 0)
+    {
+      pcl::PointXYZRGB p_add1, p_add2, p_add3, p_add4, p_add5, p_add6, p_add7;
+
+      p_add1.x = (path_cloud->points[k - 1].x + path_cloud->points[k].x) / 2.0;
+      p_add1.y = (path_cloud->points[k - 1].y + path_cloud->points[k].y) / 2.0;
+      p_add1.z = (path_cloud->points[k - 1].z + path_cloud->points[k].z) / 2.0;
+      cloud_output_goal->points.push_back( p_add1 );
+
+      p_add2.x = (path_cloud->points[k - 1].x + p_add1.x) / 2.0;
+      p_add2.y = (path_cloud->points[k - 1].y + p_add1.y) / 2.0;
+      p_add2.z = (path_cloud->points[k - 1].z + p_add1.z) / 2.0;
+      cloud_output_goal->points.push_back( p_add2 );
+
+      p_add3.x = (p_add1.x + path_cloud->points[k].x) / 2.0;
+      p_add3.y = (p_add1.y + path_cloud->points[k].y) / 2.0;
+      p_add3.z = (p_add1.z + path_cloud->points[k].z) / 2.0;
+      cloud_output_goal->points.push_back( p_add3 );
+
+      p_add4.x = (path_cloud->points[k - 1].x + p_add2.x) / 2.0;
+      p_add4.y = (path_cloud->points[k - 1].y + p_add2.y) / 2.0;
+      p_add4.z = (path_cloud->points[k - 1].z + p_add2.z) / 2.0;
+      cloud_output_goal->points.push_back( p_add4 );
+
+      p_add5.x = (p_add1.x + p_add2.x) / 2.0;
+      p_add5.y = (p_add1.y + p_add2.y) / 2.0;
+      p_add5.z = (p_add1.z + p_add2.z) / 2.0;
+      cloud_output_goal->points.push_back( p_add5 );
+
+      p_add6.x = (p_add1.x + p_add3.x) / 2.0;
+      p_add6.y = (p_add1.y + p_add3.y) / 2.0;
+      p_add6.z = (p_add1.z + p_add3.z) / 2.0;
+      cloud_output_goal->points.push_back( p_add6 );
+
+      p_add7.x = (path_cloud->points[k].x + p_add3.x) / 2.0;
+      p_add7.y = (path_cloud->points[k].y + p_add3.y) / 2.0;
+      p_add7.z = (path_cloud->points[k].z + p_add3.z) / 2.0;
+      cloud_output_goal->points.push_back( p_add7 );
+
+    }
+  }
+ 
+  cout << "path_cloud->points.size(): " << path_cloud->points.size() << endl << endl;
+
+  
 
 
 
