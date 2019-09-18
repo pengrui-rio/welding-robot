@@ -3,6 +3,7 @@
 #include <iostream>   
 #include <vector>
 #include <algorithm.h>
+#include <transformation.h>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -114,10 +115,10 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   current_pitch = msg->pose.orientation.y;
   current_roll  = msg->pose.orientation.z;
 
-  if (current_roll != 0)
-  {
-    receive_pose_flag = 1;
-  }
+  // if (current_roll != 0)
+  // {
+  receive_pose_flag = 1;
+  // }
   cout << " \n" << endl; //add two more blank row so that we can see the message more clearly
 }
 
@@ -184,7 +185,7 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
 }
 
 
-PointCloud::Ptr seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
+void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   int show_Pointcloud_timeMax = 2;
 
@@ -240,9 +241,33 @@ PointCloud::Ptr seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Pub
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
   ////////////////////////////////////////////////////////////
-
   cout << "3D path is generated !!!!!!!!!" << endl;
-  return path_cloud;
+
+  geometry_msgs::Pose path_point;
+  for(int i = 0; i < path_cloud->points.size(); i++)
+  {
+    pcl::PointXYZRGB p, p_z, p_x, p_y;
+
+    p.x    = path_cloud->points[i].x; 
+    p.y    = path_cloud->points[i].y; 
+    p.z    = path_cloud->points[i].z; 
+
+    rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
+    rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
+    rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z); 
+
+    path_point.position.x = current_x + p_z.x ;//- 0.035;
+    path_point.position.y = current_y + p_z.y ;//+ 0.080;
+    path_point.position.z = current_z + p_z.z ;//+ 0.036;
+
+    path_publisher.publish(path_point);
+
+    cout << "i: " << i + 1 << endl;
+    cout << "path_point: " << path_point << endl << endl;
+    naptime.sleep(); // wait for remainder of specified period; 
+  }
+  cout << "3D path is published !!!!!!!!!" << endl;
+
 }
 
 
@@ -251,6 +276,7 @@ PointCloud::Ptr seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Pub
 
 int main(int argc, char **argv)
 {
+  //initial configuration
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
   ros::Rate naptime(1000); // use to regulate loop rate 
@@ -262,32 +288,29 @@ int main(int argc, char **argv)
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
  
   //publisher:
-  ros::Publisher path_publisher       = nh.advertise<sensor_msgs::PointCloud2>("motion_Path", 1);
+  ros::Publisher path_publisher       = nh.advertise<geometry_msgs::Pose>("motion_Path", 1);
   ros::Publisher pointcloud_publisher = nh.advertise<sensor_msgs::PointCloud2>("generated_pc", 1);
   sensor_msgs::PointCloud2 pub_path;
   sensor_msgs::PointCloud2 pub_pointcloud;
 
   // 点云变量
-  // 使用智能指针，创建一个空点云。这种指针用完会自动释放。
   PointCloud::Ptr cloud ( new PointCloud );
 
 
-
-
   int initial_flag = 1;float pic_count = 0;
-
-
-
-  PointCloud::Ptr path_cloud = seam_detection(pub_pointcloud, pointcloud_publisher);
-  pcl::toROSMsg(*path_cloud, pub_path);
-  path_publisher.publish(pub_path);
-
-  cout << "3D path is published !!!!!!!!!" << endl;
 
   while (ros::ok()) 
   {
     analyze_realsense_data(cloud);
  
+
+    if(receive_pose_flag == 1)
+    {
+      receive_pose_flag = 0;
+      seam_detection(naptime, path_publisher, pub_pointcloud, pointcloud_publisher);
+    }
+
+
     // pic_count++;
     // cout << "pic_count :" << pic_count << endl;
     // if (pic_count >= 2000 && initial_flag == 1)
@@ -298,7 +321,7 @@ int main(int argc, char **argv)
 
     //   cout << "cloud->points.size()" << cloud->points.size() << endl;
     //   pcl::PCDWriter writer;
-    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/waide.pcd", *cloud, false) ;
+    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run.pcd", *cloud, false) ;
 
     //   initial_flag = 0;
     // }

@@ -40,6 +40,8 @@ seam_detection_node
 src/main.cpp
  
 src/algorithm.cpp
+
+src/transformation.cpp
 )
 
 

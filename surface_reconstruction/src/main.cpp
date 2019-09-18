@@ -162,9 +162,9 @@ int main(int argc, char **argv)
         // if (receive_pose_flag == 1)
         // {
         //   // 计算世界坐标系下的坐标——坐标转换   rviz里 red->x green->y blue->z
-        //   rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
-        //   rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
-        //   rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z);    
+          // rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
+          // rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
+          // rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z);    
 
         //   p_transform.x = current_x + p_z.x - 0.035;
         //   p_transform.y = current_y + p_z.y + 0.080;
