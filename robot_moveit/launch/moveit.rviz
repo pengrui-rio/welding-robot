@@ -207,14 +207,6 @@ Visualization Manager:
           Value: false
         camera_depth_optical_frame:
           Value: false
-        camera_infra1_frame:
-          Value: true
-        camera_infra1_optical_frame:
-          Value: true
-        camera_infra2_frame:
-          Value: true
-        camera_infra2_optical_frame:
-          Value: true
         camera_left_ir_frame:
           Value: false
         camera_left_ir_optical_frame:
@@ -290,12 +282,6 @@ Visualization Manager:
                                   camera_right_ir_frame:
                                     camera_right_ir_optical_frame:
                                       {}
-                                camera_infra1_frame:
-                                  camera_infra1_optical_frame:
-                                    {}
-                                camera_infra2_frame:
-                                  camera_infra2_optical_frame:
-                                    {}
                           tool0:
                             {}
             post:
@@ -349,25 +335,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.94028151
+      Distance: 1.34809518
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0882152468
-        Y: 0.356826752
-        Z: 8.1956955e-08
+        X: 0.00679435767
+        Y: 0.347575784
+        Z: 3.20375534e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.494794756
+      Pitch: 0.344797641
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 6.23820353
+      Yaw: 1.55500555
     Saved: ~
 Window Geometry:
   Displays:

@@ -11,9 +11,11 @@ import geometry_msgs.msg
 from math import pi
 from std_msgs.msg import String
 from moveit_commander.conversions import pose_to_list
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PoseStamped, Pose
+from sensor_msgs.msg import PointCloud2
+import sensor_msgs.point_cloud2 as pc2
 
-
+ 
 def euler_to_quaternion(Yaw, Pitch, Roll):
   yaw   = Yaw   * pi / 180 
   pitch = Roll  * pi / 180 
@@ -52,6 +54,7 @@ class MoveGroupPythonIntefaceTutorial(object):
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('robot_motion', anonymous=True)
 
+    rospy.Subscriber("motion_Path", PointCloud2, self.callback_path)
     pub = rospy.Publisher('robot_currentpose', PoseStamped, queue_size=10)
     rate = rospy.Rate(1000) # 1000hz
 
@@ -91,6 +94,7 @@ class MoveGroupPythonIntefaceTutorial(object):
     print robot.get_current_state()
     print ""
  
+
     self.box_name = ''
     self.robot = robot
     self.scene = scene
@@ -101,6 +105,17 @@ class MoveGroupPythonIntefaceTutorial(object):
     self.group_names = group_names
     self.pub = pub
     self.rate = rate
+
+
+  def callback_path(self, data):
+    print "hehe"
+
+    pc = pc2.read_points(data, skip_nans=True, field_names=("x", "y", "z"))
+    pc_list = []
+    for p in pc:
+      pc_list.append( [p[0],p[1],p[2]] )
+
+    print pc_list
 
   def go_to_joint_state(self):
    
@@ -125,66 +140,53 @@ class MoveGroupPythonIntefaceTutorial(object):
  
     group = self.group
 
-    y_i = 0.05 #0.05
-
-    x = 0.3
-    y = 0#-0.3
-    z = 0.4
-    yaw   = -90
-    pitch = -90
-    roll  = 0
+    x = 0
+    y = 0.3
+    z = 0.5
+    yaw   = 0         #blue->z   right-hand
+    pitch = -180        #red->x    right-hand
+    roll  = 0         #green->y   right-hand
 
     move_flag = 0
     while(not rospy.is_shutdown()):
-      
-      if y < -0.3:
-        move_flag = 0
-
-      if move_flag == 0:
-        y = y + y_i
-
-      if y > 0.3:
-        move_flag = 1
-      
-      if move_flag == 1:
-        y = y - y_i
-
-      pose_goal = geometry_msgs.msg.Pose()
-      Q = euler_to_quaternion(yaw, pitch, roll)
-      pose_goal.orientation.x = Q[0]
-      pose_goal.orientation.y = Q[1]
-      pose_goal.orientation.z = Q[2]
-      pose_goal.orientation.w = Q[3]
-      pose_goal.position.x = x
-      pose_goal.position.y = y
-      pose_goal.position.z = z
-      group.set_pose_target(pose_goal)
+ 
+      # pose_goal = geometry_msgs.msg.Pose()
+      # Q = euler_to_quaternion(yaw, pitch, roll)
+      # pose_goal.orientation.x = Q[0]
+      # pose_goal.orientation.y = Q[1]
+      # pose_goal.orientation.z = Q[2]
+      # pose_goal.orientation.w = Q[3]
+      # pose_goal.position.x = x
+      # pose_goal.position.y = y
+      # pose_goal.position.z = z
+      # group.set_pose_target(pose_goal)
   
-      plan = group.go(wait=True)
-      group.stop()
+      # plan = group.go(wait=True)
+      # group.stop()
   
-      group.clear_pose_targets()
+      # group.clear_pose_targets()
   
-      current_pose = self.group.get_current_pose().pose
+      # current_pose = self.group.get_current_pose().pose
     
-      print current_pose.position
-      print "yaw   : %f" % yaw
-      print "pitch : %f" % pitch
-      print "roll  : %f" % roll
-      print "\n"
+      # print current_pose.position
+      # print "yaw   : %f" % yaw
+      # print "pitch : %f" % pitch
+      # print "roll  : %f" % roll
+      # print "\n"
 
-      pub_pose = PoseStamped()
-      pub_pose.header.stamp       = rospy.Time.now()
-      pub_pose.header.frame_id    = "robot_currentpose"
-      pub_pose.pose.position.x    = current_pose.position.x
-      pub_pose.pose.position.y    = current_pose.position.y
-      pub_pose.pose.position.z    = current_pose.position.z
-      pub_pose.pose.orientation.x = current_pose.orientation.x
-      pub_pose.pose.orientation.y = current_pose.orientation.y
-      pub_pose.pose.orientation.z = current_pose.orientation.z
-      pub_pose.pose.orientation.w = current_pose.orientation.w
-      rospy.loginfo(pub_pose)
-      self.pub.publish(pub_pose)
+      # pub_pose = PoseStamped()
+      # pub_pose.header.stamp       = rospy.Time.now()
+      # pub_pose.header.frame_id    = "robot_currentpose"
+      # pub_pose.pose.position.x    = current_pose.position.x
+      # pub_pose.pose.position.y    = current_pose.position.y
+      # pub_pose.pose.position.z    = current_pose.position.z
+      # pub_pose.pose.orientation.x = current_pose.orientation.x
+      # pub_pose.pose.orientation.y = current_pose.orientation.y
+      # pub_pose.pose.orientation.z = current_pose.orientation.z
+      # pub_pose.pose.orientation.w = current_pose.orientation.w
+      # rospy.loginfo(pub_pose)
+      # self.pub.publish(pub_pose)
+
       self.rate.sleep()
 
     return all_close(pose_goal, current_pose, 0.01)

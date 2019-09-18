@@ -7,7 +7,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   Cloud::Ptr cloud_ptr (new Cloud);
 
   pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/waide.pcd", *cloud_ptr);
+  reader.read("/home/robot/Documents/a_system/src/seam_detection/save_pcd/waide.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
@@ -520,7 +520,7 @@ vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion)
     }
   }
   cout << "seg_pointcloud.size(): " << seg_pointcloud.size() << endl;
-  cout <<"segmentation show!!!" << endl << endl;
+  cout <<"segmentation is done!!!" << endl << endl;
 
   return seg_pointcloud;
 }

@@ -10,6 +10,7 @@
 #include <sensor_msgs/image_encodings.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 
 // PCL lib
 #include <pcl/visualization/pcl_visualizer.h>
@@ -95,6 +96,7 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   depth_pic = depth_ptr->image;
   waitKey(1);
 }
+
 
 void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
 {
@@ -182,9 +184,9 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
 }
 
 
-void seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
+PointCloud::Ptr seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
-  int show_Pointcloud_timeMax = 500;
+  int show_Pointcloud_timeMax = 2;
 
   //1.读入原始pointcloud
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
@@ -238,6 +240,9 @@ void seam_detection(sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher poin
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
   ////////////////////////////////////////////////////////////
+
+  cout << "3D path is generated !!!!!!!!!" << endl;
+  return path_cloud;
 }
 
 
@@ -257,7 +262,9 @@ int main(int argc, char **argv)
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
  
   //publisher:
+  ros::Publisher path_publisher       = nh.advertise<sensor_msgs::PointCloud2>("motion_Path", 1);
   ros::Publisher pointcloud_publisher = nh.advertise<sensor_msgs::PointCloud2>("generated_pc", 1);
+  sensor_msgs::PointCloud2 pub_path;
   sensor_msgs::PointCloud2 pub_pointcloud;
 
   // 点云变量
@@ -271,13 +278,16 @@ int main(int argc, char **argv)
 
 
 
-  seam_detection(pub_pointcloud, pointcloud_publisher);
+  PointCloud::Ptr path_cloud = seam_detection(pub_pointcloud, pointcloud_publisher);
+  pcl::toROSMsg(*path_cloud, pub_path);
+  path_publisher.publish(pub_path);
 
+  cout << "3D path is published !!!!!!!!!" << endl;
 
   while (ros::ok()) 
   {
     analyze_realsense_data(cloud);
-
+ 
     // pic_count++;
     // cout << "pic_count :" << pic_count << endl;
     // if (pic_count >= 2000 && initial_flag == 1)
