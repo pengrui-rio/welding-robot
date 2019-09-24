@@ -2,6 +2,8 @@
  
 需要git clone 默认package
 
+/////////////////////////////
+
 cd src
 
 git clone https://github.com/IntelRealSense/realsense-ros.git   
