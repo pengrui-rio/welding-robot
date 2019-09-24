@@ -42,7 +42,6 @@ typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
 typedef pcl::PointCloud<pcl::PointXYZ>  Cloud;
 typedef pcl::PointXYZ PointType;
-
 typedef pcl::PointCloud<pcl::Normal> Normal;
 
 using namespace cv;
@@ -64,6 +63,10 @@ cv::Mat color_pic, depth_pic;
 int receive_pose_flag = 0;
 float current_x = 0  , current_y = 0    , current_z = 0;
 float current_yaw = 0, current_pitch = 0, current_roll = 0;
+
+//录数据变量
+int initial_flag = 1;
+float pic_count = 0;
 
 
 void color_Callback(const sensor_msgs::ImageConstPtr& color_msg)
@@ -115,10 +118,8 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   current_pitch = msg->pose.orientation.y;
   current_roll  = msg->pose.orientation.z;
 
-  // if (current_roll != 0)
-  // {
   receive_pose_flag = 1;
-  // }
+
   cout << " \n" << endl; //add two more blank row so that we can see the message more clearly
 }
 
@@ -156,6 +157,22 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
   }
 }
 
+void record_single_rgbdFrame(int initial_flag, float pic_count, PointCloud::Ptr cloud)
+{
+    cout << "pic_count :" << pic_count << endl;
+    if (pic_count >= 2000 && initial_flag == 1)
+    {
+      
+      cloud->width = 1;
+      cloud->height = cloud->points.size();
+
+      cout << "cloud->points.size()" << cloud->points.size() << endl;
+      pcl::PCDWriter writer;
+      writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run.pcd", *cloud, false) ;
+
+      initial_flag = 0;
+    }
+}
 
 void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
@@ -270,10 +287,6 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
 
 }
 
-
-
-
-
 int main(int argc, char **argv)
 {
   //initial configuration
@@ -296,13 +309,12 @@ int main(int argc, char **argv)
   // 点云变量
   PointCloud::Ptr cloud ( new PointCloud );
 
-
-  int initial_flag = 1;float pic_count = 0;
-
   while (ros::ok()) 
   {
     analyze_realsense_data(cloud);
  
+    // pic_count++;
+    // record_single_rgbdFrame(initial_flag, pic_count, cloud);
 
     if(receive_pose_flag == 1)
     {
@@ -311,38 +323,12 @@ int main(int argc, char **argv)
     }
 
 
-    // pic_count++;
-    // cout << "pic_count :" << pic_count << endl;
-    // if (pic_count >= 2000 && initial_flag == 1)
-    // {
-      
-    //   cloud->width = 1;
-    //   cloud->height = cloud->points.size();
+    pcl::toROSMsg(*cloud, pub_pointcloud);
+    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_pointcloud.header.stamp = ros::Time::now();
+    pointcloud_publisher.publish(pub_pointcloud);
+    cloud->points.clear();
 
-    //   cout << "cloud->points.size()" << cloud->points.size() << endl;
-    //   pcl::PCDWriter writer;
-    //   writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run.pcd", *cloud, false) ;
-
-    //   initial_flag = 0;
-    // }
-    // pcl::toROSMsg(*cloud, pub_pointcloud);
-    // cloud->points.clear();
-    // pub_pointcloud.header.frame_id = "camera_color_optical_frame";
-    // pub_pointcloud.header.stamp = ros::Time::now();
-    // pointcloud_publisher.publish(pub_pointcloud);
-    // cloud->points.clear();
-
-
-
-    // pcl::toROSMsg(*cloud, pub_pointcloud);
-    // pub_pointcloud.header.frame_id = "camera_color_optical_frame";
-    // pub_pointcloud.header.stamp = ros::Time::now();
-    // pointcloud_publisher.publish(pub_pointcloud);
-    // cloud->points.clear();
-
-
-
- 
     ros::spinOnce(); //allow data update from callback; 
     naptime.sleep(); // wait for remainder of specified period; 
   }

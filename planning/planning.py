@@ -206,7 +206,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 #robot_ip = 192.168.0.3
 def main():
   try:
-    print "============ Press `Enter` to begin the tutorial by setting up the moveit_commander (press ctrl-d to exit) ..."
+    print "============ Press `Enter` to set up the moveit_commander  ..."
     raw_input()
     ur3 = MoveGroupPythonIntefaceTutorial()
  
