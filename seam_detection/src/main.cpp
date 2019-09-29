@@ -160,15 +160,33 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
 void record_single_rgbdFrame(int initial_flag, float pic_count, PointCloud::Ptr cloud)
 {
     cout << "pic_count :" << pic_count << endl;
-    if (pic_count >= 2000 && initial_flag == 1)
+    if (pic_count >= 1000 && initial_flag == 1)
     {
-      
-      cloud->width = 1;
-      cloud->height = cloud->points.size();
 
-      cout << "cloud->points.size()" << cloud->points.size() << endl;
+      PointCloud::Ptr cloud_export (new PointCloud);
+
+      for(float i = 0; i < cloud->points.size(); i++)
+      {
+        pcl::PointXYZRGB p;
+        p.x = cloud->points[i].x; 
+        p.y = cloud->points[i].y;
+        p.z = cloud->points[i].z;
+        p.r = cloud->points[i].r; 
+        p.g = cloud->points[i].g;
+        p.b = cloud->points[i].b;
+
+        if ( (p.x <= 1 && p.x >= -1) && (p.y <= 1 && p.y >= -1) && (p.z <= 1 && p.z >= -1) )
+        {
+          cloud_export->points.push_back( p );    
+        }
+      }
+
+      cloud_export->width = 1;
+      cloud_export->height = cloud_export->points.size();
+
+      cout << "cloud->points.size()" << cloud_export->points.size() << endl;
       pcl::PCDWriter writer;
-      writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run.pcd", *cloud, false) ;
+      writer.write("./src/seam_detection/save_pcd/ICP2.pcd", *cloud_export, false) ;
 
       initial_flag = 0;
     }
@@ -313,14 +331,14 @@ int main(int argc, char **argv)
   {
     analyze_realsense_data(cloud);
  
-    // pic_count++;
-    // record_single_rgbdFrame(initial_flag, pic_count, cloud);
+    pic_count++;
+    record_single_rgbdFrame(initial_flag, pic_count, cloud);
 
-    if(receive_pose_flag == 1)
-    {
-      receive_pose_flag = 0;
-      seam_detection(naptime, path_publisher, pub_pointcloud, pointcloud_publisher);
-    }
+    // if(receive_pose_flag == 1)
+    // {
+    //   receive_pose_flag = 0;
+    //   seam_detection(naptime, path_publisher, pub_pointcloud, pointcloud_publisher);
+    // }
 
 
     pcl::toROSMsg(*cloud, pub_pointcloud);

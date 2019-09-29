@@ -14,11 +14,17 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/console/time.h>   // TicToc
+#include <pcl/registration/icp.h>
 
 #include <transformation.h>
 
 // 定义点云类型
-typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
+typedef pcl::PointCloud<pcl::PointXYZRGB>  PointCloud; 
+typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
+typedef pcl::PointCloud<pcl::PointXYZ>     Cloud;
+typedef pcl::PointXYZ PointType;
+typedef pcl::PointCloud<pcl::Normal> Normal;
 
 using namespace cv;
 using namespace std;
@@ -96,11 +102,48 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   cout << " \n" << endl; //add two more blank row so that we can see the message more clearly
 }
 
+Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
+{
+  //seam detection
+  Cloud::Ptr cloud_ptr (new Cloud);
+
+  pcl::PCDReader reader;
+  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run.pcd", *cloud_ptr);
+  
+  cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
+       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_ptr->points[i].x; 
+    p.y = cloud_ptr->points[i].y;
+    p.z = cloud_ptr->points[i].z;
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
+
+  return cloud_ptr;
+}
+
+void print4x4Matrix (const Eigen::Matrix4d & matrix)
+{
+  printf ("Rotation matrix :\n");
+  printf ("    | %6.3f %6.3f %6.3f | \n", matrix (0, 0), matrix (0, 1), matrix (0, 2));
+  printf ("R = | %6.3f %6.3f %6.3f | \n", matrix (1, 0), matrix (1, 1), matrix (1, 2));
+  printf ("    | %6.3f %6.3f %6.3f | \n", matrix (2, 0), matrix (2, 1), matrix (2, 2));
+  printf ("Translation vector :\n");
+  printf ("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix (0, 3), matrix (1, 3), matrix (2, 3));
+}
 
 int main(int argc, char **argv)
 {
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
+
+  ros::Rate naptime(1000.0); // use to regulate loop rate 
 
   //subscriber:
   image_transport::ImageTransport it(nh);
@@ -109,100 +152,198 @@ int main(int argc, char **argv)
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
  
   //publisher:
-  ros::Publisher pointcloud_publisher = nh.advertise<sensor_msgs::PointCloud2>("generated_pc", 1);
-  ros::Publisher map_publisher = nh.advertise<sensor_msgs::PointCloud2>("generated_map", 1);
-
-  // 点云变量
-  // 使用智能指针，创建一个空点云。这种指针用完会自动释放。
-  PointCloud::Ptr cloud ( new PointCloud );
-  PointCloud::Ptr map   ( new PointCloud );
-
-  sensor_msgs::PointCloud2 pub_pointcloud;
-  sensor_msgs::PointCloud2 pub_map;
-
-  double sample_rate = 1000.0; // 1000HZ 
-  ros::Rate naptime(sample_rate); // use to regulate loop rate 
+  ros::Publisher intial_pointcloud_publisher = nh.advertise<sensor_msgs::PointCloud2>("intial_pointcloud", 1);
+  ros::Publisher icp_pointcloud_publisher = nh.advertise<sensor_msgs::PointCloud2>("icp_pointcloud", 1);
  
-  int initial_flag = 1;
+  //pointcloud msgs: 
+  sensor_msgs::PointCloud2 pub_intial_pointcloud;
+  sensor_msgs::PointCloud2 pub_icp_pointcloud;
 
-  float pic_count = 0;
+
+
+  //////////////////////////////////////////////////////////////////////
+
+
+
+ 
+  // Cloud::Ptr cloud_ptr (new Cloud);
+  // Cloud::Ptr cloud_export (new Cloud);
+
+  // pcl::PCDReader reader;                                                                       
+  // reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run.pcd", *cloud_ptr);
+  
+  // cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
+  //      << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+ 
+  // for(float i = 0; i < cloud_ptr->points.size(); i++)
+  // {
+  //   pcl::PointXYZ p;
+  //   p.x = cloud_ptr->points[i].x; 
+  //   p.y = cloud_ptr->points[i].y;
+  //   p.z = cloud_ptr->points[i].z;
+
+  //   if ( (p.x <= 1 && p.x >= -1) && (p.y <= 1 && p.y >= -1) && (p.z <= 1 && p.z >= -1) )
+  //   {
+  //     cloud_export->points.push_back( p );    
+  //   }
+  // }
+
+  // cloud_export->width = 1;
+  // cloud_export->height = cloud_export->points.size();
+
+  // cout << "cloud->points.size()" << cloud_export->points.size() << endl;
+  // pcl::PCDWriter writer;
+  // writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/run_export.pcd", *cloud_export, false) ;
+
+
+
+
+  int iterations = 1;  // Default number of ICP iterations
+
+    // The point clouds we will be using
+  Cloud::Ptr cloud_icp1_ptr  (new Cloud);  // Original point cloud
+  Cloud::Ptr cloud_icp2_ptr (new Cloud);  // ICP output point cloud
+
+  PointCloud::Ptr cloud_icp1 (new PointCloud);  // ICP output point cloud
+  PointCloud::Ptr cloud_icp2 (new PointCloud);  // ICP output point cloud
+  PointCloud::Ptr cloud_icp1_show (new PointCloud);  // ICP output point cloud
+
+  // count the time
+  pcl::console::TicToc time;
+  pcl::PCDReader reader;
+
+  // read the point cloud
+  time.tic ();
+  reader.read("./src/seam_detection/save_pcd/ICP1.pcd", *cloud_icp1);
+  cout << "\nLoaded file " << " (" << cloud_icp1->points.size() << " points) in " << time.toc () << " ms\n" << std::endl;
+
+  for(float i = 0; i < cloud_icp1->points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = cloud_icp1->points[i].x; 
+    p.y = cloud_icp1->points[i].y;
+    p.z = cloud_icp1->points[i].z;
+
+    cloud_icp1_ptr->points.push_back( p );    
+  }
+
+  pcl::toROSMsg(*cloud_icp1, pub_intial_pointcloud);
+  pub_intial_pointcloud.header.frame_id = "camera_color_optical_frame";
+  pub_intial_pointcloud.header.stamp = ros::Time::now();
+  intial_pointcloud_publisher.publish(pub_intial_pointcloud);
+  // cloud_icp1->points.clear();
+
+  time.tic ();
+  reader.read("./src/seam_detection/save_pcd/ICP2.pcd", *cloud_icp2);
+  cout << "\nLoaded file " << " (" << cloud_icp2->points.size() << " points) in " << time.toc () << " ms\n" << std::endl;
+
+  for(float i = 0; i < cloud_icp2->points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = cloud_icp2->points[i].x; 
+    p.y = cloud_icp2->points[i].y;
+    p.z = cloud_icp2->points[i].z;
+
+    cloud_icp2_ptr->points.push_back( p );    
+  }
+
+  pcl::toROSMsg(*cloud_icp2, pub_icp_pointcloud);
+  pub_icp_pointcloud.header.frame_id = "camera_color_optical_frame";
+  pub_icp_pointcloud.header.stamp = ros::Time::now();
+  icp_pointcloud_publisher.publish(pub_icp_pointcloud);
+  // cloud_icp2->points.clear();
+
+  // // Defining a rotation matrix and translation vector
+  // Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
+
+  // // A rotation matrix (see https://en.wikipedia.org/wiki/Rotation_matrix)
+  // double theta = M_PI / 12;  // The angle of rotation in radians
+  // transformation_matrix (0, 0) = cos (theta);
+  // transformation_matrix (0, 1) = -sin (theta);
+  // transformation_matrix (1, 0) = sin (theta);
+  // transformation_matrix (1, 1) = cos (theta);
+
+  // // A translation on Z axis (0.4 meters)
+  // transformation_matrix (0, 3) = 0.1;
+  // transformation_matrix (1, 3) = 0.1;
+  // transformation_matrix (2, 3) = 0.1;
+
+  // // Display in terminal the transformation matrix
+  // cout << "Applying this rigid transformation to: cloud_in -> cloud_icp" << endl;
+  // print4x4Matrix (transformation_matrix);
+
+  // // Executing the transformation
+  // pcl::transformPointCloud (*cloud_in, *cloud_icp, transformation_matrix);
+  // // *cloud_tr = *cloud_icp;  // We backup cloud_icp into cloud_tr for later use
+
+
+  // The Iterative Closest Point algorithm
+  pcl::IterativeClosestPoint<PointType, PointType> icp;
+  icp.setMaxCorrespondenceDistance(0.1);  
+  icp.setTransformationEpsilon(1e-10);  
+  icp.setEuclideanFitnessEpsilon(0.01);  
+  icp.setMaximumIterations (1);
+  icp.setInputSource (cloud_icp1_ptr);
+  icp.setInputTarget (cloud_icp2_ptr);
+
+
   while (ros::ok()) 
   {
-    // 遍历深度图
-    for (int m = 0; m < depth_pic.rows; m++)  //480
+    time.tic ();
+    icp.align (*cloud_icp1_ptr);
+    cout << "Applied " << iterations << " ICP iteration(s) in " << time.toc () << " ms" << endl;
+    iterations++;
+
+    for(float i = 0; i < cloud_icp1_ptr->points.size(); i++)
     {
-      for (int n = 0; n < depth_pic.cols; n++) //640
-      {
-        // 获取深度图中(m,n)处的值
-        float d = depth_pic.ptr<float>(m)[n]; 
-        // d 可能没有值，若如此，跳过此点
-        if (d == 0)
-            continue;
-
-        // d 存在值，则向点云增加一个点
-        pcl::PointXYZRGB p, p_z, p_x, p_y;
-        pcl::PointXYZRGB p_transform;
-
-        // 计算这个点的空间坐标
-        p.z = double(d) / camera_factor;
-        p.x = (n - camera_cx) * p.z / camera_fx; 
-        p.y = (m - camera_cy) * p.z / camera_fy;
-
-        // 从rgb图像中获取它的颜色
-        // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
-        p.b = color_pic.ptr<uchar>(m)[n*3];
-        p.g = color_pic.ptr<uchar>(m)[n*3+1];
-        p.r = color_pic.ptr<uchar>(m)[n*3+2];
-
-        // 把p加入到点云中
-        cloud->points.push_back( p );
-        // map->points.push_back(p_transform);
-
-        // //建立点云地图
-        // if (receive_pose_flag == 1)
-        // {
-        //   // 计算世界坐标系下的坐标——坐标转换   rviz里 red->x green->y blue->z
-          // rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
-          // rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
-          // rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z);    
-
-        //   p_transform.x = current_x + p_z.x - 0.035;
-        //   p_transform.y = current_y + p_z.y + 0.080;
-        //   p_transform.z = current_z + p_z.z + 0.036;
-
-        //   p_transform.b = color_pic.ptr<uchar>(m)[n*3+0];
-        //   p_transform.g = color_pic.ptr<uchar>(m)[n*3+1];
-        //   p_transform.r = color_pic.ptr<uchar>(m)[n*3+2];
-
-        //   map->points.push_back(p_transform);
-
-        //   if (m == depth_pic.rows - 1)
-        //   {
-        //     receive_pose_flag = 0;
-        //     pic_count = 0;
-        //   }
-
-        // }
-      }
+      pcl::PointXYZRGB p;
+      p.x = cloud_icp1_ptr->points[i].x; 
+      p.y = cloud_icp1_ptr->points[i].y;
+      p.z = cloud_icp1_ptr->points[i].z;
+      p.b = cloud_icp1->points[i].b; 
+      p.g = cloud_icp1->points[i].g;
+      p.r = cloud_icp1->points[i].r;
+      cloud_icp1_show->points.push_back( p );   
     }
-      
-    // cout << "map->points :" << map->points.size() << endl;
 
-    pcl::toROSMsg(*cloud, pub_pointcloud);
-    pcl::toROSMsg(*map  , pub_map);
+    // for(float i = 0; i < cloud_icp2_ptr->points.size(); i++)
+    // {
+    //   pcl::PointXYZRGB p;
+    //   p.x = cloud_icp->points[i].x; 
+    //   p.y = cloud_icp->points[i].y;
+    //   p.z = cloud_icp->points[i].z;
+    //   p.b = 200; 
+    //   p.g = 0;
+    //   p.r = 0;
+    //   cloud_icp_show->points.push_back( p );   
+    // }
 
-    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
-    pub_pointcloud.header.stamp = ros::Time::now();
+    if (icp.hasConverged ())
+    {
+      cout << "\nICP has converged, score is " << icp.getFitnessScore () << endl << endl;
+      // cout << "\nICP transformation " << ++iterations << " : cloud_icp -> cloud_in" << endl;
+      // transformation_matrix = icp.getFinalTransformation ().cast<double>();
+      // print4x4Matrix (transformation_matrix);
+    }
+    else
+    {
+      PCL_ERROR ("\nICP has not converged.\n");
+      return (-1);
+    }
 
-    pub_map.header.frame_id = "world";
-    pub_map.header.stamp = ros::Time::now();
+    pcl::toROSMsg(*cloud_icp1_show, pub_intial_pointcloud);
+    pub_intial_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_intial_pointcloud.header.stamp = ros::Time::now();
+    intial_pointcloud_publisher.publish(pub_intial_pointcloud);
+    cloud_icp1_show->points.clear();
 
-    pointcloud_publisher.publish(pub_pointcloud);
-    map_publisher.publish(pub_map);
- 
-    cloud->points.clear();
-    // map->points.clear();
+    // pcl::toROSMsg(*cloud_icp2, pub_icp_pointcloud);
+    // pub_icp_pointcloud.header.frame_id = "camera_color_optical_frame";
+    // pub_icp_pointcloud.header.stamp = ros::Time::now();
+    // icp_pointcloud_publisher.publish(pub_icp_pointcloud);
+    // // cloud_icp_show->points.clear();
 
+     
     ros::spinOnce(); //allow data update from callback; 
     naptime.sleep(); // wait for remainder of specified period; 
   }
