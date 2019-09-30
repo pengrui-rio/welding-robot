@@ -203,6 +203,76 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     return all_close(pose_goal, current_pose, 0.01)
  
+
+
+
+  def linear_points(self):
+
+    group = self.group
+
+    x = 0
+    y = 0.3
+    z = 0.5
+
+    #axies  red->x green->y blue->z  
+    yaw   = 0         #blue->z   right-hand
+    pitch = -180        #red->x    right-hand
+    roll  = 0         #green->y   right-hand
+
+    flag = 1
+    for i in range(3):
+      print "============ Press `Enter` to execute a movement using a pose goal ..."
+      raw_input()
+
+      for j in range(5):
+        pose_goal = geometry_msgs.msg.Pose()
+        Q = euler_to_quaternion(yaw , pitch + 90, roll)
+        pose_goal.orientation.x = Q[0]
+        pose_goal.orientation.y = Q[1]
+        pose_goal.orientation.z = Q[2]
+        pose_goal.orientation.w = Q[3]
+        pose_goal.position.x = x
+        pose_goal.position.y = y
+        pose_goal.position.z = z
+        group.set_pose_target(pose_goal)
+
+        plan = group.go(wait=True)
+        group.stop()
+
+        group.clear_pose_targets()
+
+        current_pose = self.group.get_current_pose().pose
+
+        print current_pose.position
+        print "yaw   : %f" % yaw
+        print "pitch : %f" % pitch
+        print "roll  : %f" % roll
+        print "\n"
+
+      pub_pose = PoseStamped()
+      pub_pose.header.stamp       = rospy.Time.now()
+      pub_pose.header.frame_id    = "robot_currentpose"
+      pub_pose.pose.position.x    = current_pose.position.x
+      pub_pose.pose.position.y    = current_pose.position.y
+      pub_pose.pose.position.z    = current_pose.position.z
+      pub_pose.pose.orientation.x = yaw
+      pub_pose.pose.orientation.y = pitch
+      pub_pose.pose.orientation.z = roll
+      pub_pose.pose.orientation.w = current_pose.orientation.w
+      rospy.loginfo(pub_pose)
+      self.pub.publish(pub_pose)
+      self.rate.sleep()
+
+      if flag == 1:
+        x = -0.25
+        flag = 2
+
+      elif flag == 2:
+        x = 0.25
+        flag = 3
+
+    return all_close(pose_goal, current_pose, 0.01)
+
 #robot_ip = 192.168.0.3
 def main():
   try:
@@ -210,10 +280,11 @@ def main():
     raw_input()
     ur3 = MoveGroupPythonIntefaceTutorial()
  
-    print "============ Press `Enter` to execute a movement using a pose goal ..."
-    raw_input()
-    ur3.motion_loop()
+    # print "============ Press `Enter` to execute a movement using a pose goal ..."
+    # raw_input()
+    # ur3.motion_loop()
 
+    ur3.linear_points()
    
   except rospy.ROSInterruptException:
     return

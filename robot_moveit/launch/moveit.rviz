@@ -5,7 +5,7 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /PlanningScene1
-        - /PointCloud21
+        - /TF1/Frames1
         - /PointCloud22
       Splitter Ratio: 0.627777755
     Tree Height: 809
@@ -196,7 +196,7 @@ Visualization Manager:
         base:
           Value: false
         base_link:
-          Value: false
+          Value: true
         camera_bottom_screw_frame:
           Value: false
         camera_color_frame:
@@ -243,10 +243,12 @@ Visualization Manager:
           Value: false
         tool0:
           Value: false
+        tool0_controller:
+          Value: false
         upper_arm_link:
           Value: false
         world:
-          Value: true
+          Value: false
         wrist_1_link:
           Value: false
         wrist_2_link:
@@ -266,7 +268,8 @@ Visualization Manager:
           table:
             base_link:
               base:
-                {}
+                tool0_controller:
+                  {}
               shoulder_link:
                 upper_arm_link:
                   forearm_link:
@@ -315,7 +318,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -327,12 +330,12 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.00999999978
-      Style: Flat Squares
-      Topic: /icp_pointcloud
+      Style: Points
+      Topic: /camera_pointcloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -357,8 +360,8 @@ Visualization Manager:
       Selectable: true
       Size (Pixels): 3
       Size (m): 0.00999999978
-      Style: Flat Squares
-      Topic: /intial_pointcloud
+      Style: Points
+      Topic: /map_pointcloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -379,25 +382,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.11080647
+      Distance: 1.31087053
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.00489174575
-        Y: 0.214993864
-        Z: 2.60770889e-07
+        X: -0.197350502
+        Y: 0.257261395
+        Z: 6.18398758e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.505202889
+      Pitch: 0.465203822
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 1.56819415
+      Yaw: 1.66501057
     Saved: ~
 Window Geometry:
   Displays:
@@ -407,7 +410,7 @@ Window Geometry:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd0000000100000000000001ba000003befc0200000007fb000000100044006900730070006c0061007900730100000028000003be000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e000000000000000000000564000003be00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001ba000003befc0200000007fb000000100044006900730070006c0061007900730100000028000003be000000d700fffffffb0000000800480065006c00700000000342000000bb0000007300fffffffb0000000a0056006900650077007300000003b0000000b0000000ad00fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e000000000000000000000564000003be00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1828
