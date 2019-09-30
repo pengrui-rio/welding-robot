@@ -280,11 +280,11 @@ def main():
     raw_input()
     ur3 = MoveGroupPythonIntefaceTutorial()
  
-    # print "============ Press `Enter` to execute a movement using a pose goal ..."
-    # raw_input()
-    # ur3.motion_loop()
+    print "============ Press `Enter` to execute a movement using a pose goal ..."
+    raw_input()
+    ur3.motion_loop()
 
-    ur3.linear_points()
+    # ur3.linear_points()
    
   except rospy.ROSInterruptException:
     return
