@@ -33,7 +33,8 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
- 
+ #include <pcl/surface/mls.h>
+
 // 定义点云类型
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
 typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  

@@ -123,7 +123,7 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
 
   //2.算出所有点的法向量
   Normal cloud_normals = allPoint_normal_computation(cloud_ptr);
-  ////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////
 
   //3.计算基准法向量，并返回提出nan点后的点云
   float basic_normal_x = 0, basic_normal_y = 0, basic_normal_z = 0;

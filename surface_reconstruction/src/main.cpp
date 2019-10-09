@@ -16,6 +16,7 @@
 #include <pcl_conversions/pcl_conversions.h>
 #include <pcl/console/time.h>   // TicToc
 #include <pcl/registration/icp.h>
+#include <pcl/filters/voxel_grid.h>
 
 #include <transformation.h>
 
@@ -156,41 +157,50 @@ void map_reconstruction(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_p
 
     map_pointcloud->points.push_back( p_pushback );     
   }
+
+  // double gridsize = 0.001;
+  // static pcl::VoxelGrid<PointT> voxel;
+  // voxel.setLeafSize( gridsize, gridsize, gridsize );
+  // voxel.setInputCloud( map_pointcloud );
+
+  // PointCloud::Ptr tmp( new PointCloud() );
+  // voxel.filter( *tmp );
+
 }
 
 void record_single_rgbdFrame(int initial_flag, float pic_count, PointCloud::Ptr cloud)
 {
-    cout << "pic_count :" << pic_count << endl;
-    if (pic_count >= 1000 && initial_flag == 1)
+  cout << "pic_count :" << pic_count << endl;
+  if (pic_count >= 1000 && initial_flag == 1)
+  {
+
+    PointCloud::Ptr cloud_export (new PointCloud);
+
+    for(float i = 0; i < cloud->points.size(); i++)
     {
+      pcl::PointXYZRGB p;
+      p.x = cloud->points[i].x; 
+      p.y = cloud->points[i].y;
+      p.z = cloud->points[i].z;
+      p.r = cloud->points[i].r; 
+      p.g = cloud->points[i].g;
+      p.b = cloud->points[i].b;
 
-      PointCloud::Ptr cloud_export (new PointCloud);
-
-      for(float i = 0; i < cloud->points.size(); i++)
+      if ( (p.x <= 1 && p.x >= -1) && (p.y <= 1 && p.y >= -1) && (p.z <= 1 && p.z >= -1) )
       {
-        pcl::PointXYZRGB p;
-        p.x = cloud->points[i].x; 
-        p.y = cloud->points[i].y;
-        p.z = cloud->points[i].z;
-        p.r = cloud->points[i].r; 
-        p.g = cloud->points[i].g;
-        p.b = cloud->points[i].b;
-
-        if ( (p.x <= 1 && p.x >= -1) && (p.y <= 1 && p.y >= -1) && (p.z <= 1 && p.z >= -1) )
-        {
-          cloud_export->points.push_back( p );    
-        }
+        cloud_export->points.push_back( p );    
       }
-
-      cloud_export->width = 1;
-      cloud_export->height = cloud_export->points.size();
-
-      cout << "cloud->points.size()" << cloud_export->points.size() << endl;
-      pcl::PCDWriter writer;
-      writer.write("./src/seam_detection/save_pcd/ICP2.pcd", *cloud_export, false) ;
-
-      initial_flag = 0;
     }
+
+    cloud_export->width = 1;
+    cloud_export->height = cloud_export->points.size();
+
+    cout << "cloud->points.size()" << cloud_export->points.size() << endl;
+    pcl::PCDWriter writer;
+    writer.write("./src/seam_detection/save_pcd/ICP2.pcd", *cloud_export, false) ;
+
+    initial_flag = 0;
+  }
 }
 
 void record_mapPointcloud( PointCloud::Ptr cloud )

@@ -4,20 +4,51 @@
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 {
   //seam detection
-  Cloud::Ptr cloud_ptr (new Cloud);
+  Cloud::Ptr cloud_ptr ( new Cloud );
 
   pcl::PCDReader reader;
-  reader.read("./src/surface_reconstruction/save_pcd/map.pcd", *cloud_ptr);
-  
+  reader.read("./src/seam_detection/save_pcd/map.pcd", *cloud_ptr);
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
-       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+      << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
 
- for(float i = 0; i < cloud_ptr->points.size(); i++)
+  // double gridsize = 0.0005;
+  // pcl::VoxelGrid<pcl::PointXYZ> voxel;
+  // voxel.setLeafSize( gridsize, gridsize, gridsize );
+  // voxel.setInputCloud( cloud_ptr );
+
+  // voxel.filter( *tmp );
+
+  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointNormal> mls_points;
+
+  pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+  mls.setComputeNormals (true);
+  mls.setInputCloud (cloud_ptr);
+  mls.setPolynomialOrder (2);
+  mls.setSearchMethod (tree);
+  mls.setSearchRadius (0.01);
+  mls.process (mls_points);
+  cout << "smooth size(): " <<  mls_points.size() << endl << endl;
+
+
+
+  Cloud::Ptr tmp ( new Cloud );
+  for(float i = 0; i < mls_points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = mls_points[i].x; 
+    p.y = mls_points[i].y;
+    p.z = mls_points[i].z;
+
+    tmp->points.push_back( p );
+  }
+
+  for(float i = 0; i < tmp->points.size(); i++)
   {
     pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[i].x; 
-    p.y = cloud_ptr->points[i].y;
-    p.z = cloud_ptr->points[i].z;
+    p.x = tmp->points[i].x; 
+    p.y = tmp->points[i].y;
+    p.z = tmp->points[i].z;
     p.b = 200; 
     p.g = 200;
     p.r = 200;
@@ -286,7 +317,7 @@ void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint
     }
 
   }
-  cout << "cloud_tree_variance_show->points.size(): " << cloud_tree_variance_show->points.size() << endl;
+  cout << "cloud_tree_variance_show->points.size(): "      << cloud_tree_variance_show->points.size() << endl;
   cout << "cloud_tree_rm_irrelativePoint->points.size(): " << cloud_tree_rm_irrelativePoint->points.size() << endl << endl;
 }
 
