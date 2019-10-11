@@ -33,11 +33,7 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
-#include <pcl/surface/mls.h>
-
-
-#include <Eigen/Core>
-
+ 
 // 定义点云类型
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
 typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
@@ -55,7 +51,7 @@ vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr
 
 void basic_normal_computation(Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float *basic_normal_x, float *basic_normal_y, float *basic_normal_z);
 
-vector<float> Point_VarianceDescriptor_computation(float sphere_computation, PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z);
+vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z);
 
 vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor);
 
@@ -66,7 +62,4 @@ void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud
 vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion);
 
 void Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz);
-
-
-
 

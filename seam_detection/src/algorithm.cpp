@@ -4,12 +4,14 @@
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 {
   //seam detection
-  Cloud::Ptr cloud_ptr ( new Cloud );
+  Cloud::Ptr cloud_ptr (new Cloud);
 
   pcl::PCDReader reader;
-  reader.read("./src/seam_detection/save_pcd/curve.pcd", *cloud_ptr);
+  reader.read("./src/seam_detection/save_pcd/map_smooth.pcd", *cloud_ptr);
+  
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
-      << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+
 
   // ////////////////////////////////////////////////////////////////////////////
   // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -84,11 +86,13 @@ vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr
 
   vector<Point3f> unit_normals;
 
+  float M = 0;
+
   for(float i = 0; i < cloud_normals.size(); i++)
   { 
     Point3f p ;
 
-    float M = sqrt(pow(cloud_normals[i].normal_x, 2) + pow(cloud_normals[i].normal_y, 2) + pow(cloud_normals[i].normal_z, 2));
+    M = sqrt(pow(cloud_normals[i].normal_x, 2) + pow(cloud_normals[i].normal_y, 2) + pow(cloud_normals[i].normal_z, 2));
 
     p.x = cloud_normals[i].normal_x / M;
     p.y = cloud_normals[i].normal_y / M;
@@ -136,133 +140,38 @@ void basic_normal_computation(Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normal
 }
 
  
-vector<float> Point_VarianceDescriptor_computation(float sphere_computation, PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z)
+vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z)
 {
-  vector<float> point_variance_descriptor ;
+  vector<float> Dir_descriptor ;
 
-  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
-  kdtree.setInputCloud (cloud_ptr);  // 将前面的点云作为 KdTree 输入
-  vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
-  vector<float> pointRadiusSquaredDistance;
-
-  vector<float> point_theta;
-  float         point_theta_ave = 0;
-  float         point_global_variance = 0, point_local_variance = 0;
-  float         point_centroid_index = 0;
+  float dir_descriptor = 0;
 
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   { 
-    kdtree.radiusSearch (cloud_ptr->points[i], sphere_computation, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+    float a_b = cloud_normals[ i ].x * basic_normal_x +
+                cloud_normals[ i ].y * basic_normal_y +
+                cloud_normals[ i ].z * basic_normal_z ;  
 
-    // global:
-    for (float j = 0; j < pointIdxRadiusSearch.size(); j++)
-    {      
-      float a_b = cloud_normals[ pointIdxRadiusSearch[j] ].x * basic_normal_x +
-                  cloud_normals[ pointIdxRadiusSearch[j] ].y * basic_normal_y +
-                  cloud_normals[ pointIdxRadiusSearch[j] ].z * basic_normal_z ;  
+    float a2 = sqrt(pow(cloud_normals[ i ].x, 2) +
+                    pow(cloud_normals[ i ].y, 2) +
+                    pow(cloud_normals[ i ].z, 2));  
 
-      float a2 = sqrt(pow(cloud_normals[ pointIdxRadiusSearch[j] ].x, 2) +
-                      pow(cloud_normals[ pointIdxRadiusSearch[j] ].y, 2) +
-                      pow(cloud_normals[ pointIdxRadiusSearch[j] ].z, 2)) ;  
+    float b2 = sqrt(pow(basic_normal_x, 2) +
+                    pow(basic_normal_y, 2) +
+                    pow(basic_normal_z, 2));  
 
-      float b2 = sqrt(pow(basic_normal_x, 2) +
-                      pow(basic_normal_y, 2) +
-                      pow(basic_normal_z, 2)) ;  
+    float COS_ab = a_b / (a2 * b2) ;
 
-      float COS_ab = a_b / (a2 * b2) ;
+    // float theta = acos( COS_ab ) * 180.0 / M_PI ;
 
-      float theta = acos( COS_ab ) * 180.0 / M_PI ;
+    // if( __isnan(theta) == true )
+    // {
+    //   continue;
+    // }
 
-      if( __isnan(theta) == true )
-      {
-        continue;
-      }
-
-      point_theta.push_back(theta);
-
-      point_theta_ave += theta;
-    }
-
-    point_theta_ave = point_theta_ave / pointIdxRadiusSearch.size();
-
-    for (float k = 0; k < pointIdxRadiusSearch.size(); k++)
-    {
-      point_global_variance += pow(point_theta[ k ] - point_theta_ave, 2);
-    }
-
-    point_global_variance = point_global_variance / pointIdxRadiusSearch.size();
-
-    point_centroid_index = 0;
-    point_theta_ave = 0;
-    point_theta.clear();
- 
-    // // cout << "pointIdxRadiusSearch.size(): "                   << pointIdxRadiusSearch.size() << endl ;
-    // // cout << "Kpoint_global_descriptor.point_theta_ave: "      << Kpoint_global_descriptor.point_theta_ave << endl;
-    // // cout << "Kpoint_global_descriptor.point_theta.size: "     << Kpoint_global_descriptor.point_theta.size() << endl;
-    // cout << "Kpoint_global_descriptor.point_variance: " << Kpoint_global_descriptor.point_variance << endl  ;
+    Dir_descriptor.push_back( COS_ab );     
 
 
-    //local: 
-    point_centroid_index = i;
-
-    for (float j = 0; j < pointIdxRadiusSearch.size(); j++)
-    {
-      float a_b = cloud_normals[ point_centroid_index ].x * cloud_normals[ pointIdxRadiusSearch[j] ].x +
-                  cloud_normals[ point_centroid_index ].y * cloud_normals[ pointIdxRadiusSearch[j] ].y +
-                  cloud_normals[ point_centroid_index ].z * cloud_normals[ pointIdxRadiusSearch[j] ].z ;  
-
-      float a2 = sqrt(pow(cloud_normals[ point_centroid_index ].x, 2) +
-                      pow(cloud_normals[ point_centroid_index ].y, 2) +
-                      pow(cloud_normals[ point_centroid_index ].z, 2)) ;  
-
-      float b2 = sqrt(pow(cloud_normals[ pointIdxRadiusSearch[j] ].x, 2) +
-                      pow(cloud_normals[ pointIdxRadiusSearch[j] ].y, 2) +
-                      pow(cloud_normals[ pointIdxRadiusSearch[j] ].z, 2));  
-
-      float COS_ab = a_b / (a2 * b2) ;
-
-      float theta = acos( COS_ab ) * 180.0 / M_PI ;
-
-      if( __isnan(theta) == true )
-      {
-        continue;
-      }
-
-      point_theta.push_back(theta);
-
-      point_theta_ave += theta;
-    }
-
-    point_theta_ave = point_theta_ave / pointIdxRadiusSearch.size();
-
-    for (float k = 0; k < pointIdxRadiusSearch.size(); k++)
-    {
-      point_local_variance += pow(point_theta[ k ] - point_theta_ave, 2);
-    }
-
-    point_local_variance = point_local_variance / pointIdxRadiusSearch.size();
-
-    point_centroid_index = 0;
-    point_theta_ave = 0;
-    point_theta.clear();
-
-    // cout << "pointIdxRadiusSearch.size(): "                  << pointIdxRadiusSearch.size() << endl ;
-    // cout << "Kpoint_local_descriptor.point_theta_ave: "      << Kpoint_local_descriptor.point_theta_ave << endl;
-    // cout << "Kpoint_local_descriptor.point_theta.size: "     << Kpoint_local_descriptor.point_theta.size() << endl;
-    // cout << "Kpoint_local_descriptor.point_variance: " << Kpoint_local_descriptor.point_variance << endl << endl;
-
-    // point_variance_descriptor:
-    point_variance_descriptor.push_back( point_global_variance * point_local_variance );
-  }
-
-  cout << "cloud_ptr->points.size(): "         << cloud_ptr->points.size()         << endl  ;
-  cout << "point_variance_descriptor.size(): " << point_variance_descriptor.size() << endl  ;
-
-
-  float point_variance_descriptor_max = 0, point_variance_descriptor_min = 0;
-
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  { 
     pcl::PointXYZRGB p;
     p.x = cloud_ptr->points[i].x; 
     p.y = cloud_ptr->points[i].y;
@@ -272,56 +181,46 @@ vector<float> Point_VarianceDescriptor_computation(float sphere_computation, Poi
     p.r = 0;
 
     descriptor_cloud->points.push_back( p );        
+  }
 
+  float Dir_descriptor_max = 0, Dir_descriptor_min = 0;
+  for(float i = 0; i < descriptor_cloud->points.size(); i++)
+  { 
     if(i == 0)
     {
-      point_variance_descriptor_max = point_variance_descriptor[0];
-      point_variance_descriptor_min = point_variance_descriptor[0];
+      Dir_descriptor_max = Dir_descriptor[0];
+      Dir_descriptor_min = Dir_descriptor[0];
     }
 
-    if (point_variance_descriptor_max < point_variance_descriptor[i])
+    if (Dir_descriptor_max < Dir_descriptor[i])
     {
-      point_variance_descriptor_max = point_variance_descriptor[i];
+      Dir_descriptor_max = Dir_descriptor[i];
     }
 
-    if(point_variance_descriptor_min > point_variance_descriptor[i])
+    if(Dir_descriptor_min > Dir_descriptor[i])
     {
-      point_variance_descriptor_min = point_variance_descriptor[i];
+      Dir_descriptor_min = Dir_descriptor[i];
     }
   }
 
-  cout << "point_variance_descriptor_max: "    << point_variance_descriptor_max << endl;
-  cout << "point_variance_descriptor_min: "    << point_variance_descriptor_min << endl;
+  cout << "Dir_descriptor_max: "    << Dir_descriptor_max << endl;
+  cout << "Dir_descriptor_min: "    << Dir_descriptor_min << endl;
 
-  cout << "Dir_descriptor size(): "   << point_variance_descriptor.size()  << endl;
+  cout << "Dir_descriptor size(): " << Dir_descriptor.size()       << endl;
   cout << "descriptor_cloud size(): " << descriptor_cloud->points.size() << endl << endl;
 
   float weight_of_descriptor = 0;
   for(float i = 0; i < descriptor_cloud->points.size(); i++)
   { 
-    // weight_of_descriptor = (point_variance_descriptor[i] - point_variance_descriptor_min) / (point_variance_descriptor_max - point_variance_descriptor_min);
+    weight_of_descriptor = (Dir_descriptor[i] - Dir_descriptor_min) / (Dir_descriptor_max - Dir_descriptor_min);
 
-    // descriptor_cloud->points[i].b = 255 * weight_of_descriptor;
-    // descriptor_cloud->points[i].g = 0;
-    // descriptor_cloud->points[i].r = 255 * (1 - weight_of_descriptor);
-
-    if( point_variance_descriptor[i] <= 200)
-    {
-      descriptor_cloud->points[i].b = 0;
-      descriptor_cloud->points[i].g = 0;
-      descriptor_cloud->points[i].r = 200;
-    }
-    else
-    {
-      descriptor_cloud->points[i].b = 200;
-      descriptor_cloud->points[i].g = 0;
-      descriptor_cloud->points[i].r = 0;
-    }
+    descriptor_cloud->points[i].b = 255 * weight_of_descriptor;
+    descriptor_cloud->points[i].g = 0;
+    descriptor_cloud->points[i].r = 255 * (1 - weight_of_descriptor);
   }
 
-  return point_variance_descriptor;
+  return Dir_descriptor;
 }
-
 
 
 
@@ -394,7 +293,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
 
-  float weight_variance_threshold = 0.05;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3.5;
 
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)
   { 
@@ -464,7 +363,7 @@ void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint
     }
 
   }
-  cout << "cloud_tree_variance_show->points.size(): "      << cloud_tree_variance_show->points.size() << endl;
+  cout << "cloud_tree_variance_show->points.size(): " << cloud_tree_variance_show->points.size() << endl;
   cout << "cloud_tree_rm_irrelativePoint->points.size(): " << cloud_tree_rm_irrelativePoint->points.size() << endl << endl;
 }
 
