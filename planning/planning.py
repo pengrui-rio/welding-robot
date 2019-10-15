@@ -184,8 +184,8 @@ class MoveGroupPythonIntefaceTutorial(object):
       pose_goal.orientation.z = Q[2]
       pose_goal.orientation.w = Q[3]
       pose_goal.position.x = self.motion_pathPoint[point_count - 1][0] 
-      pose_goal.position.y = self.motion_pathPoint[point_count - 1][1] - 0.1
-      pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] 
+      pose_goal.position.y = self.motion_pathPoint[point_count - 1][1] #- 0.1
+      pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] + 0.1
       group.set_pose_target(pose_goal)
 
       plan = group.go(wait=True)

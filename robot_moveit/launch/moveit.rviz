@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /PlanningScene1
         - /TF1/Frames1
-        - /PointCloud22
         - /PointCloud23
       Splitter Ratio: 0.627777755
     Tree Height: 809
@@ -203,7 +202,7 @@ Visualization Manager:
         camera_color_frame:
           Value: false
         camera_color_optical_frame:
-          Value: true
+          Value: false
         camera_depth_frame:
           Value: false
         camera_depth_optical_frame:
@@ -332,7 +331,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -349,7 +348,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -396,25 +395,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.11030507
+      Distance: 0.884492636
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0110930651
-        Y: 0.313549459
-        Z: -2.08273582e-06
+        X: 0.102159239
+        Y: 0.312892705
+        Z: -2.15724162e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.289796203
+      Pitch: 0.934797168
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.53178239
+      Yaw: 2.98363686
     Saved: ~
 Window Geometry:
   Displays:
