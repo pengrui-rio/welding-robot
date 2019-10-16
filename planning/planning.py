@@ -130,9 +130,9 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     x = 0
     y = 0.3
-    z = 0.5
+    z = 0.3
     yaw   = 0         #blue->z   right-hand
-    pitch = -180      #red->x    right-hand
+    pitch = -90      #red->x    right-hand
     roll  = 0         #green->y   right-hand
 
     pose_goal = geometry_msgs.msg.Pose()
@@ -177,18 +177,23 @@ class MoveGroupPythonIntefaceTutorial(object):
       # raw_input()
       print self.motion_pathPoint[point_count - 1]
 
+
       pose_goal = geometry_msgs.msg.Pose()
+
+      # yaw = self.motion_pathPoint[point_count - 1][3]r
       Q = euler_to_quaternion(yaw , pitch + 90, roll)
+
       pose_goal.orientation.x = Q[0]
       pose_goal.orientation.y = Q[1]
       pose_goal.orientation.z = Q[2]
       pose_goal.orientation.w = Q[3]
       pose_goal.position.x = self.motion_pathPoint[point_count - 1][0] 
-      pose_goal.position.y = self.motion_pathPoint[point_count - 1][1] #- 0.1
-      pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] + 0.1
+      pose_goal.position.y = self.motion_pathPoint[point_count - 1][1]
+      pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] 
       group.set_pose_target(pose_goal)
+      # print type(pose_goal)
 
-      plan = group.go(wait=True)
+      plan = group.go(joints = pose_goal, wait = True)
       group.stop()
       group.clear_pose_targets()
       current_pose = self.group.get_current_pose().pose

@@ -8,7 +8,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("./src/seam_detection/save_pcd/curve.pcd", *cloud_ptr);
+  reader.read("./src/seam_detection/save_pcd/cylinder1.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
@@ -40,7 +40,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   // for(float i = 0; i < smooth_cloud->points.size(); i++)
   // {
   //   pcl::PointXYZRGB p;
-  //   p.x = smooth_cloud->points[i].x; 
+  //   p.x = smooth_cloud->points[i].x;
   //   p.y = smooth_cloud->points[i].y;
   //   p.z = smooth_cloud->points[i].z;
   //   p.b = 200; 
@@ -54,12 +54,12 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   // return smooth_cloud;
   // ////////////////////////////////////////////////////////////////////////////
 
-  //give each point color to show
+  //give each point color to show 要改坐标在这里改
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
     pcl::PointXYZRGB p;
     p.x = cloud_ptr->points[i].x; 
-    p.y = cloud_ptr->points[i].y + 0.1;
+    p.y = cloud_ptr->points[i].y - 0.1;
     p.z = cloud_ptr->points[i].z;
     p.b = 200; 
     p.g = 200;
@@ -68,6 +68,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   }
   cloud_ptr->clear();
 
+  //这个不用动
   for(float i = 0; i < cloud_ptr_show->points.size(); i++)
   {
     pcl::PointXYZ p;
@@ -319,7 +320,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
   //define weight_variance_threshold
-  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 8;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3;
 
   //use weight_variance_threshold to separate target region
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)
@@ -420,7 +421,7 @@ void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud
   std::vector<pcl::PointIndices> cluster_indices;
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
 
-  EC.setClusterTolerance (0.01); //设置近邻搜索的搜索半径为2cm
+  EC.setClusterTolerance (0.005); //设置近邻搜索的搜索半径为2cm
   EC.setMinClusterSize (1);//设置一个聚类需要的最少点数目为100
   EC.setMaxClusterSize (10000000); //设置一个聚类需要的最大点数目为25000
   EC.setSearchMethod (ec_tree);//设置点云的搜索机制
@@ -643,9 +644,9 @@ vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion)
 }
 
 
+Point3f get_normal_pathPoints(Point3f p1, Point3f p2, Point3f p3);
 
-
-void Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz)
+vector<float> Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz)
 {
   pcl::PointXYZRGB Xp_goal;
   Xp_goal.x = 0; Xp_goal.y = 0; Xp_goal.z = 0;
@@ -666,78 +667,78 @@ void Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud
 
   for(int k = 0; k < seg_pointcloud.size(); k++)
   {
-    // 计算每个segment 的normal 从而得到orientation for endeffector
-    for( float j = 0; j < seg_pointcloud[k].size(); j++)
-    {
-      pcl::PointXYZ p;
+    // // 计算每个segment 的normal 从而得到orientation for endeffector
+    // for( float j = 0; j < seg_pointcloud[k].size(); j++)
+    // {
+    //   pcl::PointXYZ p;
 
-      p.x = cloud_seamRegion->points[ seg_pointcloud[k][j] ].x;
-      p.y = cloud_seamRegion->points[ seg_pointcloud[k][j] ].y;
-      p.z = cloud_seamRegion->points[ seg_pointcloud[k][j] ].z;
+    //   p.x = cloud_seamRegion->points[ seg_pointcloud[k][j] ].x;
+    //   p.y = cloud_seamRegion->points[ seg_pointcloud[k][j] ].y;
+    //   p.z = cloud_seamRegion->points[ seg_pointcloud[k][j] ].z;
 
-      cloud_segment->points.push_back( p );
-    }
+    //   cloud_segment->points.push_back( p );
+    // }
 
-    //define kdtree
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
+    // //define kdtree
+    // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
 
-    Normal::Ptr cloud_normals_ptr (new Normal);
-    Normal& cloud_normals = *cloud_normals_ptr;
+    // Normal::Ptr cloud_normals_ptr (new Normal);
+    // Normal& cloud_normals = *cloud_normals_ptr;
 
-    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
-    ne.setInputCloud (cloud_segment);
-    ne.setSearchMethod (tree);
-    ne.setRadiusSearch (0.5);
-    ne.compute (cloud_normals); // get cloud normals
+    // pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> ne;
+    // ne.setInputCloud (cloud_segment);
+    // ne.setSearchMethod (tree);
+    // ne.setRadiusSearch (0.5);
+    // ne.compute (cloud_normals); // get cloud normals
 
 
-    // define unit normals for each point
-    vector<Point3f> segment_unit_normals;
+    // // define unit normals for each point
+    // vector<Point3f> segment_unit_normals;
 
-    // compute unit normals for each point and be pushback into segment_unit_normals
-    for(float i = 0; i < cloud_normals.size(); i++)
-    { 
-      Point3f p ;
+    // // compute unit normals for each point and be pushback into segment_unit_normals
+    // for(float i = 0; i < cloud_normals.size(); i++)
+    // { 
+    //   Point3f p ;
 
-      p.x = cloud_normals[i].normal_x ;/// M;
-      p.y = cloud_normals[i].normal_y ;/// M;
-      p.z = cloud_normals[i].normal_z ;/// M;
+    //   p.x = cloud_normals[i].normal_x ;/// M;
+    //   p.y = cloud_normals[i].normal_y ;/// M;
+    //   p.z = cloud_normals[i].normal_z ;/// M;
 
-      segment_unit_normals.push_back( p );
-    }
+    //   segment_unit_normals.push_back( p );
+    // }
 
-    //compute main normal for each segment
-    Point3f p ;
-    float sum_normalx = 0, sum_normaly = 0, sum_normalz = 0;
-    for(float i = 0; i < segment_unit_normals.size(); i++)
-    { 
-      // sum_normalx += segment_unit_normals[i].x;
-      // sum_normaly += segment_unit_normals[i].y;
-      // sum_normalz += segment_unit_normals[i].z;
+    // //compute main normal for each segment
+    // Point3f p ;
+    // float sum_normalx = 0, sum_normaly = 0, sum_normalz = 0;
+    // for(float i = 0; i < segment_unit_normals.size(); i++)
+    // { 
+    //   sum_normalx += segment_unit_normals[i].x;
+    //   sum_normaly += segment_unit_normals[i].y;
+    //   sum_normalz += segment_unit_normals[i].z;
 
-      Eigen::AngleAxisd rotationVector(M_PI / 2, Eigen::Vector3d(segment_unit_normals[i].x, segment_unit_normals[i].y, segment_unit_normals[i].z));
-      Eigen::Vector3d eulerAngle = rotationVector.matrix().eulerAngles(0,1,2) * 180.0 / M_PI;
-      // cout << "eulerAngle:\n" << eulerAngle << endl;
-      sum_normalx += eulerAngle[0];
-      sum_normaly += eulerAngle[1];
-      sum_normalz += eulerAngle[2];
+    //   // Eigen::AngleAxisd rotationVector(M_PI / 2, Eigen::Vector3d(segment_unit_normals[i].x, segment_unit_normals[i].y, segment_unit_normals[i].z));
+    //   // Eigen::Vector3d eulerAngle = rotationVector.matrix().eulerAngles(0,1,2) * 180.0 / M_PI;
+    //   // // cout << "eulerAngle:\n" << eulerAngle << endl;
+    //   // sum_normalx += eulerAngle[0];
+    //   // sum_normaly += eulerAngle[1];
+    //   // sum_normalz += eulerAngle[2];
 
-    }
+    // }
     // float M = sqrt(pow(sum_normalx, 2) + pow(sum_normaly, 2) + pow(sum_normalz, 2));
 
-    p.x = sum_normalx / segment_unit_normals.size() ;
-    p.y = sum_normaly / segment_unit_normals.size() ;
-    p.z = sum_normalz / segment_unit_normals.size() ;
+    // p.x = sum_normalx / M ;
+    // p.y = sum_normaly / M ;
+    // p.z = sum_normalz / M ;
 
-    cout << "segment_main_unit_normals: "   << p        << endl;
-    cout << "segment_unit_normals.size(): " << segment_unit_normals.size() << endl;
+    // cout << "segment_main_unit_normals: "   << atan(p.y / p.x) * 180.0 / M_PI << endl;
+    // cout << "segment_unit_normals.size(): " << segment_unit_normals.size() << endl;
         
-    //transformed to euler angles
-    // Eigen::AngleAxisd rotationVector(M_PI, Eigen::Vector3d(p.x, p.y, p.z));
-    // Eigen::Vector3d eulerAngle = rotationVector.matrix().eulerAngles(0,1,2);
-    // cout<<"eulerAngle roll pitch yaw:\n" << 180.0 * eulerAngle / M_PI << endl;  //\n
+    // //transformed to euler angles
+    // // Eigen::AngleAxisd rotationVector(M_PI, Eigen::Vector3d(p.x, p.y, p.z));
+    // // Eigen::Vector3d eulerAngle = rotationVector.matrix().eulerAngles(0,1,2);
+    // // cout<<"eulerAngle roll pitch yaw:\n" << 180.0 * eulerAngle / M_PI << endl;  //\n
 
-    cloud_segment->clear();
+    // cloud_segment->clear();
     
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -876,7 +877,135 @@ void Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud
     }
   }
  
-  cout << "path_cloud->points.size(): " << path_cloud->points.size() << endl;
+  cout << "path_cloud->points.size(): "          << path_cloud->points.size() << endl;
   cout << "path_cloud_showRviz->points.size(): " << path_cloud_showRviz->points.size() << endl << endl;
 
+  // /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  // vector<Point3f> path_points;
+  // for( float i = 0; i < path_cloud->points.size(); i++)
+  // {
+  //   Point3f p;
+
+  //   p.x = path_cloud->points[ i ].x;
+  //   p.y = path_cloud->points[ i ].y;
+  //   p.z = path_cloud->points[ i ].z;
+
+  //   path_points.push_back( p );
+  // }
+
+  // cout << "path_points.size(): "          << path_points.size() << endl;
+
+  // vector<float> orientation_pathpoints;
+
+  // for( float i = 0; i < path_points.size(); i++)
+  // {
+  //   Point3f p_normal, p1, p2, p3, p4, p5;
+
+  //   if ( i == 0 || i == 1)
+  //   {
+  //     p1.x = path_points[i    ].x; p1.y = path_points[i    ].y; p1.z = path_points[i    ].z;
+  //     p2.x = path_points[i + 2].x; p2.y = path_points[i + 2].y; p2.z = path_points[i + 2].z;
+  //     p3.x = path_points[i + 4].x; p3.y = path_points[i + 4].y; p3.z = path_points[i + 4].z;
+  //   }
+
+  //   else if ( i == path_points.size() - 1 || i == path_points.size() - 2)
+  //   {
+  //     p1.x = path_points[i - 4].x; p1.y = path_points[i - 4].y; p1.z = path_points[i - 4].z;
+  //     p2.x = path_points[i - 2].x; p2.y = path_points[i - 2].y; p2.z = path_points[i - 2].z;
+  //     p3.x = path_points[i    ].x; p3.y = path_points[i    ].y; p3.z = path_points[i    ].z;
+  //   }
+
+  //   else
+  //   {
+  //     p1.x = path_points[i - 2].x; p1.y = path_points[i - 2].y; p1.z = path_points[i - 2].z;
+  //     p2.x = path_points[i    ].x; p2.y = path_points[i    ].y; p2.z = path_points[i    ].z;
+  //     p3.x = path_points[i + 2].x; p3.y = path_points[i + 2].y; p3.z = path_points[i + 2].z;
+  //   }
+    
+  //   float angle = ( atan( (p2.y - p1.y) / (p2.x - p1.x) ) + atan( (p2.y - p3.y) / (p2.x - p3.x) ) ) * 180 / M_PI / 2 ;
+  //   orientation_pathpoints.push_back( angle );
+  //   cout << "angle: " << angle  << endl;
+
+
+
+  //   // p1.x = path_points[i    ].x; p1.y = path_points[i    ].y; p1.z = path_points[i    ].z;
+  //   // p2.x = path_points[i + 1].x; p2.y = path_points[i + 1].y; p2.z = path_points[i + 1].z;
+  //   // p3.x = path_points[i + 2].x; p3.y = path_points[i + 2].y; p3.z = path_points[i + 2].z;
+  //   // p4.x = path_points[i + 3].x; p4.y = path_points[i + 3].y; p4.z = path_points[i + 3].z;
+  //   // p5.x = path_points[i + 4].x; p5.y = path_points[i + 4].y; p5.z = path_points[i + 4].z;
+   
+  //   // float angle = ( atan( (p2.y - p1.y) / (p2.x - p1.x) ) + 
+  //   //                 atan( (p3.y - p1.y) / (p3.x - p1.x) ) + 
+  //   //                 atan( (p4.y - p1.y) / (p4.x - p1.x) ) + 
+  //   //                 atan( (p5.y - p1.y) / (p5.x - p1.x) )  ) * 180 / M_PI  ;
+  //   // normal_pathpoints.push_back( angle );
+  //   // cout << "angle: " << angle  << endl;
+  // }
+
+  // cout << "orientation_pathpoints.size(): "          << orientation_pathpoints.size() << endl;
+  // return orientation_pathpoints;
+
+  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  vector<Point3f> path_points;
+  for( float i = 0; i < path_cloud->points.size(); i++)
+  {
+    Point3f p;
+
+    p.x = path_cloud->points[ i ].x;
+    p.y = path_cloud->points[ i ].y;
+    p.z = path_cloud->points[ i ].z;
+
+    path_points.push_back( p );
+  }
+
+  cout << "path_points.size(): "          << path_points.size() << endl;
+
 }
+
+
+Point3f get_normal_pathPoints(Point3f p1, Point3f p2, Point3f p3)
+{
+  Point3f p;
+
+  p.x = ( (p2.y-p1.y)*(p3.z-p1.z)-(p2.z-p1.z)*(p3.y-p1.y) );
+
+  p.y = ( (p2.z-p1.z)*(p3.x-p1.x)-(p2.x-p1.x)*(p3.z-p1.z) );
+
+  p.z = ( (p2.x-p1.x)*(p3.y-p1.y)-(p2.y-p1.y)*(p3.x-p1.x) );
+
+  float M = sqrt(pow(p.x, 2) + pow(p.y, 2) + pow(p.z, 2)); // M = sqrt(x^2 + y^2 + z^2)
+
+  p.x = p.x / M;
+
+  p.y = p.y / M;
+
+  p.z = p.z / M;
+
+  return p;
+}
+ 
+
+
+// Point3f get_normal_pathPoints(Point3f p1, Point3f p2, Point3f p3)
+// {
+//   Point3f p;
+
+//   p.x = ( (p2.y-p1.y)*(p3.z-p1.z)-(p2.z-p1.z)*(p3.y-p1.y) );
+
+//   p.y = ( (p2.z-p1.z)*(p3.x-p1.x)-(p2.x-p1.x)*(p3.z-p1.z) );
+
+//   p.z = ( (p2.x-p1.x)*(p3.y-p1.y)-(p2.y-p1.y)*(p3.x-p1.x) );
+
+//   float M = sqrt(pow(p.x, 2) + pow(p.y, 2) + pow(p.z, 2)); // M = sqrt(x^2 + y^2 + z^2)
+
+//   p.x = p.x / M;
+
+//   p.y = p.y / M;
+
+//   p.z = p.z / M;
+
+//   return p;
+// }
+ 

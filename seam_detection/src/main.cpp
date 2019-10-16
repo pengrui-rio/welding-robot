@@ -165,40 +165,33 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
   //9.通过梯度下降优化出最佳运动path
   PointCloud::Ptr path_cloud (new PointCloud);
   PointCloud::Ptr path_cloud_showRviz (new PointCloud);
-  Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
+  vector<float> orientation_pathpoints = Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
   // show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
-  // cout << "3D path is generated !!!!!!!!!" << endl;
+  //////////////////////////////////////////////////////////
+  cout << "3D path is generated !!!!!!!!!" << endl;
 
-  // geometry_msgs::Pose path_point;
-  // for(int i = 0; i < path_cloud->points.size(); i++)
-  // {
-  //   pcl::PointXYZRGB p, p_z, p_x, p_y;
+  geometry_msgs::Pose path_point;
+  for(int i = 0; i < path_cloud->points.size(); i++)
+  {
+    pcl::PointXYZRGB p, p_z, p_x, p_y;
 
-  //   p.x    = path_cloud->points[i].x; 
-  //   p.y    = path_cloud->points[i].y; 
-  //   p.z    = path_cloud->points[i].z; 
+    p.x    = path_cloud->points[i].x; 
+    p.y    = path_cloud->points[i].y; 
+    p.z    = path_cloud->points[i].z; 
+ 
+    path_point.position.x = p.x;//- 0.035;
+    path_point.position.y = p.y - 0.1;
+    path_point.position.z = p.z;//+ 0.036;
+    // path_point.orientation.x = orientation_pathpoints[i];
 
-  //   // rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
-  //   // rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
-  //   // rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z); 
+    path_publisher.publish(path_point);
 
-  //   // path_point.position.x = current_x + p_z.x ;//- 0.035;
-  //   // path_point.position.y = current_y + p_z.y ;//+ 0.080;
-  //   // path_point.position.z = current_z + p_z.z ;//+ 0.036;
-
-  //   path_point.position.x = p.x;//- 0.035;
-  //   path_point.position.y = p.y;//+ 0.080;
-  //   path_point.position.z = p.z;//+ 0.036;
-
-  //   path_publisher.publish(path_point);
-
-  //   cout << "i: " << i + 1 << endl;
-  //   cout << "path_point: " << path_point << endl << endl;
-  //   naptime.sleep(); // wait for remainder of specified period; 
-  // }
-  // cout << "3D path is published !!!!!!!!!" << endl;
+    // cout << "i: " << i + 1 << endl;
+    // cout << "path_point: " << path_point << endl << endl;
+    naptime.sleep(); // wait for remainder of specified period; 
+  }
+  cout << "3D path is published !!!!!!!!!" << endl;
 
 }
 

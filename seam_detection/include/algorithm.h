@@ -61,5 +61,5 @@ void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud
 
 vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion);
 
-void Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz);
+vector<float> Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz);
 
