@@ -8,7 +8,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("./src/seam_detection/save_pcd/cylinder1.pcd", *cloud_ptr);
+  reader.read("./src/seam_detection/save_pcd/1/cylinder1.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
@@ -58,9 +58,9 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
     pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[i].x; 
-    p.y = cloud_ptr->points[i].y + 0.08;
-    p.z = cloud_ptr->points[i].z;
+    p.x = cloud_ptr->points[i].x ; 
+    p.y = cloud_ptr->points[i].y;//- 0.24;
+    p.z = cloud_ptr->points[i].z + 0.2;
     p.b = 200; 
     p.g = 200;
     p.r = 200;
@@ -320,7 +320,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
   //define weight_variance_threshold
-  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 20.5;
 
   //use weight_variance_threshold to separate target region
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)

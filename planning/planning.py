@@ -80,20 +80,8 @@ class MoveGroupPythonIntefaceTutorial(object):
     group_names = robot.get_group_names()
     print "============ Robot Groups:", robot.get_group_names()
  
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/2
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
- 
-    group.go(joint_goal, wait=True)
-    group.stop()
- 
-    print "============ Printing robot state"
+    # print "============ Printing robot state"
     print robot.get_current_state()
-    print ""
  
 
     self.box_name = ''
@@ -122,7 +110,8 @@ class MoveGroupPythonIntefaceTutorial(object):
     self.motion_pathPoint.append( p )
     print p 
     print len(self.motion_pathPoint)
-  
+    print "\n"
+
 
   def motion_loop(self):
 
@@ -130,24 +119,22 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     x = 0
     y = 0.6
-    z = 0.2
+    z = 0.3
     yaw   = 0         #blue->z   right-hand
     pitch = -90       #red->x    right-hand    -41 is fixed angle for torch
     roll  = 0         #green->y  right-hand
 
-    pose_goal = geometry_msgs.msg.Pose()
-    Q = euler_to_quaternion(yaw, pitch, roll)
-    pose_goal.orientation.x = Q[0]
-    pose_goal.orientation.y = Q[1]
-    pose_goal.orientation.z = Q[2]
-    pose_goal.orientation.w = Q[3]
-    pose_goal.position.x = x
-    pose_goal.position.y = y
-    pose_goal.position.z = z
-    group.set_pose_target(pose_goal)
-
-    plan = group.go(wait=True)
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = 0
+    joint_goal[1] = -pi/2
+    joint_goal[2] = 0
+    joint_goal[3] = -pi/2
+    joint_goal[4] = 0
+    joint_goal[5] = 0
+ 
+    group.go(joint_goal, wait=True)
     group.stop()
+
     group.clear_pose_targets()
     current_pose = self.group.get_current_pose().pose
     print current_pose.position
@@ -171,53 +158,35 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     print "============ Press `Enter` (press ctrl-d to exit) ============"
     raw_input()
-    point_count = 1
-    while(not rospy.is_shutdown()):
-      # print "============ Press `Enter` (press ctrl-d to exit) ============"
-      # raw_input()
-      print self.motion_pathPoint[point_count - 1]
 
-      pose_goal = geometry_msgs.msg.Pose()
-
-      yaw = self.motion_pathPoint[point_count - 1][3]
-      if yaw >= 30:
-        yaw = 30
-      if yaw <= -30:
-        yaw = -30
-          
-      Q = euler_to_quaternion(yaw, pitch, roll)
-
-      pose_goal.orientation.x = Q[0]
-      pose_goal.orientation.y = Q[1]
-      pose_goal.orientation.z = Q[2]
-      pose_goal.orientation.w = Q[3]
-      pose_goal.position.x = self.motion_pathPoint[point_count - 1][0] 
-      pose_goal.position.y = self.motion_pathPoint[point_count - 1][1]
-      pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] 
-      group.set_pose_target(pose_goal)
-      # print type(pose_goal)
-
-      plan = group.go(joints = pose_goal, wait = True)
-      group.stop()
-      group.clear_pose_targets()
-      current_pose = self.group.get_current_pose().pose
-      print current_pose.position
-      print "yaw   : %f" % yaw
-      print "pitch : %f" % pitch
-      print "roll  : %f" % roll
-      print "point_count  : %f" % point_count
+    waypoints = []
+    wpose = geometry_msgs.msg.Pose(); i = 8
+    while i < len(self.motion_pathPoint):
+      yaw = self.motion_pathPoint[i][3]; pitch = -50; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+      wpose.orientation.x = Q[0]
+      wpose.orientation.y = Q[1]
+      wpose.orientation.z = Q[2]
+      wpose.orientation.w = Q[3]
+      wpose.position.x = self.motion_pathPoint[i][0] 
+      wpose.position.y = self.motion_pathPoint[i][1]
+      wpose.position.z = self.motion_pathPoint[i][2] 
+      print wpose
       print "\n"
+
+      waypoints.append(copy.deepcopy(wpose))
+      i = i + 1
+
+    print waypoints
+    (plan, fraction) = group.compute_cartesian_path(
+                                       waypoints,   # waypoints to follow
+                                       0.01,        # eef_step
+                                       0)         # jump_threshold
  
-      if point_count == len(self.motion_pathPoint):
-        print "Motion is completed!!!"  
-        break
+    raw_input()
 
-      point_count = point_count + 1
+    group.execute(plan, wait=True)
 
-      self.rate.sleep()
-
-    return all_close(pose_goal, current_pose, 0.01)
- 
+     
 
 
 
@@ -291,8 +260,8 @@ class MoveGroupPythonIntefaceTutorial(object):
 #robot_ip = 192.168.0.3
 def main():
   try:
-    print "============ Press `Enter` to set up the moveit_commander  ..."
-    raw_input()
+    # print "============ Press `Enter` to set up the moveit_commander  ..."
+    # raw_input()
     ur3 = MoveGroupPythonIntefaceTutorial()
  
     print "============ Press `Enter` to execute a movement using a pose goal ..."

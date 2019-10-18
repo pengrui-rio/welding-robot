@@ -22,7 +22,7 @@
     </visual>
     <collision>
       <geometry>
-        <box size="1.0 1.0 0.015875"/>
+        <box size="0.8 1.0 0.02"/>
       </geometry>
     </collision>
   </link>
@@ -88,39 +88,82 @@
 
 
 
+  <link name="torch_bent">
+    <visual>
+      <geometry>
+        <box size="0.15 0.02 0.02"/>
+      </geometry>
+      <material name="Steel">
+        <color rgba="1 0.5 0.5 1.0"/>
+      </material>
+    </visual>
 
-
-  <sensor_d415 parent="tool0">
-    <origin xyz="0 -0.11 0.065" rpy="0 ${-pi/2} ${pi/2}"/>
-  </sensor_d415>
-
-
-    <link name="welding_torch">
-      <visual>
-        <geometry>
-          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 0 0"/>
-      </visual>
-      <collision>
-        <geometry>
-          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 -0.012 0.25"/>
-      </collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
-    </link>
+    <collision>
+      <geometry>
+        <box size="0.15 0.02 0.02"/>
+      </geometry>
+    </collision>
+  </link>
  
 
   <joint name="torch_to_tool0" type="fixed">
     <parent link="tool0"/>
-    <child link="welding_torch"/>
-    <origin xyz="0 0.055 0.29" rpy="0 0 0"/>
+    <child link="torch_bent"/>
+    <origin xyz="0 -0.05 0.045" rpy="0 ${pi/2} 0"/>
   </joint>
+ 
 
 
+  <link name="torch">
+    <visual>
+      <geometry>
+        <cylinder length="0.1" radius="0.01"/>  
+      </geometry>
+      <material name="Steel">
+        <color rgba="1 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.02" radius="0.025"/>
+      </geometry>
+    </collision>
+  </link>
+ 
+
+  <joint name="torchbent_to_torch" type="fixed">
+    <parent link="torch_bent"/>
+    <child  link="torch"/>
+    <origin xyz="-0.11 0.035 0" rpy="0 ${pi/2} ${-pi/4}"/>
+  </joint>
+ 
 
 
+  <link name="torch_point">
+    <visual>
+      <geometry>
+        <cylinder length="0.01" radius="0.005"/>  
+      </geometry>
+      <material name="torch">
+        <color rgba="1.0 0.1 0.1 1.0"/>
+      </material>
+    </visual>
+
+    <collision>
+      <geometry>
+        <cylinder length="0.01" radius="0.005"/>  
+      </geometry>
+    </collision>
+  </link>
+ 
+
+  <joint name="torch_to_point" type="fixed">
+    <parent link="torch"/>
+    <child  link="torch_point"/>
+    <origin xyz="0 0 -0.05" rpy="0 ${pi/2} 0"/>
+  </joint>
+ 
 </robot>
 
 
