@@ -5,18 +5,16 @@
   <xacro:include filename="$(find ur_description)/urdf/ur3.urdf.xacro" />
   <xacro:ur3_robot prefix="" joint_limited="true"/>
 
-  <xacro:include filename="$(find kinect2_description)/urdf/kinect2_urdf.xacro" />
-  <xacro:kinect2 prefix=""/>
-
   <xacro:include filename="$(find realsense2_description)/urdf/_d415.urdf.xacro" />
  
+
  
   <link name="world"/>
 
   <link name="table">
     <visual>
       <geometry>
-        <box size="0.8 1.0 0.015875"/>
+        <box size="0.8 1.0 0.02"/>
       </geometry>
       <material name="Wooden">
         <color rgba="1.0 0.831 0.486 1.0"/>
@@ -29,62 +27,6 @@
     </collision>
   </link>
 
-
-  <joint name="table_to_robot" type="fixed">
-    <parent link="table"/>
-    <child link="base_link"/>
-    <origin xyz="0 -0.331 0.0079375" rpy="0.0 0.0 0"/>
-   <!-- <origin xyz="-0.331 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/>  -->
-  </joint>
-
-
-  <link name="post">
-    <visual>
-      <geometry>
-        <box size="0.05 0.05 1"/>
-      </geometry>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="0.05 0.05 1"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="table_to_post" type="fixed">
-    <parent link="table"/>
-    <child link="post"/>
-    <origin xyz="0 -0.525 0.5" rpy="0 0 0"/>
-  </joint>
-
-
-  <link name="bar">
-    <visual>
-      <geometry>
-        <box size="0.7 0.05 0.05"/>
-      </geometry>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="0.7 0.05 0.05"/>
-      </geometry>
-    </collision>
-  </link>
-
-  <joint name="post_to_bar" type="fixed">
-    <parent link="post"/>
-    <child link="bar"/>
-    <origin xyz="0 0.35 0.3785" rpy="0 0 -1.5708"/>
-  </joint>
-
-
-  <link name="kinect2_rgb_optical_frame"/>
-  <joint name="rgb_optical_frame" type="fixed">
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-    <parent link="kinect2_link"/>
-    <child link="kinect2_rgb_optical_frame"/>
-  </joint>
-
-
   <joint name="world_to_table" type="fixed">
     <parent link="world"/>
     <child link="table"/>
@@ -92,41 +34,88 @@
   </joint>
 
 
-  <joint name="world_to_camera" type="fixed">
-    <parent link="world"/>
-    <child link="kinect2_link"/>
-
-    <origin xyz="-0.10 0.43 0.78535" rpy="0 3.14159 0"/>
-  </joint>
-
-
-  <sensor_d415 parent="realsense_structure">
-    <origin xyz="0.03 0.1 0.12" rpy="0 ${pi/2} ${pi/2}"/>
-  </sensor_d415>
-
-
-  <link name="realsense_structure">
+  <link name="bar1">
     <visual>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-        <mesh filename="package://realsense2_description/meshes/realsense.stl" scale="0.001 0.001 0.001"/>
+        <box size="0.8 0.04 0.04"/>
       </geometry>
-      <material name="aluminum"/>
+      <material name="Steel">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
     </visual>
     <collision>
-      <origin xyz="0 0 0" rpy="0 0 0"/>
       <geometry>
-      <box size="0.001 0.001 0.001"/>
+        <box size="0.8 0.04 0.04"/>
       </geometry>
     </collision>
   </link>
-
-
-  <joint name="world_to_realsense_structure" type="fixed">
-    <parent link="wrist_3_link"/>
-    <child link="realsense_structure"/>
-    <origin xyz="-0.03 0.085 -0.035" rpy="${pi/2} 0 0"/>
+  <joint name="table_to_bar1" type="fixed">
+    <parent link="table"/>
+    <child link="bar1"/>
+    <origin xyz="0 -0.45 0.03" rpy="0 0 0"/>
   </joint>
+
+  <link name="bar2">
+    <visual>
+      <geometry>
+        <box size="0.8 0.04 0.04"/>
+      </geometry>
+      <material name="Steel">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.8 0.04 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="table_to_bar2" type="fixed">
+    <parent link="table"/>
+    <child link="bar2"/>
+    <origin xyz="0 -0.37 0.03" rpy="0 0 0"/>
+  </joint>
+
+
+
+  <joint name="table_to_robot" type="fixed">
+    <parent link="bar2"/>
+    <child link="base_link"/>
+    <origin xyz="0 -0.038 0.02" rpy="0.0 0.0 0"/>
+   <!-- <origin xyz="-0.331 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/>  -->
+  </joint>
+
+
+
+
+    <link name="welding_torch">
+      <visual>
+        <geometry>
+          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 0 0"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 -0.012 0.25"/>
+      </collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </link>
+ 
+
+  <joint name="torch_to_tool0" type="fixed">
+    <parent link="tool0"/>
+    <child link="welding_torch"/>
+    <origin xyz="0 0.055 0.29" rpy="0 0 0"/>
+  </joint>
+
+
+  <sensor_d415 parent="tool0">
+    <origin xyz="0 -0.11 0.065" rpy="0 ${-pi/2} ${pi/2}"/>
+  </sensor_d415>
+
 
 
 </robot>

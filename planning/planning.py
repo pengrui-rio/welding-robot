@@ -129,14 +129,14 @@ class MoveGroupPythonIntefaceTutorial(object):
     group = self.group
 
     x = 0
-    y = 0.3
-    z = 0.3
+    y = 0.6
+    z = 0.2
     yaw   = 0         #blue->z   right-hand
-    pitch = -90      #red->x    right-hand
-    roll  = 0         #green->y   right-hand
+    pitch = -90       #red->x    right-hand    -41 is fixed angle for torch
+    roll  = 0         #green->y  right-hand
 
     pose_goal = geometry_msgs.msg.Pose()
-    Q = euler_to_quaternion(yaw , pitch + 90, roll)
+    Q = euler_to_quaternion(yaw, pitch, roll)
     pose_goal.orientation.x = Q[0]
     pose_goal.orientation.y = Q[1]
     pose_goal.orientation.z = Q[2]
@@ -177,11 +177,15 @@ class MoveGroupPythonIntefaceTutorial(object):
       # raw_input()
       print self.motion_pathPoint[point_count - 1]
 
-
       pose_goal = geometry_msgs.msg.Pose()
 
-      # yaw = self.motion_pathPoint[point_count - 1][3]r
-      Q = euler_to_quaternion(yaw , pitch + 90, roll)
+      yaw = self.motion_pathPoint[point_count - 1][3]
+      if yaw >= 30:
+        yaw = 30
+      if yaw <= -30:
+        yaw = -30
+          
+      Q = euler_to_quaternion(yaw, pitch, roll)
 
       pose_goal.orientation.x = Q[0]
       pose_goal.orientation.y = Q[1]

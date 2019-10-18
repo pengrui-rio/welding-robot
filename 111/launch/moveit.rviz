@@ -3,8 +3,10 @@ Panels:
     Help Height: 84
     Name: Displays
     Property Tree Widget:
-      Expanded: ~
-      Splitter Ratio: 0.742560029
+      Expanded:
+        - /PlanningScene1
+        - /TF1/Frames1
+      Splitter Ratio: 0.627777755
     Tree Height: 809
   - Class: rviz/Help
     Name: Help
@@ -57,12 +59,7 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          bar1:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          bar2:
+          bar:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -127,6 +124,25 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          kinect2_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          kinect2_rgb_optical_frame:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+          post:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          realsense_structure:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           shoulder_link:
             Alpha: 1
             Show Axes: false
@@ -142,11 +158,6 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
           upper_arm_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          welding_torch:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -179,9 +190,7 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        bar1:
-          Value: false
-        bar2:
+        bar:
           Value: false
         base:
           Value: false
@@ -211,6 +220,14 @@ Visualization Manager:
           Value: false
         forearm_link:
           Value: false
+        kinect2_link:
+          Value: false
+        kinect2_rgb_optical_frame:
+          Value: false
+        post:
+          Value: false
+        realsense_structure:
+          Value: false
         shoulder_link:
           Value: false
         table:
@@ -219,8 +236,6 @@ Visualization Manager:
           Value: false
         upper_arm_link:
           Value: false
-        welding_torch:
-          Value: true
         world:
           Value: false
         wrist_1_link:
@@ -236,39 +251,132 @@ Visualization Manager:
       Show Names: false
       Tree:
         world:
-          table:
-            bar1:
+          kinect2_link:
+            kinect2_rgb_optical_frame:
               {}
-            bar2:
-              base_link:
-                base:
-                  {}
-                shoulder_link:
-                  upper_arm_link:
-                    forearm_link:
-                      wrist_1_link:
-                        wrist_2_link:
-                          wrist_3_link:
-                            ee_link:
-                              {}
-                            tool0:
-                              camera_bottom_screw_frame:
-                                camera_link:
-                                  camera_depth_frame:
-                                    camera_color_frame:
-                                      camera_color_optical_frame:
-                                        {}
-                                    camera_depth_optical_frame:
+          table:
+            base_link:
+              base:
+                {}
+              shoulder_link:
+                upper_arm_link:
+                  forearm_link:
+                    wrist_1_link:
+                      wrist_2_link:
+                        wrist_3_link:
+                          ee_link:
+                            {}
+                          realsense_structure:
+                            camera_bottom_screw_frame:
+                              camera_link:
+                                camera_depth_frame:
+                                  camera_color_frame:
+                                    camera_color_optical_frame:
                                       {}
-                                    camera_left_ir_frame:
-                                      camera_left_ir_optical_frame:
-                                        {}
-                                    camera_right_ir_frame:
-                                      camera_right_ir_optical_frame:
-                                        {}
-                              welding_torch:
-                                {}
+                                  camera_depth_optical_frame:
+                                    {}
+                                  camera_left_ir_frame:
+                                    camera_left_ir_optical_frame:
+                                      {}
+                                  camera_right_ir_frame:
+                                    camera_right_ir_optical_frame:
+                                      {}
+                          tool0:
+                            {}
+            post:
+              bar:
+                {}
       Update Interval: 0
+      Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /camera_pointcloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /map_pointcloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 10
+        Min Value: -10
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: true
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /generated_pc
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
       Value: true
   Enabled: true
   Global Options:
@@ -286,25 +394,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.60719109
+      Distance: 0.671747029
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.113567002
-        Y: 0.105920002
-        Z: 2.23518001e-07
+        X: 0.0158533063
+        Y: 0.275374144
+        Z: -4.5785664e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.33479628
+      Pitch: 0.51979655
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 0.00676343217
+      Yaw: 2.16924095
     Saved: ~
 Window Geometry:
   Displays:
@@ -314,9 +422,9 @@ Window Geometry:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003befc0200000007fb000000100044006900730070006c0061007900730100000028000003be000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000000005b4000003be00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd0000000100000000000001ba000003befc0200000007fb000000100044006900730070006c0061007900730100000028000003be000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e000000000000000000000564000003be00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1828
-  X: 92
-  Y: 24
+  X: 65
+  Y: 27

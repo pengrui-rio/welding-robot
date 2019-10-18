@@ -174,33 +174,26 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
   geometry_msgs::Pose path_point;
   for(int i = 0; i < path_cloud->points.size(); i++)
   {
-    pcl::PointXYZRGB p, p_z, p_x, p_y;
-
-    p.x    = path_cloud->points[i].x; 
-    p.y    = path_cloud->points[i].y; 
-    p.z    = path_cloud->points[i].z; 
- 
-    path_point.position.x = p.x;//- 0.035;
-    path_point.position.y = p.y - 0.1;
-    path_point.position.z = p.z;//+ 0.036;
-    // path_point.orientation.x = orientation_pathpoints[i];
+    path_point.position.x = path_cloud->points[i].x;//- 0.035;
+    path_point.position.y = path_cloud->points[i].y ;
+    path_point.position.z = path_cloud->points[i].z;//+ 0.036;
+    path_point.orientation.x = orientation_pathpoints[i];
 
     path_publisher.publish(path_point);
 
-    // cout << "i: " << i + 1 << endl;
-    // cout << "path_point: " << path_point << endl << endl;
     naptime.sleep(); // wait for remainder of specified period; 
   }
   cout << "3D path is published !!!!!!!!!" << endl;
-
 }
+
+
 
 int main(int argc, char **argv)
 {
   //initial configuration
   ros::init(argc, argv, "image_listener");
   ros::NodeHandle nh;
-  ros::Rate naptime(1000); // use to regulate loop rate 
+  ros::Rate naptime(10); // use to regulate loop rate 
 
   //subscriber:
   image_transport::ImageTransport it(nh);
@@ -220,10 +213,11 @@ int main(int argc, char **argv)
     {
       receive_pose_flag = 0;
       seam_detection(naptime, path_publisher, pub_pointcloud, pointcloud_publisher);
+      break;
     }
 
     ros::spinOnce(); //allow data update from callback; 
-    naptime.sleep(); // wait for remainder of specified period; 
+    // naptime.sleep(); // wait for remainder of specified period; 
   }
 
 
