@@ -8,52 +8,6 @@
   <xacro:include filename="$(find realsense2_description)/urdf/_d415.urdf.xacro" />
  
 
- 
-  <link name="world"/>
-
-  <link name="table">
-    <visual>
-      <geometry>
-        <box size="0.8 1.0 0.02"/>
-      </geometry>
-      <material name="Wooden">
-        <color rgba="1.0 0.831 0.486 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="1.0 1.0 0.015875"/>
-      </geometry>
-    </collision>
-  </link>
-
-  <joint name="world_to_table" type="fixed">
-    <parent link="world"/>
-    <child link="table"/>
-    <origin xyz="0.0 0.331 -0.0079375" rpy="0 0 0"/>
-  </joint>
-
-
-  <link name="bar1">
-    <visual>
-      <geometry>
-        <box size="0.8 0.04 0.04"/>
-      </geometry>
-      <material name="Steel">
-        <color rgba="0.5 0.5 0.5 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="0.8 0.04 0.04"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="table_to_bar1" type="fixed">
-    <parent link="table"/>
-    <child link="bar1"/>
-    <origin xyz="0 -0.45 0.03" rpy="0 0 0"/>
-  </joint>
 
   <link name="bar2">
     <visual>
@@ -70,20 +24,68 @@
       </geometry>
     </collision>
   </link>
-  <joint name="table_to_bar2" type="fixed">
-    <parent link="table"/>
+
+  <link name="world"/>
+  <joint name="world_to_bar2" type="fixed">
+    <parent link="world"/>
     <child link="bar2"/>
-    <origin xyz="0 -0.37 0.03" rpy="0 0 0"/>
+    <origin xyz="0 0.038 -0.02" rpy="0 0 0"/>
   </joint>
 
-
-
-  <joint name="table_to_robot" type="fixed">
+  <joint name="bar2_to_robot" type="fixed">
     <parent link="bar2"/>
     <child link="base_link"/>
     <origin xyz="0 -0.038 0.02" rpy="0.0 0.0 0"/>
    <!-- <origin xyz="-0.331 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/>  -->
   </joint>
+
+
+ <link name="bar1">
+    <visual>
+      <geometry>
+        <box size="0.8 0.04 0.04"/>
+      </geometry>
+      <material name="Steel">
+        <color rgba="0.5 0.5 0.5 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.8 0.04 0.04"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="bar2_to_bar1" type="fixed">
+    <parent link="bar2"/>
+    <child link="bar1"/>
+    <origin xyz="0 -0.08 0" rpy="0 0 0"/>
+  </joint>
+
+
+  <link name="table">
+    <visual>
+      <geometry>
+        <box size="0.8 1.0 0.02"/>
+      </geometry>
+      <material name="Wooden">
+        <color rgba="1.0 0.831 0.486 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.8 1.0 0.02"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="bar2_to_table" type="fixed">
+    <parent link="bar2"/>
+    <child link="table"/>
+    <origin xyz="0.0 0.35 -0.03" rpy="0 0 0"/>
+  </joint>
+
+
+
 
 
 

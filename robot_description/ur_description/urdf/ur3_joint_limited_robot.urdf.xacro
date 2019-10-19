@@ -21,6 +21,7 @@
     transmission_hw_interface="$(arg transmission_hw_interface)"
   />
 
+  
   <link name="world" />
 
   <joint name="world_joint" type="fixed">

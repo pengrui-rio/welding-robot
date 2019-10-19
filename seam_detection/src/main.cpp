@@ -167,7 +167,7 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
   PointCloud::Ptr path_cloud_showRviz (new PointCloud);
   vector<float> orientation_pathpoints = Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
-  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
+  // show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
   //////////////////////////////////////////////////////////
   cout << "3D path is generated !!!!!!!!!" << endl;
 
