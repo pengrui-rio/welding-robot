@@ -144,11 +144,6 @@ Visualization Manager:
             Alpha: 1
             Show Axes: false
             Show Trail: false
-          torch_point:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           upper_arm_link:
             Alpha: 1
             Show Axes: false
@@ -225,8 +220,6 @@ Visualization Manager:
           Value: false
         tool0:
           Value: false
-        torch_point:
-          Value: true
         upper_arm_link:
           Value: false
         welding_torch:
@@ -275,8 +268,6 @@ Visualization Manager:
                                   camera_right_ir_frame:
                                     camera_right_ir_optical_frame:
                                       {}
-                            torch_point:
-                              {}
                             welding_torch:
                               {}
             table:
@@ -329,25 +320,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.19860005
+      Distance: 1.23198533
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.113567002
-        Y: 0.105920002
-        Z: 2.23518001e-07
+        X: -0.0129803717
+        Y: 0.532213271
+        Z: 7.45063744e-08
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.0997964293
+      Pitch: 0.989796519
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.18676448
+      Yaw: 1.84676385
     Saved: ~
 Window Geometry:
   Displays:
