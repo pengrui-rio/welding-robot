@@ -168,6 +168,38 @@ void map_reconstruction(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_p
 
 }
 
+
+void record_mapPointcloud( PointCloud::Ptr cloud )
+{
+  PointCloud::Ptr cloud_export (new PointCloud);
+
+  for(float i = 0; i < cloud->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud->points[i].x; 
+    p.y = cloud->points[i].y;
+    p.z = cloud->points[i].z;
+    p.r = cloud->points[i].r; 
+    p.g = cloud->points[i].g;
+    p.b = cloud->points[i].b;
+
+    if ( (p.x <= 1 && p.x >= -1) && (p.y <= 1 && p.y >= -1) && (p.z <= 1 && p.z >= -1) )
+    {
+      cloud_export->points.push_back( p );    
+    }
+  }
+
+  cloud_export->width = 1;
+  cloud_export->height = cloud_export->points.size();
+
+  cout << "cloud->points.size()" << cloud_export->points.size() << endl;
+  pcl::PCDWriter writer;
+  writer.write("./src/surface_reconstruction/save_pcd/map.pcd", *cloud_export, false) ;
+  
+}
+
+
+
 void record_single_rgbdFrame(int initial_flag, float pic_count, PointCloud::Ptr cloud)
 {
   cout << "pic_count :" << pic_count << endl;
@@ -203,35 +235,6 @@ void record_single_rgbdFrame(int initial_flag, float pic_count, PointCloud::Ptr 
   }
 }
 
-void record_mapPointcloud( PointCloud::Ptr cloud )
-{
-  PointCloud::Ptr cloud_export (new PointCloud);
-
-  for(float i = 0; i < cloud->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-    p.x = cloud->points[i].x; 
-    p.y = cloud->points[i].y;
-    p.z = cloud->points[i].z;
-    p.r = cloud->points[i].r; 
-    p.g = cloud->points[i].g;
-    p.b = cloud->points[i].b;
-
-    if ( (p.x <= 1 && p.x >= -1) && (p.y <= 1 && p.y >= -1) && (p.z <= 1 && p.z >= -1) )
-    {
-      cloud_export->points.push_back( p );    
-    }
-  }
-
-  cloud_export->width = 1;
-  cloud_export->height = cloud_export->points.size();
-
-  cout << "cloud->points.size()" << cloud_export->points.size() << endl;
-  pcl::PCDWriter writer;
-  writer.write("./src/surface_reconstruction/save_pcd/map.pcd", *cloud_export, false) ;
-
-  
-}
 
 int main(int argc, char **argv)
 {
