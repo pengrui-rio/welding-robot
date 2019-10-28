@@ -73,7 +73,7 @@
     </visual>
     <collision>
       <geometry>
-        <box size="0.8 1.0 0.02"/>
+        <box size="0.001 0.001 0.001"/>
       </geometry>
     </collision>
   </link>
@@ -83,12 +83,6 @@
     <child link="table"/>
     <origin xyz="0.0 0.35 -0.03" rpy="0 0 0"/>
   </joint>
-
-
-
-
-
-
 
 
 
@@ -119,6 +113,12 @@
     <child link="welding_torch"/>
     <origin xyz="0 0.055 0.29" rpy="0 0 0"/>
   </joint>
+
+
+
+
+
+
 
 
 

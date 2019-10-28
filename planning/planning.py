@@ -134,7 +134,6 @@ class MoveGroupPythonIntefaceTutorial(object):
  
     group.go(joint_goal, wait=True)
     group.stop()
-
     group.clear_pose_targets()
     current_pose = self.group.get_current_pose().pose
     print current_pose.position
@@ -142,6 +141,26 @@ class MoveGroupPythonIntefaceTutorial(object):
     print "pitch : %f" % pitch
     print "roll  : %f" % roll
     print "\n"
+
+
+    pose_goal = geometry_msgs.msg.Pose()
+    Q = euler_to_quaternion(0 , -180, 0)
+    pose_goal.orientation.x = Q[0]
+    pose_goal.orientation.y = Q[1]
+    pose_goal.orientation.z = Q[2]
+    pose_goal.orientation.w = Q[3]
+    pose_goal.position.x = 0
+    pose_goal.position.y = 0.3
+    pose_goal.position.z = 0.1
+    group.set_pose_target(pose_goal)
+
+    plan = group.go(wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    # current_joints = self.group.get_current_joint_values()
+    # print current_joints
+
+
 
     pub_pose = PoseStamped()
     pub_pose.header.stamp       = rospy.Time.now()

@@ -8,11 +8,34 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("./src/seam_detection/save_pcd/1/cylinder1.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/straight.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
 
+
+
+  for (float i = 0; i < cloud_ptr->points.size(); i++)  //480
+  {
+    pcl::PointXYZRGB p, p_z, p_x, p_y, p_pushback;
+
+    p.x    = cloud_ptr->points[i].x; 
+    p.y    = cloud_ptr->points[i].y; 
+    p.z    = cloud_ptr->points[i].z; 
+
+    rotate_y(p.x,   p.y,   p.z,   0  , &p_y.x, &p_y.y, &p_y.z);
+    rotate_x(p_y.x, p_y.y, p_y.z, 180 , &p_x.x, &p_x.y, &p_x.z);
+    rotate_z(p_x.x, p_x.y, p_x.z, 0   , &p_z.x, &p_z.y, &p_z.z); 
+
+    p_pushback.x = -0.02 + p_z.x ;//- 0.035;
+    p_pushback.y = 0.4 + p_z.y ;//+ 0.080;
+    p_pushback.z = 0.5 + p_z.z ;//+ 0.036;
+    p_pushback.b = 200;
+    p_pushback.g = 200;
+    p_pushback.r = 200;
+
+    cloud_ptr_show->points.push_back( p_pushback );     
+  }
 
   // ////////////////////////////////////////////////////////////////////////////
   // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -54,29 +77,29 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   // return smooth_cloud;
   // ////////////////////////////////////////////////////////////////////////////
 
-  //give each point color to show 要改坐标在这里改
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[i].x ; 
-    p.y = cloud_ptr->points[i].y ;
-    p.z = cloud_ptr->points[i].z + 0.1;
-    p.b = 200; 
-    p.g = 200;
-    p.r = 200;
-    cloud_ptr_show->points.push_back( p );    
-  }
-  cloud_ptr->clear();
+  // //give each point color to show 要改坐标在这里改
+  // for(float i = 0; i < cloud_ptr->points.size(); i++)
+  // {
+  //   pcl::PointXYZRGB p;
+  //   p.x = cloud_ptr->points[i].x ; 
+  //   p.y = cloud_ptr->points[i].y ;
+  //   p.z = cloud_ptr->points[i].z + 0.1;
+  //   p.b = 200; 
+  //   p.g = 200;
+  //   p.r = 200;
+  //   cloud_ptr_show->points.push_back( p );    
+  // }
+  // cloud_ptr->clear();
 
-  //这个不用动
-  for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = cloud_ptr_show->points[i].x; 
-    p.y = cloud_ptr_show->points[i].y;
-    p.z = cloud_ptr_show->points[i].z;
-    cloud_ptr->points.push_back( p );    
-  }
+  // //这个不用动
+  // for(float i = 0; i < cloud_ptr_show->points.size(); i++)
+  // {
+  //   pcl::PointXYZ p;
+  //   p.x = cloud_ptr_show->points[i].x; 
+  //   p.y = cloud_ptr_show->points[i].y;
+  //   p.z = cloud_ptr_show->points[i].z;
+  //   cloud_ptr->points.push_back( p );    
+  // }
 
 
   return cloud_ptr;
