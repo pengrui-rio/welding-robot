@@ -125,16 +125,16 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
 
       // 从rgb图像中获取它的颜色
       // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
-      p.b = color_pic.ptr<uchar>(m)[n*3];
-      p.g = color_pic.ptr<uchar>(m)[n*3+1];
-      p.r = color_pic.ptr<uchar>(m)[n*3+2];
+      p.b = 200;//color_pic.ptr<uchar>(m)[n*3];
+      p.g = 200;//color_pic.ptr<uchar>(m)[n*3+1];
+      p.r = 200;//color_pic.ptr<uchar>(m)[n*3+2];
 
       cloud->points.push_back( p );        
     }
   }
 }
 
-void map_reconstruction(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud)
+void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud)
 {
   for (float i = 0; i < camera_pointcloud->points.size(); i++)  //480
   {
@@ -144,13 +144,17 @@ void map_reconstruction(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_p
     p.y    = camera_pointcloud->points[i].y; 
     p.z    = camera_pointcloud->points[i].z; 
 
-    rotate_y(p.x,   p.y,   p.z,   current_roll  , &p_y.x, &p_y.y, &p_y.z);
+    rotate_y(p.x,   p.y,   p.z,   current_yaw  , &p_y.x, &p_y.y, &p_y.z);
     rotate_x(p_y.x, p_y.y, p_y.z, current_pitch , &p_x.x, &p_x.y, &p_x.z);
-    rotate_z(p_x.x, p_x.y, p_x.z, current_yaw   , &p_z.x, &p_z.y, &p_z.z); 
+    rotate_z(p_x.x, p_x.y, p_x.z, current_roll   , &p_z.x, &p_z.y, &p_z.z); 
 
-    p_pushback.x = current_x + p_z.x ;//- 0.035;
-    p_pushback.y = current_y + p_z.y ;//+ 0.080;
-    p_pushback.z = current_z + p_z.z ;//+ 0.036;
+    float l = 0.225, w = 0.1765, o = -0.034;
+    //bottom:
+    p_pushback.x = current_x + p_z.x + 0 + o  ;//+ -0.034; 
+    p_pushback.y = current_y + p_z.y + 0 - w;// + 0.1765; 
+    p_pushback.z = current_z + p_z.z + 0 + l  ;//+ 0.225; 
+
+
     p_pushback.b = camera_pointcloud->points[i].b;
     p_pushback.g = camera_pointcloud->points[i].g;
     p_pushback.r = camera_pointcloud->points[i].r;
@@ -194,7 +198,7 @@ void record_mapPointcloud( PointCloud::Ptr cloud )
 
   cout << "cloud->points.size()" << cloud_export->points.size() << endl;
   pcl::PCDWriter writer;
-  writer.write("./src/surface_reconstruction/save_pcd/map.pcd", *cloud_export, false) ;
+  writer.write("/home/robot/Documents/a_system/src/surface_reconstruction/save_pcd/record.pcd", *cloud_export, false) ;
   
 }
 
@@ -203,7 +207,7 @@ void record_mapPointcloud( PointCloud::Ptr cloud )
 void record_single_rgbdFrame(int initial_flag, float pic_count, PointCloud::Ptr cloud)
 {
   cout << "pic_count :" << pic_count << endl;
-  if (pic_count >= 1000 && initial_flag == 1)
+  if (pic_count >= 100 && initial_flag == 1)
   {
 
     PointCloud::Ptr cloud_export (new PointCloud);
@@ -272,20 +276,25 @@ int main(int argc, char **argv)
     camera_pointcloud_publisher.publish(pub_camera_pointcloud);
 
 
+
+    // record_single_rgbdFrame()
+    
     if(receive_pose_flag)
     {
-      map_reconstruction(camera_pointcloud, map_pointcloud);
+      coordinate_transformation(camera_pointcloud, map_pointcloud);
       receive_pose_flag = 0;
       receive_pose_count++;
 
       cout << "map_pointcloud->points.size()  " << map_pointcloud->points.size() << endl;
-      if(receive_pose_count == 3)
+      if(receive_pose_count == 1)
       {
         record_mapPointcloud(map_pointcloud);
         cout << " record mapPointcloud !!!!" << endl ;
       }
     }
     
+    // coordinate_transformation(camera_pointcloud, map_pointcloud);
+
     pcl::toROSMsg(*map_pointcloud, pub_map_pointcloud);
     pub_map_pointcloud.header.frame_id = "base_link";
     pub_map_pointcloud.header.stamp = ros::Time::now();
@@ -293,6 +302,7 @@ int main(int argc, char **argv)
 
 
     camera_pointcloud->points.clear();
+    // map_pointcloud->points.clear();
 
     ros::spinOnce(); //allow data update from callback; 
     naptime.sleep(); // wait for remainder of specified period; 

@@ -6,6 +6,6 @@ moveit_setup_assistant_config:
   SRDF:
     relative_path: config/weldingtable.srdf
   CONFIG:
-    author_name: 22
-    author_email: 22@qq.com
-    generated_timestamp: 1572263886
+    author_name: ww
+    author_email: ww@qq.com
+    generated_timestamp: 1572431714

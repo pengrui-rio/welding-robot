@@ -172,23 +172,23 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
   show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
 
   PointCloud::Ptr grooveRegion_onProfile = show_grooveRegion_onProfile(cloud_ptr, path_cloud_showRviz);
-  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, grooveRegion_onProfile, pub_pointcloud, pointcloud_publisher);
+  show_pointcloud_Rviz(1*show_Pointcloud_timeMax, grooveRegion_onProfile, pub_pointcloud, pointcloud_publisher);
   //////////////////////////////////////////////////////////
   cout << "3D path is generated !!!!!!!!!" << endl;
 
-  // geometry_msgs::Pose path_point;
-  // for(int i = 0; i < path_cloud->points.size(); i++)
-  // {
-  //   path_point.position.x = path_cloud->points[i].x;//- 0.035;
-  //   path_point.position.y = path_cloud->points[i].y ;
-  //   path_point.position.z = path_cloud->points[i].z;//+ 0.036;
-  //   path_point.orientation.x = orientation_pathpoints[i];
+  geometry_msgs::Pose path_point;
+  for(int i = 0; i < path_cloud->points.size(); i++)
+  {
+    path_point.position.x = path_cloud->points[i].x;//- 0.035;
+    path_point.position.y = path_cloud->points[i].y ;
+    path_point.position.z = path_cloud->points[i].z;//+ 0.036;
+    path_point.orientation.x = orientation_pathpoints[i];
 
-  //   path_publisher.publish(path_point);
+    path_publisher.publish(path_point);
 
-  //   naptime.sleep(); // wait for remainder of specified period; 
-  // }
-  // cout << "3D path is published !!!!!!!!!" << endl;
+    naptime.sleep(); // wait for remainder of specified period; 
+  }
+  cout << "3D path is published !!!!!!!!!" << endl;
 }
 
 
