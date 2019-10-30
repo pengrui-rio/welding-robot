@@ -8,34 +8,91 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/straight.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test_smooth.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
 
 
 
-  for (float i = 0; i < cloud_ptr->points.size(); i++)  //480
-  {
-    pcl::PointXYZRGB p, p_z, p_x, p_y, p_pushback;
+  // for (float i = 0; i < cloud_ptr->points.size(); i++)  //480
+  // {
+  //   pcl::PointXYZRGB p, p_z, p_x, p_y, p_pushback;
 
-    p.x    = cloud_ptr->points[i].x; 
-    p.y    = cloud_ptr->points[i].y; 
-    p.z    = cloud_ptr->points[i].z; 
+  //   p.x    = cloud_ptr->points[i].x; 
+  //   p.y    = cloud_ptr->points[i].y; 
+  //   p.z    = cloud_ptr->points[i].z; 
 
-    rotate_y(p.x,   p.y,   p.z,   0  , &p_y.x, &p_y.y, &p_y.z);
-    rotate_x(p_y.x, p_y.y, p_y.z, 180 , &p_x.x, &p_x.y, &p_x.z);
-    rotate_z(p_x.x, p_x.y, p_x.z, 0   , &p_z.x, &p_z.y, &p_z.z); 
+  //   rotate_y(p.x,   p.y,   p.z,   0  , &p_y.x, &p_y.y, &p_y.z);
+  //   rotate_x(p_y.x, p_y.y, p_y.z, 180 , &p_x.x, &p_x.y, &p_x.z);
+  //   rotate_z(p_x.x, p_x.y, p_x.z, 0   , &p_z.x, &p_z.y, &p_z.z); 
 
-    p_pushback.x = -0.02 + p_z.x ;//- 0.035;
-    p_pushback.y = 0.4 + p_z.y ;//+ 0.080;
-    p_pushback.z = 0.5 + p_z.z ;//+ 0.036;
-    p_pushback.b = 200;
-    p_pushback.g = 200;
-    p_pushback.r = 200;
+  //   p_pushback.x = -0.02 + p_z.x ;//- 0.035;
+  //   p_pushback.y = 0.5 + p_z.y ;//+ 0.080;
+  //   p_pushback.z = 0.43 + p_z.z ;//+ 0.036;
+  //   p_pushback.b = 200;
+  //   p_pushback.g = 200;
+  //   p_pushback.r = 200;
 
-    cloud_ptr_show->points.push_back( p_pushback );     
-  }
+  //   cloud_ptr_show->points.push_back( p_pushback );     
+  // }
+
+  // ////////////////////////////////////////////////////////////////////////////
+  // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  // pcl::PointCloud<pcl::PointNormal> mls_points;
+  // pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+  // mls.setComputeNormals (true);
+  // mls.setInputCloud (cloud_ptr);
+  // mls.setPolynomialOrder (2);
+  // mls.setSearchMethod (tree);
+  // mls.setSearchRadius (0.01);
+  // mls.process (mls_points);
+  // cout << "smooth size(): " <<  mls_points.size() << endl << endl;
+
+  // Cloud::Ptr smooth_cloud ( new Cloud );
+  // for(float i = 0; i < mls_points.size(); i++)
+  // {
+  //   pcl::PointXYZ p, p_z, p_x, p_y, p_pushback;
+
+  //   p.x    = mls_points[i].x; 
+  //   p.y    = mls_points[i].y; 
+  //   p.z    = mls_points[i].z; 
+
+  //   rotate_y(p.x,   p.y,   p.z,   0   , &p_y.x, &p_y.y, &p_y.z);
+  //   rotate_x(p_y.x, p_y.y, p_y.z, 180 , &p_x.x, &p_x.y, &p_x.z);
+  //   rotate_z(p_x.x, p_x.y, p_x.z, 0   , &p_z.x, &p_z.y, &p_z.z); 
+
+  //   p_pushback.x = -0.03 + p_z.x ;//- 0.035;
+  //   p_pushback.y = 0.5   + p_z.y ;//+ 0.080;
+  //   p_pushback.z = 0.43  + p_z.z ;//+ 0.036;
+
+  //   smooth_cloud->points.push_back( p_pushback );
+  // }
+
+  // for(float i = 0; i < smooth_cloud->points.size(); i++)
+  // {
+  //   pcl::PointXYZRGB p;
+
+  //   p.x    = smooth_cloud->points[i].x; 
+  //   p.y    = smooth_cloud->points[i].y; 
+  //   p.z    = smooth_cloud->points[i].z; 
+  //   p.b = 200;
+  //   p.g = 200;
+  //   p.r = 200;
+
+  //   cloud_ptr_show->points.push_back( p );     
+  // }
+
+  // cloud_ptr_show->width = 1;
+  // cloud_ptr_show->height = cloud_ptr_show->points.size();
+  // pcl::PCDWriter writer;
+  // writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test_smooth.pcd", *cloud_ptr_show, false) ;
+
+  // return smooth_cloud;
+  // ////////////////////////////////////////////////////////////////////////////
+
+
+
 
   // ////////////////////////////////////////////////////////////////////////////
   // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -72,34 +129,37 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   //   cloud_ptr_show->points.push_back( p );    
   // }
 
-  // pcl::io::savePCDFile ("./src/seam_detection/save_pcd/map_smooth.pcd", mls_points);
+  // pcl::io::savePCDFile ("./src/seam_detection/save_pcd/test_smooth.pcd", mls_points);
 
   // return smooth_cloud;
   // ////////////////////////////////////////////////////////////////////////////
 
-  // //give each point color to show 要改坐标在这里改
-  // for(float i = 0; i < cloud_ptr->points.size(); i++)
-  // {
-  //   pcl::PointXYZRGB p;
-  //   p.x = cloud_ptr->points[i].x ; 
-  //   p.y = cloud_ptr->points[i].y ;
-  //   p.z = cloud_ptr->points[i].z + 0.1;
-  //   p.b = 200; 
-  //   p.g = 200;
-  //   p.r = 200;
-  //   cloud_ptr_show->points.push_back( p );    
-  // }
-  // cloud_ptr->clear();
 
-  // //这个不用动
-  // for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-  // {
-  //   pcl::PointXYZ p;
-  //   p.x = cloud_ptr_show->points[i].x; 
-  //   p.y = cloud_ptr_show->points[i].y;
-  //   p.z = cloud_ptr_show->points[i].z;
-  //   cloud_ptr->points.push_back( p );    
-  // }
+
+
+  //give each point color to show 要改坐标在这里改
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_ptr->points[i].x ; 
+    p.y = cloud_ptr->points[i].y ;
+    p.z = cloud_ptr->points[i].z ;
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
+  cloud_ptr->clear();
+
+  //这个不用动
+  for(float i = 0; i < cloud_ptr_show->points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = cloud_ptr_show->points[i].x; 
+    p.y = cloud_ptr_show->points[i].y;
+    p.z = cloud_ptr_show->points[i].z;
+    cloud_ptr->points.push_back( p );    
+  }
 
 
   return cloud_ptr;
@@ -135,9 +195,20 @@ vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr
     M = sqrt(pow(cloud_normals[i].normal_x, 2) + pow(cloud_normals[i].normal_y, 2) + pow(cloud_normals[i].normal_z, 2));
 
     p.x = cloud_normals[i].normal_x / M;
+    if(p.x < 0) 
+    {
+      p.x = -p.x;
+    }
     p.y = cloud_normals[i].normal_y / M;
+    if(p.y < 0) 
+    {
+      p.y = -p.y;
+    }
     p.z = cloud_normals[i].normal_z / M;
-
+    if(p.z < 0) 
+    {
+      p.z = -p.z;
+    }
     unit_normals.push_back( p );
   }
 
@@ -191,26 +262,29 @@ vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Clo
   // compute descriptor    two vectors    COS_ab = a*b / (|a| * |b|) 
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   { 
-    float a_b = cloud_normals[ i ].x * basic_normal_x +
-                cloud_normals[ i ].y * basic_normal_y +
-                cloud_normals[ i ].z * basic_normal_z ;  
+    // float a_b = cloud_normals[ i ].x * basic_normal_x +
+    //             cloud_normals[ i ].y * basic_normal_y +
+    //             cloud_normals[ i ].z * basic_normal_z ;  
 
-    float a2 = sqrt(pow(cloud_normals[ i ].x, 2) +
-                    pow(cloud_normals[ i ].y, 2) +
-                    pow(cloud_normals[ i ].z, 2));  
+    // float a2 = sqrt(pow(cloud_normals[ i ].x, 2) +
+    //                 pow(cloud_normals[ i ].y, 2) +
+    //                 pow(cloud_normals[ i ].z, 2));  
 
-    float b2 = sqrt(pow(basic_normal_x, 2) +
-                    pow(basic_normal_y, 2) +
-                    pow(basic_normal_z, 2));  
+    // float b2 = sqrt(pow(basic_normal_x, 2) +
+    //                 pow(basic_normal_y, 2) +
+    //                 pow(basic_normal_z, 2));  
 
-    float COS_ab = a_b / (a2 * b2) ;
+    // float COS_ab = a_b / (a2 * b2) ;
 
-    float theta = acos( COS_ab ) * 180.0 / M_PI ;
+    // float theta = acos( COS_ab ) * 180.0 / M_PI ;
 
-    if( __isnan(theta) == true )
-    {
-      continue;
-    }
+    // if( __isnan(theta) == true )
+    // {
+    //   continue;
+    // }
+    float COS_ab = sqrt(pow(cloud_normals[ i ].x - basic_normal_x, 2) + 
+                        pow(cloud_normals[ i ].y - basic_normal_y, 2) + 
+                        pow(cloud_normals[ i ].z - basic_normal_z, 2));
 
     Dir_descriptor.push_back( COS_ab );     
 
@@ -343,7 +417,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
   //define weight_variance_threshold
-  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 2.5;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 5.5;
 
   //use weight_variance_threshold to separate target region
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)
@@ -485,6 +559,74 @@ void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud
   cout << "cloud_seamRegion->points.size(): " << cloud_seamRegion->points.size() << endl << endl;
 }
 
+PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion)
+{
+  PointCloud::Ptr grooveRegion_onProfile (new PointCloud);
+
+  // for(float i = 0; i < cloud_ptr->points.size(); i++)
+  // {
+  //   pcl::PointXYZRGB p;
+    
+  //   p.x = cloud_ptr->points[ i ].x;
+  //   p.y = cloud_ptr->points[ i ].y;
+  //   p.z = cloud_ptr->points[ i ].z;
+  //   p.b = 200;
+  //   p.g = 200;
+  //   p.r = 200;
+
+  //   for(float j = 0; j < cloud_seamRegion->points.size(); j++)
+  //   {
+  //     if(fabs(cloud_ptr->points[i].x - cloud_seamRegion->points[j].x) < 1e-5 &&
+  //        fabs(cloud_ptr->points[i].y - cloud_seamRegion->points[j].y) < 1e-5 &&
+  //        fabs(cloud_ptr->points[i].z - cloud_seamRegion->points[j].z) < 1e-5)
+  //        {
+  //           p.x = cloud_ptr->points[ i ].x;
+  //           p.y = cloud_ptr->points[ i ].y;
+  //           p.z = cloud_ptr->points[ i ].z;
+  //           p.b = cloud_seamRegion->points[ j ].b;
+  //           p.g = cloud_seamRegion->points[ j ].g;
+  //           p.r = cloud_seamRegion->points[ j ].r;
+
+  //           break;
+  //        }
+  //   }
+
+  //   grooveRegion_onProfile->points.push_back( p ); 
+  // }
+
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+
+    p.x = cloud_ptr->points[ i ].x;
+    p.y = cloud_ptr->points[ i ].y;
+    p.z = cloud_ptr->points[ i ].z;
+    p.b = 200;
+    p.g = 200;
+    p.r = 200;
+
+    grooveRegion_onProfile->points.push_back( p ); 
+  }
+
+  for(float j = 0; j < cloud_seamRegion->points.size(); j++)
+  {
+    pcl::PointXYZRGB p;
+
+    p.x = cloud_seamRegion->points[ j ].x;
+    p.y = cloud_seamRegion->points[ j ].y;
+    p.z = cloud_seamRegion->points[ j ].z;
+    p.b = cloud_seamRegion->points[ j ].b;
+    p.g = cloud_seamRegion->points[ j ].g;
+    p.r = cloud_seamRegion->points[ j ].r;
+
+    grooveRegion_onProfile->points.push_back( p ); 
+  }
+
+
+  cout << "grooveRegion_onProfile->points.size(): " << grooveRegion_onProfile->points.size() << endl;
+
+  return grooveRegion_onProfile;
+}
 
 
 vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion)
@@ -771,8 +913,8 @@ vector<float> Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::
       }
     }
 
-    cout << "seg_count: " << k+1 << endl;
-    cout << "Xp_goal: " << Xp_goal << endl << endl;
+    // cout << "seg_count: " << k+1 << endl;
+    // cout << "Xp_goal: " << Xp_goal << endl << endl;
     path_cloud->points.push_back( Xp_goal );
     path_cloud_showRviz->points.push_back( Xp_goal );
 

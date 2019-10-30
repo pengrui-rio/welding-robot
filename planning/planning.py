@@ -144,7 +144,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 
 
     pose_goal = geometry_msgs.msg.Pose()
-    Q = euler_to_quaternion(0 , -180, 0)
+    Q = euler_to_quaternion(0 , -90, 0)
     pose_goal.orientation.x = Q[0]
     pose_goal.orientation.y = Q[1]
     pose_goal.orientation.z = Q[2]

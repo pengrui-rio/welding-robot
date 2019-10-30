@@ -33,7 +33,8 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
- 
+ #include <pcl/surface/mls.h>
+
 // 定义点云类型
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
 typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
@@ -58,6 +59,8 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
 void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint, Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show);
 
 void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud::Ptr cloud_seamRegion);
+
+PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion);
 
 vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion);
 
