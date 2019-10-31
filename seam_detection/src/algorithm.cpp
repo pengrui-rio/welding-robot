@@ -15,84 +15,6 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
 
 
-  // for (float i = 0; i < cloud_ptr->points.size(); i++)  //480
-  // {
-  //   pcl::PointXYZRGB p, p_z, p_x, p_y, p_pushback;
-
-  //   p.x    = cloud_ptr->points[i].x; 
-  //   p.y    = cloud_ptr->points[i].y; 
-  //   p.z    = cloud_ptr->points[i].z; 
-
-  //   rotate_y(p.x,   p.y,   p.z,   0  , &p_y.x, &p_y.y, &p_y.z);
-  //   rotate_x(p_y.x, p_y.y, p_y.z, 180 , &p_x.x, &p_x.y, &p_x.z);
-  //   rotate_z(p_x.x, p_x.y, p_x.z, 0   , &p_z.x, &p_z.y, &p_z.z); 
-
-  //   p_pushback.x = -0.02 + p_z.x ;//- 0.035;
-  //   p_pushback.y = 0.5 + p_z.y ;//+ 0.080;
-  //   p_pushback.z = 0.43 + p_z.z ;//+ 0.036;
-  //   p_pushback.b = 200;
-  //   p_pushback.g = 200;
-  //   p_pushback.r = 200;
-
-  //   cloud_ptr_show->points.push_back( p_pushback );     
-  // }
-
-  // ////////////////////////////////////////////////////////////////////////////
-  // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-  // pcl::PointCloud<pcl::PointNormal> mls_points;
-  // pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
-  // mls.setComputeNormals (true);
-  // mls.setInputCloud (cloud_ptr);
-  // mls.setPolynomialOrder (2);
-  // mls.setSearchMethod (tree);
-  // mls.setSearchRadius (0.01);
-  // mls.process (mls_points);
-  // cout << "smooth size(): " <<  mls_points.size() << endl << endl;
-
-  // Cloud::Ptr smooth_cloud ( new Cloud );
-  // for(float i = 0; i < mls_points.size(); i++)
-  // {
-  //   pcl::PointXYZ p, p_z, p_x, p_y, p_pushback;
-
-  //   p.x    = mls_points[i].x; 
-  //   p.y    = mls_points[i].y; 
-  //   p.z    = mls_points[i].z; 
-
-  //   rotate_y(p.x,   p.y,   p.z,   0   , &p_y.x, &p_y.y, &p_y.z);
-  //   rotate_x(p_y.x, p_y.y, p_y.z, 180 , &p_x.x, &p_x.y, &p_x.z);
-  //   rotate_z(p_x.x, p_x.y, p_x.z, 0   , &p_z.x, &p_z.y, &p_z.z); 
-
-  //   p_pushback.x = -0.03 + p_z.x ;//- 0.035;
-  //   p_pushback.y = 0.5   + p_z.y ;//+ 0.080;
-  //   p_pushback.z = 0.43  + p_z.z ;//+ 0.036;
-
-  //   smooth_cloud->points.push_back( p_pushback );
-  // }
-
-  // for(float i = 0; i < smooth_cloud->points.size(); i++)
-  // {
-  //   pcl::PointXYZRGB p;
-
-  //   p.x    = smooth_cloud->points[i].x; 
-  //   p.y    = smooth_cloud->points[i].y; 
-  //   p.z    = smooth_cloud->points[i].z; 
-  //   p.b = 200;
-  //   p.g = 200;
-  //   p.r = 200;
-
-  //   cloud_ptr_show->points.push_back( p );     
-  // }
-
-  // cloud_ptr_show->width = 1;
-  // cloud_ptr_show->height = cloud_ptr_show->points.size();
-  // pcl::PCDWriter writer;
-  // writer.write("/home/rick/Documents/a_system/src/seam_detection/save_pcd/test_smooth.pcd", *cloud_ptr_show, false) ;
-
-  // return smooth_cloud;
-  // ////////////////////////////////////////////////////////////////////////////
-
-
-
 
   // ////////////////////////////////////////////////////////////////////////////
   // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
@@ -136,23 +58,51 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
 
 
+//  for (float i = 0; i < cloud_ptr->points.size(); i++)  //480
+//   {
+//     pcl::PointXYZRGB p, p_z, p_x, p_y, p_pushback;
+
+//     p.x    = cloud_ptr->points[i].x ; 
+//     p.y    = cloud_ptr->points[i].y ; 
+//     p.z    = cloud_ptr->points[i].z - 0.009; 
+
+//     rotate_y(p.x,   p.y,   p.z,   0  , &p_y.x, &p_y.y, &p_y.z);
+//     rotate_x(p_y.x, p_y.y, p_y.z, 0 , &p_x.x, &p_x.y, &p_x.z);
+//     rotate_z(p_x.x, p_x.y, p_x.z, 15   , &p_z.x, &p_z.y, &p_z.z); 
+
+//     p_pushback.x = 0 + p_z.x + 0.05;//- 0.035;
+//     p_pushback.y = 0 + p_z.y + 0.21;//+ 0.080;
+//     p_pushback.z = 0 + p_z.z ;//+ 0.036;
+//     p_pushback.b = 200;
+//     p_pushback.g = 200;
+//     p_pushback.r = 200;
+
+//     cloud_ptr_show->points.push_back( p_pushback );     
+//   }
 
   //give each point color to show 要改坐标在这里改
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
     pcl::PointXYZRGB p;
 
-    if( cloud_ptr->points[i].z > 0.02)
-    {
-      p.x = cloud_ptr->points[i].x - 0.1; 
-      p.y = cloud_ptr->points[i].y - 0.16;
-      p.z = cloud_ptr->points[i].z + 0.2;
-      p.b = 200; 
-      p.g = 200;
-      p.r = 200;
-      cloud_ptr_show->points.push_back( p );    
-    }
+    // if( cloud_ptr->points[i].z > 0.02)
+    // {
+    //   p.x = cloud_ptr->points[i].x - 0.1; 
+    //   p.y = cloud_ptr->points[i].y - 0.16;
+    //   p.z = cloud_ptr->points[i].z + 0.108; // 0.125
+    //   p.b = 200; 
+    //   p.g = 200;
+    //   p.r = 200;
+    //   cloud_ptr_show->points.push_back( p );    
+    // }
 
+    p.x = cloud_ptr->points[i].x + 0.03; 
+    p.y = cloud_ptr->points[i].y - 0.03;
+    p.z = cloud_ptr->points[i].z - 0.457; // 0.125
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
   }
   cloud_ptr->clear();
 
@@ -171,7 +121,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   cout << "cloud_ptr_show->points.size()" << cloud_ptr_show->points.size() << endl;
   pcl::PCDWriter writer;
-  writer.write("/home/robot/Documents/a_system/src/seam_detection/save_pcd/middle_straight.pcd", *cloud_ptr_show, false) ;
+  writer.write("/home/robot/Documents/a_system/src/seam_detection/save_pcd/box.pcd", *cloud_ptr_show, false) ;
 
 
   return cloud_ptr;
@@ -430,7 +380,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
   //define weight_variance_threshold
-  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3.5;
 
   //use weight_variance_threshold to separate target region
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)
@@ -1008,7 +958,7 @@ vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCl
   }
   
   path_cloud->clear();
-  // cout << "path_points.size(): "          << path_points.size() << endl;
+  cout << "path_points.size(): "          << path_points.size() << endl;
 
   Point3f p_circle = circle_estimation(path_points);
 
@@ -1031,7 +981,7 @@ vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCl
   for(int i = 0; i < path_points.size(); i++)
   {
     k_orientation = (p_circle.y - path_points[i].y) / (p_circle.x - path_points[i].x);
-    // cout << "yaw: " << atan( -1 / k_orientation ) * 180 / M_PI << endl;
+    cout << "yaw: " << atan( -1 / k_orientation ) * 180 / M_PI << endl;
     orientation_pathpoints.push_back( atan( -1 / k_orientation ) * 180 / M_PI );
 
     //////////////////////////////////////////////////////
@@ -1039,7 +989,7 @@ vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCl
     path_cylinder.x = path_points[i].x;//(2 * path_points[i].x) - p_circle.x;
     path_cylinder.y = path_points[i].y;//(2 * path_points[i].y) - p_circle.y;
     path_cylinder.z = path_points[i].z;//(2 * path_points[i].z) - p_circle.z;
-    // cout << "path_cylinder: " << path_cylinder << endl;
+    cout << "path_cylinder: " << path_cylinder << endl;
 
     cylinder_path_points.push_back( path_cylinder );
 
@@ -1052,8 +1002,8 @@ vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCl
     // p.r = 200;
     // cloud_seamRegion->points.push_back(p);
   }
-  // cout << "orientation_pathpoints.size(): " << orientation_pathpoints.size() << endl;
-  // cout << "cylinder_path_points.size(): "      << cylinder_path_points.size() << endl;
+  cout << "orientation_pathpoints.size(): " << orientation_pathpoints.size() << endl;
+  cout << "cylinder_path_points.size(): "      << cylinder_path_points.size() << endl;
 
   for(int i = 0; i < cylinder_path_points.size(); i++)
   {
@@ -1066,7 +1016,7 @@ vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCl
     path_cloud->points.push_back(p);
   }
 
-  // cout << "path_cloud->points.size(): "        << path_cloud->points.size() << endl;
+  cout << "path_cloud->points.size(): "        << path_cloud->points.size() << endl;
 
   return  orientation_pathpoints;
 }
@@ -1084,27 +1034,27 @@ Point3f circle_estimation(vector<Point3f> path_points)
   float line1_k = (p_mid.y - p_start.y) / (p_mid.x - p_start.x);
   float line2_k = (p_mid.y -   p_end.y) / (p_mid.x -   p_end.x);
 
-  // //得到两条线直线方程
-  // cout << "line1_k: " << line1_k << endl;
-  // cout << "line2_k: " << line2_k << endl;
-  // // cout << "得到两条直线方程为：" << endl;
-  // cout << "y = " << line1_k << " * (x - p_mid.x) + p_mid.y: " << endl;
-  // cout << "y = " << line2_k << " * (x - p_mid.x) + p_mid.y: " << endl;
+  //得到两条线直线方程
+  cout << "line1_k: " << line1_k << endl;
+  cout << "line2_k: " << line2_k << endl;
+  // cout << "得到两条直线方程为：" << endl;
+  cout << "y = " << line1_k << " * (x - p_mid.x) + p_mid.y: " << endl;
+  cout << "y = " << line2_k << " * (x - p_mid.x) + p_mid.y: " << endl;
 
   //求两对点的中间点
   Point3f p_midpoint1, p_midpoint2;
 
   p_midpoint1.x = (p_start.x + p_mid.x) / 2; p_midpoint1.y = (p_start.y + p_mid.y) / 2; p_midpoint1.z = (p_start.z + p_mid.z) / 2;
   p_midpoint2.x = (  p_end.x + p_mid.x) / 2; p_midpoint2.y = (  p_end.y + p_mid.y) / 2; p_midpoint2.z = (  p_end.z + p_mid.z) / 2;
-  // // cout << "得到两中点为：" << endl;
-  // cout << "p_midpoint1：" << p_midpoint1 << endl;
-  // cout << "p_midpoint2：" << p_midpoint2 << endl;
-  // // cout << "相垂直的两条线斜率为：" << endl;
-  // cout << "-1 / line1_k:" << -1 / line1_k << endl;
-  // cout << "-1 / line2_k:" << -1 / line2_k << endl;
-  // // cout << "得到两条垂直直线方程为：" << endl;
-  // cout << "y = " <<  -1 / line1_k  << " * (x - " << p_midpoint1.x << " ) + " << p_midpoint1.y << endl;
-  // cout << "y = " <<  -1 / line2_k  << " * (x - " << p_midpoint2.x << " ) + " << p_midpoint2.y << endl;
+  // cout << "得到两中点为：" << endl;
+  cout << "p_midpoint1：" << p_midpoint1 << endl;
+  cout << "p_midpoint2：" << p_midpoint2 << endl;
+  // cout << "相垂直的两条线斜率为：" << endl;
+  cout << "-1 / line1_k:" << -1 / line1_k << endl;
+  cout << "-1 / line2_k:" << -1 / line2_k << endl;
+  // cout << "得到两条垂直直线方程为：" << endl;
+  cout << "y = " <<  -1 / line1_k  << " * (x - " << p_midpoint1.x << " ) + " << p_midpoint1.y << endl;
+  cout << "y = " <<  -1 / line2_k  << " * (x - " << p_midpoint2.x << " ) + " << p_midpoint2.y << endl;
 
   //求估计的圆心：
   Point3f p_circle;
@@ -1118,8 +1068,8 @@ Point3f circle_estimation(vector<Point3f> path_points)
   }
   p_circle.z = p_circle.z / path_points.size();
 
-  // cout << "最后估计的圆中心为：" << endl;
-  // cout << "p_circle: " << p_circle << endl << endl;
+  cout << "最后估计的圆中心为：" << endl;
+  cout << "p_circle: " << p_circle << endl << endl;
 
   return p_circle;
 }

@@ -123,7 +123,7 @@ class MoveGroupPythonIntefaceTutorial(object):
     joint_goal[2] = 0
     joint_goal[3] = -pi/2
     joint_goal[4] = 0
-    joint_goal[5] = 0 
+    joint_goal[5] = 0
  
     group.go(joint_goal, wait=True)
     group.stop()
@@ -132,6 +132,8 @@ class MoveGroupPythonIntefaceTutorial(object):
  
 
 
+    print "============ Press `Enter` (press ctrl-d to exit) ============"
+    raw_input()
 
     #################################################################
     # #bottom straight:
@@ -142,15 +144,37 @@ class MoveGroupPythonIntefaceTutorial(object):
     # pitch = -180    #capture: -180  move: -135
     # roll  = 0         
 
-    #middle straight:
+    # #middle straight:
+    # x = -0.1
+    # y = 0.5
+    # z = 0.15
+    # yaw   = 0         
+    # pitch = -110      #capture: -110  move: -45
+    # roll  = 0         
+
+    # #bottom curve:
+    # x = -0.09
+    # y = 0.3
+    # z = 0.1
+    # yaw   = 15         
+    # pitch = -180    #capture: -180  move: -135
+    # roll  = 0         
+
+    # #cylinder:
+    # x = 0
+    # y = 0.5
+    # z = 0.5
+    # yaw   = 0         
+    # pitch = -90    #capture: -90  move: -45
+    # roll  = 180    #capture: 180  move: 0
+
+    #box:
     x = 0
     y = 0.5
-    z = 0.15
+    z = 0.5
     yaw   = 0         
-    pitch = -110      #capture: -110  move: -45
-    roll  = 0         
-
-
+    pitch = -90    #capture: -90  move: -45
+    roll  = 180    #capture: 180  move: 0
 
     pose_goal = geometry_msgs.msg.Pose()
     Q = euler_to_quaternion(yaw , pitch, roll)
@@ -191,6 +215,23 @@ class MoveGroupPythonIntefaceTutorial(object):
     print "============ Press `Enter` (press ctrl-d to exit) ============"
     raw_input()
 
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = 0
+    joint_goal[1] = -pi/2
+    joint_goal[2] = 0
+    joint_goal[3] = -pi/2
+    joint_goal[4] = 0
+    joint_goal[5] = 0
+ 
+    group.go(joint_goal, wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    current_pose = self.group.get_current_pose().pose
+
+    print "============ Press `Enter` (press ctrl-d to exit) ============"
+    raw_input()
+
+
     yaw = 0; pitch = -45; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
     pose_goal = geometry_msgs.msg.Pose(); 
     pose_goal.orientation.x = Q[0]
@@ -198,8 +239,8 @@ class MoveGroupPythonIntefaceTutorial(object):
     pose_goal.orientation.z = Q[2]
     pose_goal.orientation.w = Q[3]
     pose_goal.position.x = self.motion_pathPoint[0][0] 
-    pose_goal.position.y = self.motion_pathPoint[0][1] 
-    pose_goal.position.z = self.motion_pathPoint[0][2]  
+    pose_goal.position.y = self.motion_pathPoint[0][1] - 0.1
+    pose_goal.position.z = self.motion_pathPoint[0][2] 
     group.set_pose_target(pose_goal)
     plan = group.go(joints = pose_goal, wait = True)
     group.stop()
@@ -208,70 +249,96 @@ class MoveGroupPythonIntefaceTutorial(object):
     print "yaw   : %f" % yaw
     print "pitch : %f" % pitch
     print "roll  : %f" % roll
+    #################################################################
 
-
-    waypoints = []
-    wpose = geometry_msgs.msg.Pose(); i = 0
-    while i < len(self.motion_pathPoint):
-      Q = euler_to_quaternion(yaw, pitch, roll)
-      wpose.orientation.x = Q[0]
-      wpose.orientation.y = Q[1]
-      wpose.orientation.z = Q[2]
-      wpose.orientation.w = Q[3]
-      wpose.position.x = self.motion_pathPoint[i][0] 
-      wpose.position.y = self.motion_pathPoint[i][1]
-      wpose.position.z = self.motion_pathPoint[i][2] 
-      print wpose
-      print "\n"
-
-      waypoints.append(copy.deepcopy(wpose))
-      i = i + 1
-
-    print waypoints
-    (plan, fraction) = group.compute_cartesian_path( waypoints, 0.01, 0)  
-
-    raw_input()
-    group.execute(plan, wait=True)
-
-
-
-
-    # point_count = 1
-    # while(not rospy.is_shutdown()):
-
-    #   # if point_count < len(self.motion_pathPoint) / 2:
-    #   yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
- 
-    #   pose_goal = geometry_msgs.msg.Pose(); 
-    #   pose_goal.orientation.x = Q[0]
-    #   pose_goal.orientation.y = Q[1]
-    #   pose_goal.orientation.z = Q[2]
-    #   pose_goal.orientation.w = Q[3]
-    #   pose_goal.position.x = self.motion_pathPoint[point_count - 1][0] 
-    #   pose_goal.position.y = self.motion_pathPoint[point_count - 1][1]
-    #   pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] 
-    #   group.set_pose_target(pose_goal)
-    #   plan = group.go(joints = pose_goal, wait = True)
-    #   group.stop()
-    #   group.clear_pose_targets()
-    #   # print self.group.get_current_pose().pose.position
-    #   # print "yaw   : %f" % yaw
-    #   # print "pitch : %f" % pitch
-    #   # print "roll  : %f" % roll
-    #   # print "point_count  : %f" % point_count
-    #   current_joints = group.get_current_joint_values()
-    #   print current_joints[5] * 180 /pi
+    # waypoints = []
+    # wpose = geometry_msgs.msg.Pose(); i = 0
+    # while i < len(self.motion_pathPoint):
+    #   yaw = self.motion_pathPoint[i][3];Q = euler_to_quaternion(yaw, pitch, roll)
+    #   wpose.orientation.x = Q[0]
+    #   wpose.orientation.y = Q[1]
+    #   wpose.orientation.z = Q[2]
+    #   wpose.orientation.w = Q[3]
+    #   wpose.position.x = self.motion_pathPoint[i][0] 
+    #   wpose.position.y = self.motion_pathPoint[i][1]
+    #   wpose.position.z = self.motion_pathPoint[i][2] 
+    #   print wpose
     #   print "\n"
+
+    #   waypoints.append(copy.deepcopy(wpose))
+    #   i = i + 1
+
+    # print waypoints
+    # (plan, fraction) = group.compute_cartesian_path( waypoints, 0.01, 0 )  
+
+    # raw_input()
+    # group.execute(plan, wait=True)
+
+
+
+
+    point_count = 1
+    while(not rospy.is_shutdown()):
+
+      Q = euler_to_quaternion(yaw, pitch, roll)
  
-    #   if point_count == len(self.motion_pathPoint):
-    #     print "Motion is completed!!!"  
-    #     break
+      pose_goal = geometry_msgs.msg.Pose(); 
+      pose_goal.orientation.x = Q[0]
+      pose_goal.orientation.y = Q[1]
+      pose_goal.orientation.z = Q[2]
+      pose_goal.orientation.w = Q[3]
+      pose_goal.position.x = self.motion_pathPoint[point_count - 1][0] 
+      pose_goal.position.y = self.motion_pathPoint[point_count - 1][1]
+      pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] 
+      group.set_pose_target(pose_goal)
+      plan = group.go(joints = pose_goal, wait = True)
+      group.stop()
+      group.clear_pose_targets()
+      # print self.group.get_current_pose().pose.position
+      # print "yaw   : %f" % yaw
+      # print "pitch : %f" % pitch
+      # print "roll  : %f" % roll
+      # print "point_count  : %f" % point_count
+      current_joints = group.get_current_joint_values()
+      print current_joints[5] * 180 /pi
+      print "\n"
+ 
+      point_count = point_count + 2
 
-    #   point_count = point_count + 2
+      if point_count >= len(self.motion_pathPoint):
+        yaw = self.motion_pathPoint[point_count - 1][3]; Q = euler_to_quaternion(yaw, pitch, roll)
+        pose_goal = geometry_msgs.msg.Pose(); 
+        pose_goal.orientation.x = Q[0]
+        pose_goal.orientation.y = Q[1]
+        pose_goal.orientation.z = Q[2]
+        pose_goal.orientation.w = Q[3]
+        pose_goal.position.x = self.motion_pathPoint[point_count - 1][0] 
+        pose_goal.position.y = self.motion_pathPoint[point_count - 1][1] - 0.1
+        pose_goal.position.z = self.motion_pathPoint[point_count - 1][2] 
+        group.set_pose_target(pose_goal)
+        plan = group.go(joints = pose_goal, wait = True)
+        group.stop()
+        group.clear_pose_targets()
 
-    #   self.rate.sleep()
+        joint_goal = group.get_current_joint_values()
+        joint_goal[0] = 0
+        joint_goal[1] = -pi/2
+        joint_goal[2] = 0
+        joint_goal[3] = -pi/2
+        joint_goal[4] = 0
+        joint_goal[5] = 0
+    
+        group.go(joint_goal, wait=True)
+        group.stop()
+        group.clear_pose_targets()
+        current_pose = self.group.get_current_pose().pose
 
-    # return all_close(pose_goal, current_pose, 0.01)
+        point_count = 1
+
+
+      self.rate.sleep()
+
+    return all_close(pose_goal, current_pose, 0.01)
  
 
 

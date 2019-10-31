@@ -113,6 +113,9 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
 
 void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
+  clock_t begin = clock();
+
+
   int show_Pointcloud_timeMax = 100;
 
   float sphere_computation = 0.005;
@@ -189,6 +192,12 @@ void seam_detection(ros::Rate naptime, ros::Publisher path_publisher, sensor_msg
     naptime.sleep(); // wait for remainder of specified period; 
   }
   cout << "3D path is published !!!!!!!!!" << endl;
+
+
+  clock_t end = clock();
+  double elapsed_secs = static_cast<double>(end - begin) / CLOCKS_PER_SEC;
+  cout << elapsed_secs << " s" << endl;
+    
 }
 
 

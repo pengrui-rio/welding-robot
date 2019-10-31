@@ -2,6 +2,7 @@
 #include <math.h>
 #include <iostream>   
 #include <vector>
+#include <ctime>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
