@@ -136,13 +136,13 @@ class MoveGroupPythonIntefaceTutorial(object):
     raw_input()
 
     #################################################################
-    # #bottom straight:
-    # x = -0.1
-    # y = 0.2
-    # z = 0.2
-    # yaw   = 0         
-    # pitch = -180    #capture: -180  move: -135
-    # roll  = 0         
+    #bottom straight:
+    x = -0.1
+    y = 0.2
+    z = 0.2
+    yaw   = 0         
+    pitch = -180    #capture: -180  move: -135
+    roll  = 0         
 
     # #middle straight:
     # x = -0.1
@@ -168,13 +168,13 @@ class MoveGroupPythonIntefaceTutorial(object):
     # pitch = -90    #capture: -90  move: -45
     # roll  = 180    #capture: 180  move: 0
 
-    #box:
-    x = 0
-    y = 0.5
-    z = 0.5
-    yaw   = 0         
-    pitch = -90    #capture: -90  move: -45
-    roll  = 180    #capture: 180  move: 0
+    # #box:
+    # x = 0
+    # y = 0.5
+    # z = 0.5
+    # yaw   = 0         
+    # pitch = -90    #capture: -90  move: -45
+    # roll  = 180    #capture: 180  move: 0
 
     pose_goal = geometry_msgs.msg.Pose()
     Q = euler_to_quaternion(yaw , pitch, roll)

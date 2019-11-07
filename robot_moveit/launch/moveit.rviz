@@ -206,119 +206,19 @@ Visualization Manager:
       Use rainbow: true
       Value: true
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        bar1:
-          Value: false
-        bar2:
-          Value: false
-        base:
-          Value: false
-        base_link:
-          Value: false
-        camera_bottom_screw_frame:
-          Value: false
-        camera_color_frame:
-          Value: false
-        camera_color_optical_frame:
-          Value: false
-        camera_depth_frame:
-          Value: false
-        camera_depth_optical_frame:
-          Value: false
-        camera_infra1_frame:
-          Value: false
-        camera_infra1_optical_frame:
-          Value: false
-        camera_infra2_frame:
-          Value: false
-        camera_infra2_optical_frame:
-          Value: false
-        camera_left_ir_frame:
-          Value: false
-        camera_left_ir_optical_frame:
-          Value: false
-        camera_link:
-          Value: false
-        camera_right_ir_frame:
-          Value: false
-        camera_right_ir_optical_frame:
-          Value: false
-        ee_link:
-          Value: false
-        forearm_link:
-          Value: false
-        shoulder_link:
-          Value: false
-        table:
-          Value: false
-        tool0:
-          Value: false
-        tool0_controller:
-          Value: false
-        upper_arm_link:
-          Value: false
-        welding_torch:
-          Value: false
-        world:
-          Value: true
-        wrist_1_link:
-          Value: false
-        wrist_2_link:
-          Value: false
-        wrist_3_link:
-          Value: false
       Marker Scale: 1
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: false
       Tree:
-        world:
-          bar2:
-            bar1:
-              {}
-            base_link:
-              base:
-                tool0_controller:
-                  {}
-              shoulder_link:
-                upper_arm_link:
-                  forearm_link:
-                    wrist_1_link:
-                      wrist_2_link:
-                        wrist_3_link:
-                          ee_link:
-                            {}
-                          tool0:
-                            camera_bottom_screw_frame:
-                              camera_link:
-                                camera_depth_frame:
-                                  camera_color_frame:
-                                    camera_color_optical_frame:
-                                      {}
-                                  camera_depth_optical_frame:
-                                    {}
-                                  camera_left_ir_frame:
-                                    camera_left_ir_optical_frame:
-                                      {}
-                                  camera_right_ir_frame:
-                                    camera_right_ir_optical_frame:
-                                      {}
-                                camera_infra1_frame:
-                                  camera_infra1_optical_frame:
-                                    {}
-                                camera_infra2_frame:
-                                  camera_infra2_optical_frame:
-                                    {}
-                            welding_torch:
-                              {}
-            table:
-              {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -395,25 +295,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.49745655
+      Distance: 1.31918538
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0570615381
-        Y: 0.619832039
-        Z: -1.34109882e-07
+        X: -0.262370884
+        Y: 0.393433988
+        Z: -6.0722175e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.350203335
+      Pitch: 0.554800868
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 6.23995018
+      Yaw: 0.438546598
     Saved: ~
 Window Geometry:
   Displays:
@@ -423,7 +323,7 @@ Window Geometry:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003dafc0200000007fb000000100044006900730070006c0061007900730100000028000003da000000d700fffffffb0000000800480065006c00700000000342000000bb0000007300fffffffb0000000a0056006900650077007300000003b0000000b0000000ad00fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000000005cf000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003dafc0200000007fb000000100044006900730070006c0061007900730100000028000003da000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000000005cf000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1855

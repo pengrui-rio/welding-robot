@@ -1,14 +1,14 @@
 #include <algorithm.h>
 
 
-Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
+Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show, PointCloud::Ptr cloud_groundtruth)
 {
   //seam detection
   Cloud::Ptr cloud_ptr (new Cloud);
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("/home/robot/Documents/a_system/src/surface_reconstruction/save_pcd/record.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/seam_detection/save_pcd/curve_bottom.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
@@ -87,7 +87,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
     // if( cloud_ptr->points[i].z > 0.02)
     // {
-    //   p.x = cloud_ptr->points[i].x - 0.1; 
+    //   p.x = cloud_ptr->points[i].x - 0.1;  
     //   p.y = cloud_ptr->points[i].y - 0.16;
     //   p.z = cloud_ptr->points[i].z + 0.108; // 0.125
     //   p.b = 200; 
@@ -96,12 +96,236 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
     //   cloud_ptr_show->points.push_back( p );    
     // }
 
-    p.x = cloud_ptr->points[i].x + 0.03; 
-    p.y = cloud_ptr->points[i].y - 0.03;
-    p.z = cloud_ptr->points[i].z - 0.457; // 0.125
-    p.b = 200; 
-    p.g = 200;
-    p.r = 200;
+
+    p.x = cloud_ptr->points[i].x ; 
+    p.y = cloud_ptr->points[i].y ;
+    p.z = cloud_ptr->points[i].z ; // 0.125
+
+    if(     i > 115000  && i < 120000 && p.x > -0.1 && p.x < -0.04)   //1
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 120000 && i < 125000 && p.x > -0.12 && p.x < -0.02)  //2
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 125000 && i < 130000 && p.x > -0.13 && p.x < 0.00)   //3
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 130000 && i < 135000 && p.x > -0.14 && p.x < 0.02)   //4
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 135000 && i < 140000 && p.x > -0.33 && p.x < -0.3)   //5    
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 135000 && i < 140000 && p.x > -0.15 && p.x < -0.08)   //5    
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 135000 && i < 140000 && p.x > -0.04 && p.x < 0.03)   //5  
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 140000 && i < 145000 && p.x > -0.33 && p.x < -0.295)   //6
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 140000 && i < 145000 && p.x > -0.16 && p.x < -0.10)   //6
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 140000 && i < 145000 && p.x > -0.02 && p.x < 0.04)   //6
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 145000 && i < 150000 && p.x > -0.33 && p.x < -0.285)   //7
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 145000 && i < 150000 && p.x > -0.175 && p.x < -0.11)   //7
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 145000 && i < 150000 && p.x > -0.01 && p.x < 0.05)   //7
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 150000 && i < 155000 && p.x > -0.32 && p.x < -0.28)  //8
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 150000 && i < 155000 && p.x > -0.19 && p.x < -0.12)  //8
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 150000 && i < 155000 && p.x >  0.01 && p.x < 0.1)    //8
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 155000 && i < 160000 && p.x > -0.31 && p.x < -0.273)  //9
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 155000 && i < 160000 && p.x > -0.20 && p.x < -0.135)  //9
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 155000 && i < 160000 && p.x >  0.03 && p.x < 0.1)    //9
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 160000 && i < 165000 && p.x > -0.3 && p.x < -0.265)    //10
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 160000 && i < 165000 && p.x > -0.211 && p.x < -0.145)    //10
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 160000 && i < 165000 && p.x > 0.04 && p.x < 0.1)    //10
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 165000 && i < 170000 && p.x > -0.30 && p.x < -0.155)    //11
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 165000 && i < 170000 && p.x > 0.055 && p.x < 0.1)    //11
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 170000 && i < 175000 && p.x > -0.295 && p.x < -0.165)   //12
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 175000 && i < 180000 && p.x > -0.282 && p.x < -0.175)   //13
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+    else if(i >= 180000 && i < 185000 && p.x > -0.268 && p.x < -0.190)   //14
+    {
+      p.b = 0; 
+      p.g = 0;
+      p.r = 200;
+
+      cloud_groundtruth->points.push_back( p );  
+    }
+ 
+
+    else
+    {
+      p.b = 200; 
+      p.g = 200;
+      p.r = 200;
+    }
+    
     cloud_ptr_show->points.push_back( p );    
   }
   cloud_ptr->clear();
@@ -119,9 +343,9 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   cloud_ptr_show->width = 1;
   cloud_ptr_show->height = cloud_ptr_show->points.size();
 
-  cout << "cloud_ptr_show->points.size()" << cloud_ptr_show->points.size() << endl;
-  pcl::PCDWriter writer;
-  writer.write("/home/robot/Documents/a_system/src/seam_detection/save_pcd/box.pcd", *cloud_ptr_show, false) ;
+  // cout << "cloud_ptr_show->points.size()" << cloud_ptr_show->points.size() << endl;
+  // pcl::PCDWriter writer;
+  // writer.write("/home/robot/Documents/a_system/src/seam_detection/save_pcd/box.pcd", *cloud_ptr_show, false) ;
 
 
   return cloud_ptr;
@@ -380,7 +604,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
   //define weight_variance_threshold
-  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3.5;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 5; //1.2  3.5
 
   //use weight_variance_threshold to separate target region
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)
@@ -522,7 +746,7 @@ void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud
   cout << "cloud_seamRegion->points.size(): " << cloud_seamRegion->points.size() << endl << endl;
 }
 
-PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion)
+PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr cloud_groundtruth)
 {
   PointCloud::Ptr grooveRegion_onProfile (new PointCloud);
 
@@ -571,6 +795,41 @@ PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Pt
     grooveRegion_onProfile->points.push_back( p ); 
   }
 
+  float overlap_num = 0;
+  for(float i = 0; i < cloud_seamRegion->points.size(); i++)
+  {
+    for(float j = 0; j < cloud_groundtruth->points.size(); j++)
+    {
+      if(fabs(cloud_seamRegion->points[i].x - cloud_groundtruth->points[j].x) < 1e-8 &&
+         fabs(cloud_seamRegion->points[i].y - cloud_groundtruth->points[j].y) < 1e-8 &&
+         fabs(cloud_seamRegion->points[i].z - cloud_groundtruth->points[j].z) < 1e-8)
+         {
+            cloud_seamRegion->points[ i ].b = 150;
+            cloud_seamRegion->points[ i ].g = 0;
+            cloud_seamRegion->points[ i ].r = 150;
+            overlap_num ++;
+            break;
+         }
+    }
+  }
+
+  for(float i = 0; i < cloud_groundtruth->points.size(); i++)
+  {
+    for(float j = 0; j < cloud_seamRegion->points.size(); j++)
+    {
+      if(fabs(cloud_groundtruth->points[i].x - cloud_seamRegion->points[j].x) < 1e-8 &&
+         fabs(cloud_groundtruth->points[i].y - cloud_seamRegion->points[j].y) < 1e-8 &&
+         fabs(cloud_groundtruth->points[i].z - cloud_seamRegion->points[j].z) < 1e-8)
+         {
+            cloud_groundtruth->points[ i ].b = 150;
+            cloud_groundtruth->points[ i ].g = 0;
+            cloud_groundtruth->points[ i ].r = 150;
+
+            break;
+         }
+    }
+  }
+
   for(float j = 0; j < cloud_seamRegion->points.size(); j++)
   {
     pcl::PointXYZRGB p;
@@ -585,7 +844,21 @@ PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Pt
     grooveRegion_onProfile->points.push_back( p ); 
   }
 
+  for(float j = 0; j < cloud_groundtruth->points.size(); j++)
+  {
+    pcl::PointXYZRGB p;
 
+    p.x = cloud_groundtruth->points[ j ].x;
+    p.y = cloud_groundtruth->points[ j ].y;
+    p.z = cloud_groundtruth->points[ j ].z;
+    p.b = cloud_groundtruth->points[ j ].b;
+    p.g = cloud_groundtruth->points[ j ].g;
+    p.r = cloud_groundtruth->points[ j ].r;
+
+    grooveRegion_onProfile->points.push_back( p ); 
+  }
+
+  cout << "lamda: " << overlap_num / (cloud_groundtruth->points.size() + cloud_seamRegion->points.size() - overlap_num) << endl;
   cout << "grooveRegion_onProfile->points.size(): " << grooveRegion_onProfile->points.size() << endl;
 
   return grooveRegion_onProfile;

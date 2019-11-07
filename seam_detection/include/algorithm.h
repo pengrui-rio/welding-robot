@@ -47,7 +47,7 @@ typedef pcl::PointCloud<pcl::Normal> Normal;
 using namespace cv;
 using namespace std;
 
-Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
+Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show, PointCloud::Ptr cloud_groundtruth);
 
 vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr cloud_ptr );
 
@@ -61,7 +61,7 @@ void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint
 
 void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud::Ptr cloud_seamRegion);
 
-PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion);
+PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr cloud_groundtruth);
 
 vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion);
 
