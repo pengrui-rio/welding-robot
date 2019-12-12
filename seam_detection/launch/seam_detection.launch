@@ -1,0 +1,7 @@
+<launch>
+ 
+   <node pkg="seam_detection" type="seam_detection_node" name="seam_detection" output="screen" />
+ 
+  
+</launch>
+
