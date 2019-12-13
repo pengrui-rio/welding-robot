@@ -1,7 +1,0 @@
-<launch>
- 
-   <node pkg="planning" type="planning.py" name="planning" output="screen" />
- 
-  
-</launch>
-

@@ -270,10 +270,10 @@ int main(int argc, char **argv)
   {
     analyze_realsense_data(camera_pointcloud);
 
-    pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
-    pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
-    pub_camera_pointcloud.header.stamp = ros::Time::now();
-    camera_pointcloud_publisher.publish(pub_camera_pointcloud);
+    // pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
+    // pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
+    // pub_camera_pointcloud.header.stamp = ros::Time::now();
+    // camera_pointcloud_publisher.publish(pub_camera_pointcloud);
 
 
 
@@ -288,17 +288,17 @@ int main(int argc, char **argv)
       cout << "map_pointcloud->points.size()  " << map_pointcloud->points.size() << endl;
       if(receive_pose_count == 1)
       {
-        record_mapPointcloud(map_pointcloud);
+        // record_mapPointcloud(map_pointcloud);
         cout << " record mapPointcloud !!!!" << endl ;
       }
     }
     
     // coordinate_transformation(camera_pointcloud, map_pointcloud);
 
-    pcl::toROSMsg(*map_pointcloud, pub_map_pointcloud);
-    pub_map_pointcloud.header.frame_id = "base_link";
-    pub_map_pointcloud.header.stamp = ros::Time::now();
-    map_pointcloud_publisher.publish(pub_map_pointcloud);
+    // pcl::toROSMsg(*map_pointcloud, pub_map_pointcloud);
+    // pub_map_pointcloud.header.frame_id = "base_link";
+    // pub_map_pointcloud.header.stamp = ros::Time::now();
+    // map_pointcloud_publisher.publish(pub_map_pointcloud);
 
 
     camera_pointcloud->points.clear();
