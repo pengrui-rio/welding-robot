@@ -236,7 +236,7 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     rotate_x(p_x.x, p_x.y, p_x.z, current_pitch  , &p_z.x, &p_z.y, &p_z.z);
 
     //bottom_straight:
-    float l = 0.19, w = 0.25, o = 0.0;
+    float l = 0.22, w = 0.20, o = 0.0;
     
     p_cloud_ptr.x = p_pushback.x = current_x + p_z.x + 0 + o ;//+ -0.034; 
     p_cloud_ptr.y = p_pushback.y = current_y + p_z.y + 0 + w;// + 0.1765; 

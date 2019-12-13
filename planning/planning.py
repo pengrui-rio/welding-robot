@@ -138,7 +138,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     #################################################################
     #bottom straight:
-    x = -0.12
+    x = 0#-0.12
     y = 0.2
     z = 0.2
     yaw   = 0         
