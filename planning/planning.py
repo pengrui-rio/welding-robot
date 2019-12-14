@@ -264,6 +264,156 @@ class MoveGroupPythonIntefaceTutorial(object):
 
 
 
+  def vertical_wood(self):
+    print "============ Press `Enter` to set the initial pose ..."
+    raw_input()
+
+    group = self.group
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = 0
+    joint_goal[1] = -pi/2
+    joint_goal[2] = 0
+    joint_goal[3] = -pi/2
+    joint_goal[4] = 0
+    joint_goal[5] = 0
+ 
+    group.go(joint_goal, wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    current_pose = self.group.get_current_pose().pose
+ 
+
+    print "============ Press `Enter` to capture pointcloud ============"
+    raw_input()
+
+    #################################################################
+    # #middle straight:
+    x = -0.15
+    y = 0.5
+    z = 0.15
+    yaw   = 0         
+    pitch = -90      #capture: -110  move: -45
+    roll  = 0         
+
+
+    pose_goal = geometry_msgs.msg.Pose()
+    Q = euler_to_quaternion(yaw , pitch, roll)
+    pose_goal.orientation.x = Q[0]
+    pose_goal.orientation.y = Q[1]
+    pose_goal.orientation.z = Q[2]
+    pose_goal.orientation.w = Q[3]
+    pose_goal.position.x = x
+    pose_goal.position.y = y
+    pose_goal.position.z = z
+    group.set_pose_target(pose_goal)
+
+    plan = group.go(wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    current_pose = self.group.get_current_pose().pose
+    print current_pose.position
+    print "yaw   : %f" % yaw
+    print "pitch : %f" % pitch
+    print "roll  : %f" % roll
+    print "\n"
+
+    pub_pose = PoseStamped()
+    pub_pose.header.stamp       = rospy.Time.now()
+    pub_pose.header.frame_id    = "robot_currentpose"
+    pub_pose.pose.position.x    = current_pose.position.x
+    pub_pose.pose.position.y    = current_pose.position.y
+    pub_pose.pose.position.z    = current_pose.position.z
+    pub_pose.pose.orientation.x = yaw
+    pub_pose.pose.orientation.y = pitch
+    pub_pose.pose.orientation.z = roll
+    pub_pose.pose.orientation.w = 0
+    rospy.loginfo(pub_pose)
+    self.pub.publish(pub_pose)
+    #################################################################
+
+    print "============ Press `Enter` to sent signal for processing the pointcloud ============"
+    raw_input()
+    pub_pose = PoseStamped()
+    pub_pose.header.stamp       = rospy.Time.now()
+    pub_pose.header.frame_id    = "robot_currentpose"
+    pub_pose.pose.position.x    = current_pose.position.x
+    pub_pose.pose.position.y    = current_pose.position.y
+    pub_pose.pose.position.z    = current_pose.position.z
+    pub_pose.pose.orientation.x = yaw
+    pub_pose.pose.orientation.y = pitch
+    pub_pose.pose.orientation.z = roll
+    pub_pose.pose.orientation.w = 1
+    rospy.loginfo(pub_pose)
+    self.pub.publish(pub_pose)
+
+
+    #################################################################
+
+    print "============ Press `Enter` to start execution ============"
+    raw_input()
+
+    yaw = 0; pitch = -45; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+    pose_goal = geometry_msgs.msg.Pose(); 
+    pose_goal.orientation.x = Q[0]
+    pose_goal.orientation.y = Q[1]
+    pose_goal.orientation.z = Q[2]
+    pose_goal.orientation.w = Q[3]
+    pose_goal.position.x = self.motion_pathPoint[0][0] 
+    pose_goal.position.y = self.motion_pathPoint[0][1] - 0.1
+    pose_goal.position.z = self.motion_pathPoint[0][2] 
+    group.set_pose_target(pose_goal)
+    plan = group.go(joints = pose_goal, wait = True)
+    group.stop()
+    group.clear_pose_targets()
+    print self.group.get_current_pose().pose.position
+    print "yaw   : %f" % yaw
+    print "pitch : %f" % pitch
+    print "roll  : %f" % roll
+
+    waypoints = []
+    wpose = geometry_msgs.msg.Pose(); i = 0
+    while i < len(self.motion_pathPoint):
+      yaw = 0;Q = euler_to_quaternion(yaw, pitch, roll)
+      wpose.orientation.x = Q[0]
+      wpose.orientation.y = Q[1]
+      wpose.orientation.z = Q[2]
+      wpose.orientation.w = Q[3]
+      wpose.position.x = self.motion_pathPoint[i][0] 
+      wpose.position.y = self.motion_pathPoint[i][1]
+      wpose.position.z = self.motion_pathPoint[i][2] 
+      print wpose
+      print "\n"
+
+      waypoints.append(copy.deepcopy(wpose))
+      i = i + 1
+
+    print waypoints
+    (plan, fraction) = group.compute_cartesian_path( waypoints, 0.01, 0 )  
+
+
+    print "============ Press `Enter` to execute welding tasks ============"
+    raw_input()
+    group.execute(plan, wait=True)
+
+    #################################################################
+
+    time.sleep(1)
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = 0
+    joint_goal[1] = -pi/2
+    joint_goal[2] = 0
+    joint_goal[3] = -pi/2
+    joint_goal[4] = 0
+    joint_goal[5] = 0
+ 
+    group.go(joint_goal, wait=True)
+    group.stop()
+    group.clear_pose_targets()
+
+    return all_close(pose_goal, current_pose, 0.01)
+
+
+
   def box(self):
 
     group = self.group
@@ -434,9 +584,9 @@ def main():
     print "============ Press `Enter` to start configuration ..."
     ur3 = MoveGroupPythonIntefaceTutorial()
  
+    ur3.vertical_wood()
 
-
-    ur3.bottom_straight()
+    # ur3.bottom_straight()
 
 
     # ur3.box()

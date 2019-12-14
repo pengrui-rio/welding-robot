@@ -167,6 +167,7 @@ int main(int argc, char **argv)
 
     if(process_flag == 1)
     {
+      cout << "start process_flag = 1" << endl;
       seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
       break;
     }
@@ -236,19 +237,23 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     rotate_x(p_x.x, p_x.y, p_x.z, current_pitch  , &p_z.x, &p_z.y, &p_z.z);
 
     //bottom_straight:
-    float l = 0.22, w = 0.20, o = 0.0;
+    float l = 0.35, w = -0.17, o = 0.0;
     
-    p_cloud_ptr.x = p_pushback.x = current_x + p_z.x + 0 + o ;//+ -0.034; 
-    p_cloud_ptr.y = p_pushback.y = current_y + p_z.y + 0 + w;// + 0.1765; 
-    p_cloud_ptr.z = p_pushback.z = current_z + p_z.z + 0 + l  ;//+ 0.225; 
+    if (p_z.x >= -1 && p_z.x <= 1 && p_z.y >= -1 && p_z.y <= 1 && p_z.z >= -0.5 && p_z.z <= 1)
+    {
+      p_cloud_ptr.x = p_pushback.x = current_x + p_z.x + 0 + o ;//+ -0.034; 
+      p_cloud_ptr.y = p_pushback.y = current_y + p_z.y + 0 + w ;// + 0.1765; 
+      p_cloud_ptr.z = p_pushback.z = current_z + p_z.z + 0 + l ;//+ 0.225; 
 
-    p_pushback.b = camera_pointcloud->points[i].b;
-    p_pushback.g = camera_pointcloud->points[i].g;
-    p_pushback.r = camera_pointcloud->points[i].r;
+      p_pushback.b = camera_pointcloud->points[i].b;
+      p_pushback.g = camera_pointcloud->points[i].g;
+      p_pushback.r = camera_pointcloud->points[i].r;
 
-    map_pointcloud->points.push_back( p_pushback );    
+      map_pointcloud->points.push_back( p_pushback );    
 
-    cloud_ptr->points.push_back( p_cloud_ptr );
+      cloud_ptr->points.push_back( p_cloud_ptr );
+    }
+
   }
 }
 
@@ -287,7 +292,7 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
   clock_t begin = clock();
 
 
-  int show_Pointcloud_timeMax = 100;
+  int show_Pointcloud_timeMax = 1000;
 
   float sphere_computation = 0.005;
 
