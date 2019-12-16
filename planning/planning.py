@@ -166,22 +166,22 @@ class MoveGroupPythonIntefaceTutorial(object):
     raw_input()
 
     yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-    pose_goal = geometry_msgs.msg.Pose(); 
-    pose_goal.orientation.x = Q[0]
-    pose_goal.orientation.y = Q[1]
-    pose_goal.orientation.z = Q[2]
-    pose_goal.orientation.w = Q[3]
-    pose_goal.position.x = self.motion_pathPoint[0][0] 
-    pose_goal.position.y = self.motion_pathPoint[0][1] 
-    pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
-    group.set_pose_target(pose_goal)
-    plan = group.go(joints = pose_goal, wait = True)
-    group.stop()
-    group.clear_pose_targets()
-    print self.group.get_current_pose().pose.position
-    print "yaw   : %f" % yaw
-    print "pitch : %f" % pitch
-    print "roll  : %f" % roll
+    # pose_goal = geometry_msgs.msg.Pose(); 
+    # pose_goal.orientation.x = Q[0]
+    # pose_goal.orientation.y = Q[1]
+    # pose_goal.orientation.z = Q[2]
+    # pose_goal.orientation.w = Q[3]
+    # pose_goal.position.x = self.motion_pathPoint[0][0] 
+    # pose_goal.position.y = self.motion_pathPoint[0][1] 
+    # pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
+    # group.set_pose_target(pose_goal)
+    # plan = group.go(joints = pose_goal, wait = True)
+    # group.stop()
+    # group.clear_pose_targets()
+    # print self.group.get_current_pose().pose.position
+    # print "yaw   : %f" % yaw
+    # print "pitch : %f" % pitch
+    # print "roll  : %f" % roll
 
     point_count = 0
     while(not rospy.is_shutdown()):

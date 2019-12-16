@@ -314,7 +314,7 @@ vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCl
   cout << "variance_descriptor.size(): " << variance_descriptor.size() << endl << endl;
 
   //define weight_variance_threshold
-  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 7;
+  float weight_variance_threshold = (Var_descriptor_max - Var_descriptor_min) / 3.5;
 
   //use weight_variance_threshold to separate target region
   for(float i = 0; i < cloud_tree_variance->points.size(); i++)

@@ -50,10 +50,10 @@ using namespace std;
 
 // 相机内参
 const double camera_factor = 1000;
-const double camera_cx = 480;
-const double camera_cy = 270;
-const double camera_fx = 615.899;
-const double camera_fy = 616.468;
+const double camera_cx = 320;
+const double camera_cy = 240;
+const double camera_fx = 616;//615.899;
+const double camera_fy = 616;//616.468;
 
 // 全局变量：图像矩阵和点云
 cv_bridge::CvImagePtr color_ptr, depth_ptr;
@@ -136,8 +136,8 @@ int main(int argc, char **argv)
   image_transport::ImageTransport it(nh);
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
   image_transport::Subscriber color_sub = it.subscribe("/camera/color/image_raw", 1, color_Callback);
-  image_transport::Subscriber depth_sub = it.subscribe("/kinect2/qhd/image_depth_rect", 1, depth_Callback);
- 
+  image_transport::Subscriber depth_sub = it.subscribe("/camera/depth/image_rect_raw", 1, depth_Callback);
+
   //publisher:
   ros::Publisher path_publisher              = nh.advertise<geometry_msgs::Pose>("motion_Path", 1);
   ros::Publisher pointcloud_publisher        = nh.advertise<sensor_msgs::PointCloud2>("generated_pc", 1);
@@ -167,28 +167,28 @@ int main(int argc, char **argv)
     pub_map_pointcloud.header.stamp = ros::Time::now();
     map_pointcloud_publisher.publish(pub_map_pointcloud);
 
-    ///////////////////////////////////////////////////////////
-    count++;
-    if(count % 100 == 0)
-    {
-      cloud_ptr_last->points.clear();
-      for(float i = 0; i < cloud_ptr->points.size(); i++)
-      {
-        pcl::PointXYZ p;
-        p.x = cloud_ptr->points[i].x; 
-        p.y = cloud_ptr->points[i].y;
-        p.z = cloud_ptr->points[i].z;
+    // ///////////////////////////////////////////////////////////
+    // count++;
+    // if(count % 100 == 0)
+    // {
+    //   cloud_ptr_last->points.clear();
+    //   for(float i = 0; i < cloud_ptr->points.size(); i++)
+    //   {
+    //     pcl::PointXYZ p;
+    //     p.x = cloud_ptr->points[i].x; 
+    //     p.y = cloud_ptr->points[i].y;
+    //     p.z = cloud_ptr->points[i].z;
 
-        cloud_ptr_last->points.push_back( p );    
-      }
-    }
-    cout << "count: " << count << endl;
-    cout << "cloud_ptr_last->points: " << cloud_ptr_last->points.size() << endl << endl;
+    //     cloud_ptr_last->points.push_back( p );    
+    //   }
+    // }
+    // cout << "count: " << count << endl;
+    // cout << "cloud_ptr_last->points: " << cloud_ptr_last->points.size() << endl << endl;
 
     ///////////////////////////////////////////////////////////
     if(process_flag == 1)
     {
-      seam_detection(naptime, cloud_ptr_last, path_publisher, pub_pointcloud, pointcloud_publisher);
+      seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
       break;
     }
 
@@ -257,7 +257,7 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     rotate_x(p_x.x, p_x.y, p_x.z, -180 , &p_z.x, &p_z.y, &p_z.z);//current_pitch
 
     //bottom_straight:
-    float l = 0.9, w = 0.40, o = 0; //-0.125
+    float l = 0.72, w = 0.60, o = 0; //-0.125
 
     p_cloud_ptr.x = p_pushback.x = current_x + p_z.x + 0 + o ;//+ -0.034; 
     p_cloud_ptr.y = p_pushback.y = current_y + p_z.y + 0 + w;// + 0.1765; 
@@ -267,11 +267,11 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     p_pushback.g = camera_pointcloud->points[i].g;
     p_pushback.r = camera_pointcloud->points[i].r;
 
-    if (p_cloud_ptr.x >= -0.2 && p_cloud_ptr.x <= 0.2 && p_cloud_ptr.y >= 0.3 && p_cloud_ptr.y <= 0.7 && p_cloud_ptr.z >= 0 && p_cloud_ptr.z <= 0.2)
+    if (p_cloud_ptr.x >= -0.22 && p_cloud_ptr.x <= 0.22 && p_cloud_ptr.y >= 0.5 && p_cloud_ptr.y <= 1 && p_cloud_ptr.z >= 0 && p_cloud_ptr.z <= 0.2)
     {
-      p_cloud_ptr.x = p_pushback.x = p_cloud_ptr.x +  0.02 ;//+ -0.05; 
-      p_cloud_ptr.y = p_pushback.y = p_cloud_ptr.y +  0.05;// + 0.1765; 
-      p_cloud_ptr.z = p_pushback.z = p_cloud_ptr.z + -0.082;//+ 0.225; 
+      p_cloud_ptr.x = p_pushback.x = p_cloud_ptr.x - 0.022;//+  0.02 ;//+ -0.05; 
+      p_cloud_ptr.y = p_pushback.y = p_cloud_ptr.y - 0.215;// + 0.1765; 
+      p_cloud_ptr.z = p_pushback.z = p_cloud_ptr.z - 0.045;//+ -0.082;//+ 0.225; 
 
       map_pointcloud->points.push_back( p_pushback );    
 
