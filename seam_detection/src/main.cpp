@@ -52,8 +52,8 @@ using namespace std;
 const double camera_factor = 1000;
 const double camera_cx = 320;
 const double camera_cy = 240;
-const double camera_fx = 616;//615.899;
-const double camera_fy = 616;//616.468;
+const double camera_fx = 615.899;
+const double camera_fy = 616.468;
 
 // 全局变量：图像矩阵和点云
 cv_bridge::CvImagePtr color_ptr, depth_ptr;
@@ -93,8 +93,6 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   }
 
   depth_pic = depth_ptr->image;
-  // cout << "depth_pic.rows: " << depth_pic.rows << endl;
-  // cout << "depth_pic.cols: "  << depth_pic.cols << endl;
   waitKey(1);
 }
 void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
@@ -137,7 +135,7 @@ int main(int argc, char **argv)
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
   image_transport::Subscriber color_sub = it.subscribe("/camera/color/image_raw", 1, color_Callback);
   image_transport::Subscriber depth_sub = it.subscribe("/camera/depth/image_rect_raw", 1, depth_Callback);
-
+ 
   //publisher:
   ros::Publisher path_publisher              = nh.advertise<geometry_msgs::Pose>("motion_Path", 1);
   ros::Publisher pointcloud_publisher        = nh.advertise<sensor_msgs::PointCloud2>("generated_pc", 1);
@@ -153,10 +151,9 @@ int main(int argc, char **argv)
   //pointcloud:
   PointCloud::Ptr camera_pointcloud (new PointCloud);
   PointCloud::Ptr map_pointcloud    (new PointCloud);
-  Cloud::Ptr      cloud_ptr         (new Cloud);
-  Cloud::Ptr      cloud_ptr_last    (new Cloud);
+  Cloud::Ptr      cloud_ptr (new Cloud);
 
-  int count = 0;
+
   while (ros::ok()) 
   {
     analyze_realsense_data(camera_pointcloud);
@@ -167,25 +164,7 @@ int main(int argc, char **argv)
     pub_map_pointcloud.header.stamp = ros::Time::now();
     map_pointcloud_publisher.publish(pub_map_pointcloud);
 
-    // ///////////////////////////////////////////////////////////
-    // count++;
-    // if(count % 100 == 0)
-    // {
-    //   cloud_ptr_last->points.clear();
-    //   for(float i = 0; i < cloud_ptr->points.size(); i++)
-    //   {
-    //     pcl::PointXYZ p;
-    //     p.x = cloud_ptr->points[i].x; 
-    //     p.y = cloud_ptr->points[i].y;
-    //     p.z = cloud_ptr->points[i].z;
 
-    //     cloud_ptr_last->points.push_back( p );    
-    //   }
-    // }
-    // cout << "count: " << count << endl;
-    // cout << "cloud_ptr_last->points: " << cloud_ptr_last->points.size() << endl << endl;
-
-    ///////////////////////////////////////////////////////////
     if(process_flag == 1)
     {
       seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
@@ -197,7 +176,7 @@ int main(int argc, char **argv)
     cloud_ptr->points.clear();
 
     ros::spinOnce(); //allow data update from callback; 
-    naptime.sleep(); // wait for remainder of specified period; 
+    // naptime.sleep(); // wait for remainder of specified period; 
   }
 
 
@@ -252,13 +231,13 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     p.y    = camera_pointcloud->points[i].y; 
     p.z    = camera_pointcloud->points[i].z; 
 
-    rotate_y(p.x,   p.y,   p.z,   0    , &p_y.x, &p_y.y, &p_y.z);//current_yaw
-    rotate_z(p_y.x, p_y.y, p_y.z, 0    , &p_x.x, &p_x.y, &p_x.z);//current_roll
-    rotate_x(p_x.x, p_x.y, p_x.z, -180 , &p_z.x, &p_z.y, &p_z.z);//current_pitch
+    rotate_y(p.x,   p.y,   p.z,   current_yaw    , &p_y.x, &p_y.y, &p_y.z);
+    rotate_z(p_y.x, p_y.y, p_y.z, current_roll   , &p_x.x, &p_x.y, &p_x.z); 
+    rotate_x(p_x.x, p_x.y, p_x.z, current_pitch  , &p_z.x, &p_z.y, &p_z.z);
 
     //bottom_straight:
-    float l = 0.72, w = 0.60, o = 0; //-0.125
-
+    float l = 0.19, w = 0.25, o = 0.0;
+    
     p_cloud_ptr.x = p_pushback.x = current_x + p_z.x + 0 + o ;//+ -0.034; 
     p_cloud_ptr.y = p_pushback.y = current_y + p_z.y + 0 + w;// + 0.1765; 
     p_cloud_ptr.z = p_pushback.z = current_z + p_z.z + 0 + l  ;//+ 0.225; 
@@ -267,18 +246,10 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     p_pushback.g = camera_pointcloud->points[i].g;
     p_pushback.r = camera_pointcloud->points[i].r;
 
-    if (p_cloud_ptr.x >= -0.22 && p_cloud_ptr.x <= 0.22 && p_cloud_ptr.y >= 0.5 && p_cloud_ptr.y <= 1 && p_cloud_ptr.z >= 0 && p_cloud_ptr.z <= 0.2)
-    {
-      p_cloud_ptr.x = p_pushback.x = p_cloud_ptr.x - 0.022;//+  0.02 ;//+ -0.05; 
-      p_cloud_ptr.y = p_pushback.y = p_cloud_ptr.y - 0.215;// + 0.1765; 
-      p_cloud_ptr.z = p_pushback.z = p_cloud_ptr.z - 0.045;//+ -0.082;//+ 0.225; 
+    map_pointcloud->points.push_back( p_pushback );    
 
-      map_pointcloud->points.push_back( p_pushback );    
-
-      cloud_ptr->points.push_back( p_cloud_ptr );
-    }
+    cloud_ptr->points.push_back( p_cloud_ptr );
   }
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -315,54 +286,26 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
 {
   clock_t begin = clock();
 
+
   int show_Pointcloud_timeMax = 100;
 
   float sphere_computation = 0.005;
 
   //1.读入原始pointcloud
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
-
-  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointNormal> mls_points;
-  pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
-  mls.setComputeNormals (true);
-  mls.setInputCloud (cloud_ptr);
-  mls.setPolynomialOrder (2);
-  mls.setSearchMethod (tree);
-  mls.setSearchRadius (0.01);
-  mls.process (mls_points);
-  cout << "smooth size(): " <<  mls_points.size() << endl << endl;
-
-  Cloud::Ptr smooth_cloud ( new Cloud );
-  for(float i = 0; i < mls_points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = mls_points[i].x; 
-    p.y = mls_points[i].y;
-    p.z = mls_points[i].z;
-
-    smooth_cloud->points.push_back( p );
-  }
-
-  cloud_ptr->points.clear();
-  for(float i = 0; i < smooth_cloud->points.size(); i++)
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
     pcl::PointXYZRGB p;
-    pcl::PointXYZ p_ptr;
-    p_ptr.x = p.x = smooth_cloud->points[i].x;
-    p_ptr.y = p.y = smooth_cloud->points[i].y;
-    p_ptr.z = p.z = smooth_cloud->points[i].z;
+    p.x = cloud_ptr->points[i].x; 
+    p.y = cloud_ptr->points[i].y;
+    p.z = cloud_ptr->points[i].z;
     p.b = 200; 
     p.g = 200;
     p.r = 200;
-    cloud_ptr_show->points.push_back( p );  
 
-    cloud_ptr->points.push_back( p_ptr );     
+    cloud_ptr_show->points.push_back( p );    
   }
-
-
-
-
+  // Cloud::Ptr cloud_ptr = read_pointcloud(cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
   ////////////////////////////////////////////////////////////
 
