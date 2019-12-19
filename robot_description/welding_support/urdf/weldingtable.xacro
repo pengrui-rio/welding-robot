@@ -9,56 +9,13 @@
  
 
 
-  <link name="bar2">
-    <visual>
-      <geometry>
-        <box size="0.8 0.04 0.04"/>
-      </geometry>
-      <material name="Steel">
-        <color rgba="0.5 0.5 0.5 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="0.8 0.04 0.04"/>
-      </geometry>
-    </collision>
-  </link>
+ <link name="world"/>
 
-  <link name="world"/>
-  <joint name="world_to_bar2" type="fixed">
+  <joint name="world_to_robot" type="fixed">
     <parent link="world"/>
-    <child link="bar2"/>
-    <origin xyz="0 0.038 -0.02" rpy="0 0 0"/>
-  </joint>
-
-  <joint name="bar2_to_robot" type="fixed">
-    <parent link="bar2"/>
     <child link="base_link"/>
-    <origin xyz="0 -0.038 0.02" rpy="0.0 0.0 0"/>
+    <origin xyz="0 0 0" rpy="0.0 0.0 0"/>
    <!-- <origin xyz="-0.331 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/>  -->
-  </joint>
-
-
- <link name="bar1">
-    <visual>
-      <geometry>
-        <box size="0.8 0.04 0.04"/>
-      </geometry>
-      <material name="Steel">
-        <color rgba="0.5 0.5 0.5 1.0"/>
-      </material>
-    </visual>
-    <collision>
-      <geometry>
-        <box size="0.8 0.04 0.04"/>
-      </geometry>
-    </collision>
-  </link>
-  <joint name="bar2_to_bar1" type="fixed">
-    <parent link="bar2"/>
-    <child link="bar1"/>
-    <origin xyz="0 -0.08 0" rpy="0 0 0"/>
   </joint>
 
 
@@ -78,10 +35,10 @@
     </collision>
   </link>
 
-  <joint name="bar2_to_table" type="fixed">
-    <parent link="bar2"/>
+  <joint name="world_to_table" type="fixed">
+    <parent link="world"/>
     <child link="table"/>
-    <origin xyz="0.0 0.35 -0.03" rpy="0 0 0"/>
+    <origin xyz="0.0 0.331 -0.0079375" rpy="0 0 0"/>
   </joint>
 
 
@@ -124,6 +81,5 @@
 
 
 </robot>
-
 
 
