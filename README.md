@@ -1,4 +1,5 @@
 # welding-robot
+video link: : https://vimeo.com/371773986
  
 需要git clone 默认package
 
