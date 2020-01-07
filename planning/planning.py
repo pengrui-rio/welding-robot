@@ -248,7 +248,7 @@ class MoveGroupPythonIntefaceTutorial(object):
  
       point_count = point_count + 1
 
-      if point_count == len(self.motion_pathPoint) - 16:
+      if point_count == len(self.motion_pathPoint) - 1:
 
         point_count = 0
         
@@ -266,7 +266,6 @@ class MoveGroupPythonIntefaceTutorial(object):
         group.stop()
         group.clear_pose_targets()
         current_pose = self.group.get_current_pose().pose
-
 
         x = 0
         y = 0.2
