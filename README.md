@@ -194,4 +194,5 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
 
 
 
-  
+ 8.realsense-ros:
+ roslaunch realsense2_camera rs_camera.launch 
