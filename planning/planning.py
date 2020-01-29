@@ -317,7 +317,27 @@ class MoveGroupPythonIntefaceTutorial(object):
 
     #################################################################
 
+    # waypoints = []
+    # wpose = geometry_msgs.msg.Pose(); i = 0
+    # while i < len(self.motion_pathPoint):
+    #   yaw = self.motion_pathPoint[i][3]; pitch = -45; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+    #   wpose.orientation.x = Q[0]
+    #   wpose.orientation.y = Q[1]
+    #   wpose.orientation.z = Q[2]
+    #   wpose.orientation.w = Q[3]
+    #   wpose.position.x = self.motion_pathPoint[i][0] 
+    #   wpose.position.y = self.motion_pathPoint[i][1]
+    #   wpose.position.z = self.motion_pathPoint[i][2] 
+    #   print wpose
+    #   print "\n"
 
+    #   waypoints.append(copy.deepcopy(wpose))
+    #   i = i + 1
+
+    # print waypoints
+    # (plan, fraction) = group.compute_cartesian_path( waypoints, 0.01, 0)   
+    # raw_input()
+    # group.execute(plan, wait=True)
 
     return all_close(pose_goal, current_pose, 0.01)
 
