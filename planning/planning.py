@@ -220,124 +220,126 @@ class MoveGroupPythonIntefaceTutorial(object):
     print "roll  : %f" % roll
 
  
-    point_count = 0
-    while(not rospy.is_shutdown()):
+    # point_count = 0
+    # while(not rospy.is_shutdown()):
 
-      Q = euler_to_quaternion(yaw, pitch, roll)
+    #   Q = euler_to_quaternion(yaw, pitch, roll)
  
-      pose_goal = geometry_msgs.msg.Pose(); 
-      pose_goal.orientation.x = Q[0]
-      pose_goal.orientation.y = Q[1]
-      pose_goal.orientation.z = Q[2]
-      pose_goal.orientation.w = Q[3]
-      pose_goal.position.x = self.motion_pathPoint[point_count ][0] 
-      pose_goal.position.y = self.motion_pathPoint[point_count ][1]
-      pose_goal.position.z = self.motion_pathPoint[point_count ][2] 
-      group.set_pose_target(pose_goal)
-      plan = group.go(joints = pose_goal, wait = True)
-      group.stop()
-      group.clear_pose_targets()
-      # print self.group.get_current_pose().pose.position
-      # print "yaw   : %f" % yaw
-      # print "pitch : %f" % pitch
-      # print "roll  : %f" % roll
-      # print "point_count  : %f" % point_count
-      current_joints = group.get_current_joint_values()
-      print current_joints[5] * 180 /pi
-      print "\n"
+    #   pose_goal = geometry_msgs.msg.Pose(); 
+    #   pose_goal.orientation.x = Q[0]
+    #   pose_goal.orientation.y = Q[1]
+    #   pose_goal.orientation.z = Q[2]
+    #   pose_goal.orientation.w = Q[3]
+    #   pose_goal.position.x = self.motion_pathPoint[point_count ][0] 
+    #   pose_goal.position.y = self.motion_pathPoint[point_count ][1]
+    #   pose_goal.position.z = self.motion_pathPoint[point_count ][2] 
+    #   group.set_pose_target(pose_goal)
+    #   plan = group.go(joints = pose_goal, wait = True)
+    #   group.stop()
+    #   group.clear_pose_targets()
+    #   # print self.group.get_current_pose().pose.position
+    #   # print "yaw   : %f" % yaw
+    #   # print "pitch : %f" % pitch
+    #   # print "roll  : %f" % roll
+    #   # print "point_count  : %f" % point_count
+    #   current_joints = group.get_current_joint_values()
+    #   print current_joints[5] * 180 /pi
+    #   print "\n"
  
-      point_count = point_count + 1
+    #   point_count = point_count + 1
 
-      if point_count == len(self.motion_pathPoint) - 16:
+    #   if point_count == len(self.motion_pathPoint) - 16:
 
-        point_count = 0
+    #     point_count = 0
         
-        time.sleep(1)
-        group = self.group
-        joint_goal = group.get_current_joint_values()
-        joint_goal[0] = 0
-        joint_goal[1] = -pi/2
-        joint_goal[2] = 0
-        joint_goal[3] = -pi/2
-        joint_goal[4] = 0
-        joint_goal[5] = 0
+    #     time.sleep(1)
+    #     group = self.group
+    #     joint_goal = group.get_current_joint_values()
+    #     joint_goal[0] = 0
+    #     joint_goal[1] = -pi/2
+    #     joint_goal[2] = 0
+    #     joint_goal[3] = -pi/2
+    #     joint_goal[4] = 0
+    #     joint_goal[5] = 0
     
-        group.go(joint_goal, wait=True)
-        group.stop()
-        group.clear_pose_targets()
-        current_pose = self.group.get_current_pose().pose
+    #     group.go(joint_goal, wait=True)
+    #     group.stop()
+    #     group.clear_pose_targets()
+    #     current_pose = self.group.get_current_pose().pose
 
 
-        x = 0
-        y = 0.2
-        z = 0.2
-        yaw   = 0         
-        pitch = -180    #capture: -180  move: -135
-        roll  = 0         
+    #     x = 0
+    #     y = 0.2
+    #     z = 0.2
+    #     yaw   = 0         
+    #     pitch = -180    #capture: -180  move: -135
+    #     roll  = 0         
 
-        pose_goal = geometry_msgs.msg.Pose()
-        Q = euler_to_quaternion(yaw , pitch, roll)
-        pose_goal.orientation.x = Q[0]
-        pose_goal.orientation.y = Q[1]
-        pose_goal.orientation.z = Q[2]
-        pose_goal.orientation.w = Q[3]
-        pose_goal.position.x = x
-        pose_goal.position.y = y
-        pose_goal.position.z = z
-        group.set_pose_target(pose_goal)
+    #     pose_goal = geometry_msgs.msg.Pose()
+    #     Q = euler_to_quaternion(yaw , pitch, roll)
+    #     pose_goal.orientation.x = Q[0]
+    #     pose_goal.orientation.y = Q[1]
+    #     pose_goal.orientation.z = Q[2]
+    #     pose_goal.orientation.w = Q[3]
+    #     pose_goal.position.x = x
+    #     pose_goal.position.y = y
+    #     pose_goal.position.z = z
+    #     group.set_pose_target(pose_goal)
 
-        plan = group.go(wait=True)
-        group.stop()
-        group.clear_pose_targets()
-        current_pose = self.group.get_current_pose().pose
-        print current_pose.position
-        print "yaw   : %f" % yaw
-        print "pitch : %f" % pitch
-        print "roll  : %f" % roll
-        print "\n"
+    #     plan = group.go(wait=True)
+    #     group.stop()
+    #     group.clear_pose_targets()
+    #     current_pose = self.group.get_current_pose().pose
+    #     print current_pose.position
+    #     print "yaw   : %f" % yaw
+    #     print "pitch : %f" % pitch
+    #     print "roll  : %f" % roll
+    #     print "\n"
 
 
-        yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-        pose_goal = geometry_msgs.msg.Pose(); 
-        pose_goal.orientation.x = Q[0]
-        pose_goal.orientation.y = Q[1]
-        pose_goal.orientation.z = Q[2]
-        pose_goal.orientation.w = Q[3]
-        pose_goal.position.x = self.motion_pathPoint[0][0] 
-        pose_goal.position.y = self.motion_pathPoint[0][1] 
-        pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
-        group.set_pose_target(pose_goal)
-        plan = group.go(joints = pose_goal, wait = True)
-        group.stop()
-        group.clear_pose_targets()
-        print self.group.get_current_pose().pose.position
-        print "yaw   : %f" % yaw
-        print "pitch : %f" % pitch
-        print "roll  : %f" % roll
+    #     yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+    #     pose_goal = geometry_msgs.msg.Pose(); 
+    #     pose_goal.orientation.x = Q[0]
+    #     pose_goal.orientation.y = Q[1]
+    #     pose_goal.orientation.z = Q[2]
+    #     pose_goal.orientation.w = Q[3]
+    #     pose_goal.position.x = self.motion_pathPoint[0][0] 
+    #     pose_goal.position.y = self.motion_pathPoint[0][1] 
+    #     pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
+    #     group.set_pose_target(pose_goal)
+    #     plan = group.go(joints = pose_goal, wait = True)
+    #     group.stop()
+    #     group.clear_pose_targets()
+    #     print self.group.get_current_pose().pose.position
+    #     print "yaw   : %f" % yaw
+    #     print "pitch : %f" % pitch
+    #     print "roll  : %f" % roll
 
     #################################################################
 
-    # waypoints = []
-    # wpose = geometry_msgs.msg.Pose(); i = 0
-    # while i < len(self.motion_pathPoint):
-    #   yaw = self.motion_pathPoint[i][3]; pitch = -45; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-    #   wpose.orientation.x = Q[0]
-    #   wpose.orientation.y = Q[1]
-    #   wpose.orientation.z = Q[2]
-    #   wpose.orientation.w = Q[3]
-    #   wpose.position.x = self.motion_pathPoint[i][0] 
-    #   wpose.position.y = self.motion_pathPoint[i][1]
-    #   wpose.position.z = self.motion_pathPoint[i][2] 
-    #   print wpose
-    #   print "\n"
+    waypoints = []
+    wpose = geometry_msgs.msg.Pose(); i = 0
+    while i < len(self.motion_pathPoint):
+      yaw = self.motion_pathPoint[i][3]; pitch = -45; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+      wpose.orientation.x = Q[0]
+      wpose.orientation.y = Q[1]
+      wpose.orientation.z = Q[2]
+      wpose.orientation.w = Q[3]
+      wpose.position.x = self.motion_pathPoint[i][0] 
+      wpose.position.y = self.motion_pathPoint[i][1]
+      wpose.position.z = self.motion_pathPoint[i][2] 
+      print wpose
+      print "\n"
 
-    #   waypoints.append(copy.deepcopy(wpose))
-    #   i = i + 1
+      waypoints.append(copy.deepcopy(wpose))
+      i = i + 1
 
-    # print waypoints
-    # (plan, fraction) = group.compute_cartesian_path( waypoints, 0.01, 0)   
-    # raw_input()
-    # group.execute(plan, wait=True)
+    print waypoints
+    (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
+    raw_input()
+
+    result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.1)
+    group.execute(result_plan, wait=True)
 
     return all_close(pose_goal, current_pose, 0.01)
 
