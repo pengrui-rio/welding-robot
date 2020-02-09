@@ -47,7 +47,7 @@ def all_close(goal, actual, tolerance):
   return True
 
 
-class MoveGroupPythonIntefaceTutorial(object):
+class MoveGroupPythonInteface(object):
  
   def __init__(self):
     super(MoveGroupPythonIntefaceTutorial, self).__init__()
@@ -352,7 +352,7 @@ class MoveGroupPythonIntefaceTutorial(object):
 def main():
   try:
     print "============ Press `Enter` to start configuration ..."
-    ur3 = MoveGroupPythonIntefaceTutorial()
+    ur3 = MoveGroupPythonInteface()
  
 
 
