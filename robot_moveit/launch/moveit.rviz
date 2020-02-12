@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /TF1
         - /TF1/Frames1
         - /Camera1
       Splitter Ratio: 0.742560029
@@ -138,11 +139,6 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          welding_torch:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           world:
             Alpha: 1
             Show Axes: false
@@ -201,12 +197,6 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        ar_marker_0:
-          Value: true
-        ar_marker_1:
-          Value: true
-        ar_marker_2:
-          Value: true
         base:
           Value: false
         base_link:
@@ -248,12 +238,10 @@ Visualization Manager:
         table:
           Value: false
         tool0:
-          Value: false
+          Value: true
         tool0_controller:
           Value: false
         upper_arm_link:
-          Value: false
-        welding_torch:
           Value: false
         world:
           Value: true
@@ -288,12 +276,7 @@ Visualization Manager:
                               camera_depth_frame:
                                 camera_color_frame:
                                   camera_color_optical_frame:
-                                    ar_marker_0:
-                                      {}
-                                    ar_marker_1:
-                                      {}
-                                    ar_marker_2:
-                                      {}
+                                    {}
                                 camera_depth_optical_frame:
                                   {}
                                 camera_left_ir_frame:
@@ -308,8 +291,6 @@ Visualization Manager:
                               camera_infra2_frame:
                                 camera_infra2_optical_frame:
                                   {}
-                          welding_torch:
-                            {}
           table:
             {}
       Update Interval: 0
@@ -422,10 +403,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: -0.0697964877
+      Pitch: 0.560203373
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.99995065
+      Yaw: 3.28995109
     Saved: ~
 Window Geometry:
   Camera:
@@ -437,7 +418,7 @@ Window Geometry:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003dafc0200000008fc00000028000003da000000dd00fffffffa000000010100000002fb0000000c00430061006d0065007200610000000000ffffffff0000006700000067fb000000100044006900730070006c00610079007301000000000000016a0000016a00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000fb0000000c00430061006d00650072006102000001c0000002430000016a000000ce000005cf000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003dafc0200000008fc00000028000003da000000dd00fffffffa000000010100000002fb0000000c00430061006d0065007200610000000000ffffffff0000006700fffffffb000000100044006900730070006c00610079007301000000000000016a0000016a00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000fb0000000c00430061006d00650072006102000001c0000002430000016a000000ce000005cf000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
   Width: 1855

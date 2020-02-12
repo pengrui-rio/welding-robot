@@ -1,12 +1,15 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(robot_sensor_calibration)
 
+set( CMAKE_CXX_FLAGS "-std=c++11" )
 
 find_package(OpenCV REQUIRED)
 find_package(PCL 1.6 REQUIRED)
- 
+find_package( Sophus REQUIRED )
 
 find_package(catkin REQUIRED COMPONENTS
+  tf
+  tf2
   geometry_msgs
   roscpp
   rospy
@@ -15,6 +18,10 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   cv_bridge
 )
+
+
+
+
 
 
 catkin_package(
@@ -26,6 +33,7 @@ catkin_package(
 include_directories(
  include
   ${catkin_INCLUDE_DIRS}
+  ${Sophus_INCLUDE_DIRS}
 )
 
 
@@ -51,6 +59,7 @@ robot_sensor_calibration_node
 ${catkin_LIBRARIES}
 ${OpenCV_LIBS}
 ${PCL_LIBRARIES}
+${Sophus_LIBRARIES}
 )
 
  

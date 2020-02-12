@@ -228,7 +228,8 @@ bool Camera::LoadCalibOpenCV(const char *calibfile) {
 void Camera::SetCameraInfo(const sensor_msgs::CameraInfo &camInfo)
 {
     cam_info_ = camInfo;
-
+	cout << "cam_info_: " << cam_info_ << endl;
+	
     calib_x_res = cam_info_.width;
     calib_y_res = cam_info_.height;
     x_res = calib_x_res;

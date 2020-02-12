@@ -18,7 +18,7 @@
    <!-- <origin xyz="-0.331 0.0 0.0079375" rpy="0.0 0.0 -1.5708"/>  -->
   </joint>
 
- <!--
+
   <link name="table">
     <visual>
       <geometry>
@@ -39,7 +39,7 @@
     <parent link="world"/>
     <child link="table"/>
     <origin xyz="0.0 0.331 -0.0079375" rpy="0 0 0"/>
-  </joint>-->
+  </joint>
 
 
 

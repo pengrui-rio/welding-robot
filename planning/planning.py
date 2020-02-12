@@ -138,14 +138,19 @@ class MoveGroupPythonInteface(object):
     #################################################################
     #bottom straight:
     x = 0.02
-    y = 0.18
-    z = 0.22
-    yaw   = 0         
-    pitch = -180    #capture: -180  move: -135
-    roll  = 0         
+    y = 0.25
+    z = 0.45            
+    #对应哪个颜色的柱子，右手坐标系，转多少度，顺序按yaw->pitch->roll,也有很大可能任意顺序
+    #yaw->purple   pitch->red   roll->green
+    yaw   = 0       
+    pitch = -180               
+    roll  =  0  
+     
+
 
     pose_goal = geometry_msgs.msg.Pose()
     Q = euler_to_quaternion(yaw , pitch, roll)
+    print Q
     pose_goal.orientation.x = Q[0]
     pose_goal.orientation.y = Q[1]
     pose_goal.orientation.z = Q[2]
@@ -171,10 +176,10 @@ class MoveGroupPythonInteface(object):
     pub_pose.pose.position.x    = current_pose.position.x
     pub_pose.pose.position.y    = current_pose.position.y
     pub_pose.pose.position.z    = current_pose.position.z
-    pub_pose.pose.orientation.x = yaw
-    pub_pose.pose.orientation.y = pitch
-    pub_pose.pose.orientation.z = roll
-    pub_pose.pose.orientation.w = 0
+    pub_pose.pose.orientation.x = current_pose.orientation.x
+    pub_pose.pose.orientation.y = current_pose.orientation.y
+    pub_pose.pose.orientation.z = current_pose.orientation.z
+    pub_pose.pose.orientation.w = current_pose.orientation.w
     rospy.loginfo(pub_pose)
     self.pub.publish(pub_pose)
     #################################################################
@@ -207,9 +212,9 @@ class MoveGroupPythonInteface(object):
     x = 0
     y = 0.3
     z = 0.4
-    yaw   = 0         
-    pitch = -180    #capture: -180  move: -135
-    roll  = 0         
+    yaw   = 179.589         
+    pitch = -0.859868    #capture: -180  move: -135
+    roll  = 179.339         
 
     pose_goal = geometry_msgs.msg.Pose()
     Q = euler_to_quaternion(yaw , pitch, roll)

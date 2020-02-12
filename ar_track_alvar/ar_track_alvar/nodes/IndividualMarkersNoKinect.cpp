@@ -1,38 +1,4 @@
-/*
- Software License Agreement (BSD License)
-
- Copyright (c) 2012, Scott Niekum
- All rights reserved.
-
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
-
-  * Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-  * Redistributions in binary form must reproduce the above
-    copyright notice, this list of conditions and the following
-    disclaimer in the documentation and/or other materials provided
-    with the distribution.
-  * Neither the name of the Willow Garage nor the names of its
-    contributors may be used to endorse or promote products derived
-    from this software without specific prior written permission.
-
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
- FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
- COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
- BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
- LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
- CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
- ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- POSSIBILITY OF SUCH DAMAGE.
-
- author: Scott Niekum
-*/
+  
 
 
 #include <std_msgs/Bool.h>
@@ -81,57 +47,67 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg);
 void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 {
     //If we've already gotten the cam info, then go ahead
-	if(cam->getCamInfo_){
-		try{
+	if(cam->getCamInfo_)
+  {
+		try
+    {
 			tf::StampedTransform CamToOutput;
-    			try{
-					tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(1.0));
-					tf_listener->lookupTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
-   				}
-    			catch (tf::TransformException ex){
-      				ROS_ERROR("%s",ex.what());
-    			}
+      try
+      {
+        tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(1.0));
+        tf_listener->lookupTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
+        // cout << "CamToOutput.getOrigin: " << CamToOutput.getOrigin().x() << " " << CamToOutput.getOrigin().y() << " " << CamToOutput.getOrigin().z()<< endl;
+        // cout << "CamToOutput.getrotation: " << CamToOutput.getRotation().x() << " " << CamToOutput.getRotation().y() << " " << CamToOutput.getRotation().z() << " " << CamToOutput.getRotation().w() << endl<< endl;
+      }
+      catch (tf::TransformException ex)
+      {
+          ROS_ERROR("%s",ex.what());
+      }
+      //Convert the image
+      cv_ptr_ = cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8);
 
+      //Get the estimated pose of the main markers by using all the markers in each bundle
 
-            //Convert the image
-            cv_ptr_ = cv_bridge::toCvCopy(image_msg, sensor_msgs::image_encodings::BGR8);
+      // GetMultiMarkersPoses expects an IplImage*, but as of ros groovy, cv_bridge gives
+      // us a cv::Mat. I'm too lazy to change to cv::Mat throughout right now, so I
+      // do this conversion here -jbinney
+      IplImage ipl_image = cv_ptr_->image;
 
-            //Get the estimated pose of the main markers by using all the markers in each bundle
+      marker_detector.Detect(&ipl_image, cam, true, false, max_new_marker_error, max_track_error, CVSEQ, true);
+      arPoseMarkers_.markers.clear ();
 
-            // GetMultiMarkersPoses expects an IplImage*, but as of ros groovy, cv_bridge gives
-            // us a cv::Mat. I'm too lazy to change to cv::Mat throughout right now, so I
-            // do this conversion here -jbinney
-            IplImage ipl_image = cv_ptr_->image;
-
-            marker_detector.Detect(&ipl_image, cam, true, false, max_new_marker_error, max_track_error, CVSEQ, true);
-            arPoseMarkers_.markers.clear ();
 			for (size_t i=0; i<marker_detector.markers->size(); i++)
 			{
 				//Get the pose relative to the camera
-        		int id = (*(marker_detector.markers))[i].GetId();
+        int id = (*(marker_detector.markers))[i].GetId();
 				Pose p = (*(marker_detector.markers))[i].pose;
 				double px = p.translation[0]/100.0;
 				double py = p.translation[1]/100.0;
-				double pz = p.translation[2]/100.0;
+				double pz = p.translation[2]/100.0 ;//* 419 / 535;
 				double qx = p.quaternion[1];
 				double qy = p.quaternion[2];
 				double qz = p.quaternion[3];
 				double qw = p.quaternion[0];
 
-                tf::Quaternion rotation (qx,qy,qz,qw);
-                tf::Vector3 origin (px,py,pz);
-                tf::Transform t (rotation, origin);
-                tf::Vector3 markerOrigin (0, 0, 0);
-                tf::Transform m (tf::Quaternion::getIdentity (), markerOrigin);
-                tf::Transform markerPose = t * m; // marker pose in the camera frame
+        tf::Quaternion rotation (qx,qy,qz,qw);
+        tf::Vector3 origin (px,py,pz);
+        tf::Transform t (rotation, origin);
+        tf::Vector3 markerOrigin (0, 0, 0);
+        tf::Transform m (tf::Quaternion::getIdentity (), markerOrigin);
+        tf::Transform markerPose = t * m; // marker pose in the camera frame
 
-                tf::Vector3 z_axis_cam = tf::Transform(rotation, tf::Vector3(0,0,0)) * tf::Vector3(0, 0, 1);
+ 
+        cout << "origin: " << px << " " << py << " " << pz << endl; 
+        cout << "rotation: " << qx << " " << qy << " " << qz << " " << qw << endl << endl; 
+      
+
+        tf::Vector3 z_axis_cam = tf::Transform(rotation, tf::Vector3(0,0,0)) * tf::Vector3(0, 0, 1);
 //                ROS_INFO("%02i Z in cam frame: %f %f %f",id, z_axis_cam.x(), z_axis_cam.y(), z_axis_cam.z());
-                /// as we can't see through markers, this one is false positive detection
-                if (z_axis_cam.z() > 0)
-                {
-                    continue;
-                }
+        /// as we can't see through markers, this one is false positive detection
+        if (z_axis_cam.z() > 0)
+        {
+            continue;
+        }
 
 				//Publish the transform from the camera to the marker
 				std::string markerFrame = "ar_marker_";
@@ -140,9 +116,9 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				std::string id_string = out.str();
 				markerFrame += id_string;
 				tf::StampedTransform camToMarker (t, image_msg->header.stamp, image_msg->header.frame_id, markerFrame.c_str());
-    			tf_broadcaster->sendTransform(camToMarker);
+        tf_broadcaster->sendTransform(camToMarker);
 
-				//Create the rviz visualization messages
+				////Create the rviz visualization messages
 				tf::poseTFToMsg (markerPose, rvizMarker_.pose);
 				rvizMarker_.header.frame_id = image_msg->header.frame_id;
 				rvizMarker_.header.stamp = image_msg->header.stamp;
@@ -154,6 +130,7 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				rvizMarker_.ns = "basic_shapes";
 				rvizMarker_.type = visualization_msgs::Marker::CUBE;
 				rvizMarker_.action = visualization_msgs::Marker::ADD;
+
 				switch (id)
 				{
 				  case 0:
@@ -202,16 +179,18 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				//Create the pose marker messages
 				ar_track_alvar_msgs::AlvarMarker ar_pose_marker;
 				tf::poseTFToMsg (tagPoseOutput, ar_pose_marker.pose.pose);
-      			ar_pose_marker.header.frame_id = output_frame;
-			    ar_pose_marker.header.stamp = image_msg->header.stamp;
-			    ar_pose_marker.id = id;
-			    arPoseMarkers_.markers.push_back (ar_pose_marker);
+        ar_pose_marker.header.frame_id = output_frame;
+        ar_pose_marker.header.stamp = image_msg->header.stamp;
+        ar_pose_marker.id = id;
+        arPoseMarkers_.markers.push_back (ar_pose_marker);
 			}
 			arMarkerPub_.publish (arPoseMarkers_);
 		}
-        catch (cv_bridge::Exception& e){
-      		ROS_ERROR ("Could not convert from '%s' to 'rgb8'.", image_msg->encoding.c_str ());
-    	}
+
+    catch (cv_bridge::Exception& e)
+    {
+      ROS_ERROR ("Could not convert from '%s' to 'rgb8'.", image_msg->encoding.c_str ());
+    }
 	}
 }
 
