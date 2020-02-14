@@ -5,9 +5,8 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /TF1
-        - /TF1/Frames1
         - /Camera1
-      Splitter Ratio: 0.742560029
+      Splitter Ratio: 0.877906978
     Tree Height: 837
   - Class: rviz/Help
     Name: Help
@@ -60,6 +59,11 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
+          bar:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           base:
             Alpha: 1
             Show Axes: false
@@ -120,6 +124,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          post:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           shoulder_link:
             Alpha: 1
             Show Axes: false
@@ -135,6 +144,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
           upper_arm_link:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
+          welding_torch:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -197,6 +211,8 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        bar:
+          Value: false
         base:
           Value: false
         base_link:
@@ -210,14 +226,6 @@ Visualization Manager:
         camera_depth_frame:
           Value: false
         camera_depth_optical_frame:
-          Value: false
-        camera_infra1_frame:
-          Value: false
-        camera_infra1_optical_frame:
-          Value: false
-        camera_infra2_frame:
-          Value: false
-        camera_infra2_optical_frame:
           Value: false
         camera_left_ir_frame:
           Value: false
@@ -233,15 +241,19 @@ Visualization Manager:
           Value: false
         forearm_link:
           Value: false
+        post:
+          Value: false
         shoulder_link:
           Value: false
         table:
           Value: false
         tool0:
-          Value: true
+          Value: false
         tool0_controller:
           Value: false
         upper_arm_link:
+          Value: false
+        welding_torch:
           Value: false
         world:
           Value: true
@@ -271,28 +283,26 @@ Visualization Manager:
                         ee_link:
                           {}
                         tool0:
-                          camera_bottom_screw_frame:
-                            camera_link:
-                              camera_depth_frame:
-                                camera_color_frame:
-                                  camera_color_optical_frame:
-                                    {}
-                                camera_depth_optical_frame:
-                                  {}
-                                camera_left_ir_frame:
-                                  camera_left_ir_optical_frame:
-                                    {}
-                                camera_right_ir_frame:
-                                  camera_right_ir_optical_frame:
-                                    {}
-                              camera_infra1_frame:
-                                camera_infra1_optical_frame:
-                                  {}
-                              camera_infra2_frame:
-                                camera_infra2_optical_frame:
-                                  {}
+                          welding_torch:
+                            {}
+          camera_bottom_screw_frame:
+            camera_link:
+              camera_depth_frame:
+                camera_color_frame:
+                  camera_color_optical_frame:
+                    {}
+                camera_depth_optical_frame:
+                  {}
+                camera_left_ir_frame:
+                  camera_left_ir_optical_frame:
+                    {}
+                camera_right_ir_frame:
+                  camera_right_ir_optical_frame:
+                    {}
           table:
-            {}
+            post:
+              bar:
+                {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -388,7 +398,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.06455827
+      Distance: 1.06092834
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
@@ -403,10 +413,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.560203373
+      Pitch: 0.195203051
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 3.28995109
+      Yaw: 3.07996058
     Saved: ~
 Window Geometry:
   Camera:

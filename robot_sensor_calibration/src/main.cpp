@@ -99,6 +99,10 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
+void EyeinHand_compute_TEC(void);
+void EyeinHand_Result_validation(void);
+void EyetoHand_compute_TBC(void);
+
 
 int main(int argc, char **argv)
 {
@@ -111,7 +115,132 @@ int main(int argc, char **argv)
   image_transport::ImageTransport it(nh);
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
 
+  EyetoHand_compute_TBC();
+  // EyeinHand_compute_TEC();
+  // EyeinHand_Result_validation();
+  cout << " \n" << endl; 
 
+
+  tf::TransformListener listener;
+
+  while (ros::ok()) 
+  {
+    tf::StampedTransform transform;
+    try
+    {
+      listener.lookupTransform("/base_link", "/camera_color_optical_frame", ros::Time(0), transform);
+    }
+    catch (tf::TransformException ex)
+    {
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
+
+    // cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
+    //                                   << transform.getOrigin().y() << " " 
+    //                                   << transform.getOrigin().z()<< endl;
+    // cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
+    //                                     << transform.getRotation().y() << " " 
+    //                                     << transform.getRotation().z() << " " 
+    //                                     << transform.getRotation().w() << endl<< endl;
+
+    ros::spinOnce(); //allow data update from callback; 
+    // naptime.sleep(); // wait for remainder of specified period; 
+  }
+
+
+  ros::spin();
+ 
+}
+
+
+void EyetoHand_compute_TBC(void)
+{
+  // Camera -> object
+	Matrix4d T_C_o; 
+  float T_C_o_Q[4];
+  euler_to_quaternion(0, 180, 0, T_C_o_Q);
+  float T_C_o_r[9];
+  Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
+  // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
+	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], 0.0389463,
+           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], 0.00319754,
+           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], 0.578,
+           0,          0,          0,          1;
+  cout << "T_C_o: " << endl << T_C_o << endl;
+  // cout << "purple: " << 180*atan2(T_C_o_r[2], T_C_o_r[8]) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_C_o_r[3], T_C_o_r[4]) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_C_o_r[5])             / M_PI << endl;
+  cout << endl;
+
+
+  // Base -> object
+	Matrix4d T_B_o; 
+  float T_B_o_Q[4];
+  euler_to_quaternion(0, 0, 0, T_B_o_Q);
+  float T_B_o_r[9];
+  Quaternion_to_RotationMatrix(T_B_o_Q[0], T_B_o_Q[1], T_B_o_Q[2], T_B_o_Q[3], T_B_o_r);
+  // euler_to_RotationMatrix(90, 0, 0, T_o_B_r);
+	T_B_o << T_B_o_r[0], T_B_o_r[1], T_B_o_r[2], -0.0016,
+           T_B_o_r[3], T_B_o_r[4], T_B_o_r[5], 0.440399316218,
+           T_B_o_r[6], T_B_o_r[7], T_B_o_r[8], 0.252352433451,
+           0,          0,          0,          1;
+  cout << "T_B_o: " << endl << T_B_o << endl;
+  // cout << "purple: " << 180*atan2(T_o_B_r[2], T_o_B_r[8]) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_o_B_r[3], T_o_B_r[4]) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_o_B_r[5])             / M_PI << endl;
+  cout << endl;
+
+
+
+  // Base -> Camera
+	Matrix4d T_B_C; 
+
+	T_B_C = T_B_o * T_C_o.inverse();
+	cout << "T_B_C: " << endl << T_B_C << endl;
+  // cout << "purple: " << 180*atan2(T_E_C(0,2), T_E_C(2,2)) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_E_C(1,0), T_E_C(1,1)) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_E_C(1,2))             / M_PI << endl;
+
+}
+
+
+void EyetoHand_Result_validation(Point3f path_point_3D)
+{
+  // Base -> Camera
+	Matrix4d T_B_C; 
+
+  T_B_C << 1,            0,           -0,   -0.0405463,
+           0,           -1, -8.74228e-08,     0.443597,
+           0,  8.74228e-08,           -1,     0.830352,
+           0,            0,            0,            1;
+
+  // Camera -> object
+	Matrix4d T_C_o; 
+  float T_C_o_Q[4];
+  euler_to_quaternion(0, 180, 0, T_C_o_Q);
+  float T_C_o_r[9];
+  Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
+  // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
+	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], 0.0389463,
+           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], 0.00319754,
+           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], 0.578,
+           0,          0,          0,          1;
+  cout << "T_C_o: " << endl << T_C_o << endl;
+
+
+  // Base -> object
+	Matrix4d T_B_o; 
+
+  T_B_o = T_B_C * T_C_o;
+  cout << "T_B_o: " << endl << T_B_o << endl;
+  cout << endl;
+
+}
+
+
+void EyeinHand_compute_TEC(void)
+{
   //Base -> End:
   float T_B_E_Q[4];
   euler_to_quaternion(20, -170, 0, T_B_E_Q);
@@ -177,42 +306,66 @@ int main(int argc, char **argv)
 
 	T_E_C = T_B_E.inverse() * T_o_B * T_C_o.inverse();
 	cout << "T_E_C: " << endl << T_E_C << endl;
+  // cout << "purple: " << 180*atan2(T_E_C(0,2), T_E_C(2,2)) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_E_C(1,0), T_E_C(1,1)) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_E_C(1,2))             / M_PI << endl;
 
-
-  cout << " \n" << endl; //add two more blank row so that we can see the message more clearly
-
-
-  tf::TransformListener listener;
-
-  while (ros::ok()) 
-  {
-    tf::StampedTransform transform;
-    try
-    {
-      listener.lookupTransform("/base_link", "/ar_marker_1", ros::Time(0), transform);
-    }
-    catch (tf::TransformException ex)
-    {
-      ROS_ERROR("%s",ex.what());
-      ros::Duration(1.0).sleep();
-    }
-
-    // cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
-    //                                   << transform.getOrigin().y() << " " 
-    //                                   << transform.getOrigin().z()<< endl;
-    // cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
-    //                                     << transform.getRotation().y() << " " 
-    //                                     << transform.getRotation().z() << " " 
-    //                                     << transform.getRotation().w() << endl<< endl;
-
-    ros::spinOnce(); //allow data update from callback; 
-    // naptime.sleep(); // wait for remainder of specified period; 
-  }
-
-
-  ros::spin();
- 
 }
+
+void EyeinHand_Result_validation(void)
+{
+  //Base -> End:
+  float T_B_E_Q[4];
+  T_B_E_Q[0] = -0.999951264231;
+  T_B_E_Q[1] = -0.00534872895094;
+  T_B_E_Q[2] = -0.00359072703145;
+  T_B_E_Q[3] = 0.0074811055935;
+  float T_B_E_r[9];
+  Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);
+  Matrix4d T_B_E; // Base -> End
+	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], 0.0187,
+           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], 0.2508,
+           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], 0.4520,
+           0,          0,          0,          1;
+  cout << "T_B_E: " << endl << T_B_E << endl;
+
+
+  // End -> Camera
+  Matrix4d T_E_C;
+	T_E_C << 0.999917,   -0.0106432, -0.00726122, -0.0256469,
+           0.0107508,   0.999831,   0.0149231,  -0.0600286,
+           0.00710116, -0.0149999,  0.999862,    0.032314,
+           0,           0,          0,           1;
+  cout << "T_E_C: " << endl << T_E_C << endl;
+
+
+  // Base -> Camera
+  Matrix4d T_B_C;
+  T_B_C = T_B_E * T_E_C;
+  cout << "T_B_C: " << endl << T_B_C << endl;
+
+
+  // Camera -> object  0.0691944 -0.0164191
+	Matrix4d T_C_o; 
+	T_C_o << 1, 0, 0, 0.0691944,
+           0, 1, 0, -0.0164191,
+           0, 0, 1, 0.4194,
+           0, 0, 0, 1;
+  cout << "T_C_o: " << endl << T_C_o << endl;
+  // cout << endl;
+
+
+  // result by calibration:
+  Matrix4d T_R;
+  T_R = T_B_C * T_C_o;
+  cout << "T_R: " << endl << T_R << endl;
+
+
+
+
+}
+
+
 
 //四元数 -> 旋转矩阵
 void Quaternion_to_RotationMatrix(float x, float y, float z, float w, float R[9])

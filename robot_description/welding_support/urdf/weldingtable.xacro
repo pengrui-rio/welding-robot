@@ -43,12 +43,50 @@
 
 
 
-  <sensor_d415 parent="tool0">
-    <origin xyz="0 -0.04 0.02" rpy="0 ${-pi/2} ${pi/2}"/>    <!-- origin xyz="0 -0.11 0.065 -->
+  <link name="post">
+    <visual>
+      <geometry>
+        <box size="0.05 0.05 1"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.05 0.05 1"/>
+      </geometry>
+    </collision>
+  </link>
+  <joint name="table_to_post" type="fixed">
+    <parent link="table"/>
+    <child link="post"/>
+    <origin xyz="0 -0.525 0.5" rpy="0 0 0"/>
+  </joint>
+
+
+  <link name="bar">
+    <visual>
+      <geometry>
+        <box size="0.6 0.05 0.05"/>
+      </geometry>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="0.7 0.05 0.05"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="post_to_bar" type="fixed">
+    <parent link="post"/>
+    <child link="bar"/>
+    <origin xyz="0 0.33 0.3785" rpy="0 0 -1.5708"/>
+  </joint>
+
+  <sensor_d415 parent="world">
+    <origin xyz="0 0.443 0.8303" rpy="0 ${pi/2} ${pi/2}"/>    <!-- origin xyz="0 -0.11 0.065 -->
   </sensor_d415>
 
 
-   <!--  <link name="welding_torch">
+    <link name="welding_torch">
       <visual>
         <geometry>
           <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
@@ -69,7 +107,7 @@
     <parent link="tool0"/>
     <child link="welding_torch"/>
     <origin xyz="0 0.055 0.29" rpy="0 0 0"/>
-  </joint> -->
+  </joint> 
 
 
 

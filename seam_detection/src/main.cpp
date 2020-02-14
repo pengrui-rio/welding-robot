@@ -50,10 +50,10 @@ using namespace std;
 
 // 相机内参
 const double camera_factor = 1000;
-const double camera_cx = 320;
-const double camera_cy = 240;
-const double camera_fx = 560;
-const double camera_fy = 600;
+const double camera_cx = 311.2325744628906;
+const double camera_cy = 226.9261474609375;
+const double camera_fx = 619.9661254882812;
+const double camera_fy = 619.856201171875;
 
 // 全局变量：图像矩阵和点云
 cv_bridge::CvImagePtr color_ptr, depth_ptr;
@@ -77,6 +77,8 @@ void color_Callback(const sensor_msgs::ImageConstPtr& color_msg)
     ROS_ERROR("Could not convert from '%s' to 'bgr8'.", color_msg->encoding.c_str());
   }
   color_pic = color_ptr->image;
+  cv::imshow("color_view", color_pic);
+  // RGBimage_seam_extration(color_pic);
 
   waitKey(1); 
 }
@@ -93,6 +95,14 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   }
 
   depth_pic = depth_ptr->image;
+  RGBimage_seam_extration(color_pic, depth_ptr->image);
+
+  float xMin = 180, xMax = 530;
+  float yMin = 140, yMax = 300;
+
+  depth_pic(cv::Rect(xMin,yMin,xMax-xMin,yMax-yMin)).copyTo(depth_pic);
+
+
   waitKey(1);
 }
 void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
@@ -134,7 +144,7 @@ int main(int argc, char **argv)
   image_transport::ImageTransport it(nh);
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
   image_transport::Subscriber color_sub = it.subscribe("/camera/color/image_raw", 1, color_Callback);
-  image_transport::Subscriber depth_sub = it.subscribe("/camera/depth/image_rect_raw", 1, depth_Callback);
+  image_transport::Subscriber depth_sub = it.subscribe("/camera/aligned_depth_to_color/image_raw", 1, depth_Callback);
  
   //publisher:
   ros::Publisher path_publisher              = nh.advertise<geometry_msgs::Pose>("motion_Path", 1);
@@ -159,10 +169,10 @@ int main(int argc, char **argv)
     analyze_realsense_data(camera_pointcloud);
     coordinate_transformation(camera_pointcloud, map_pointcloud, cloud_ptr);
 
-    pcl::toROSMsg(*map_pointcloud, pub_map_pointcloud);
-    pub_map_pointcloud.header.frame_id = "base_link";
-    pub_map_pointcloud.header.stamp = ros::Time::now();
-    map_pointcloud_publisher.publish(pub_map_pointcloud);
+    pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
+    pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_camera_pointcloud.header.stamp = ros::Time::now();
+    pointcloud_publisher.publish(pub_camera_pointcloud);
 
 
     if(process_flag == 1)
@@ -206,14 +216,21 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
 
       // 计算这个点的空间坐标
       p.z = double(d) / camera_factor;
-      p.x = (n - camera_cx) * p.z / camera_fx; 
-      p.y = (m - camera_cy) * p.z / camera_fy;
+      p.x = (180 + n - camera_cx) * p.z / camera_fx; 
+      p.y = (140 + m - camera_cy) * p.z / camera_fy;
 
       // 从rgb图像中获取它的颜色
       // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
       p.b = 200;//color_pic.ptr<uchar>(m)[n*3];
       p.g = 200;//color_pic.ptr<uchar>(m)[n*3+1];
       p.r = 200;//color_pic.ptr<uchar>(m)[n*3+2];
+
+      if( m == 140 + 80 )
+      {
+        color_pic.ptr<uchar>(m)[n*3]   = 0;
+        color_pic.ptr<uchar>(m)[n*3+1] = 0;
+        color_pic.ptr<uchar>(m)[n*3+2] = 200;
+      }
 
       cloud->points.push_back( p );        
     }

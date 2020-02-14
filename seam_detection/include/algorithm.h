@@ -3,6 +3,7 @@
 #include <iostream>   
 #include <vector>
 #include <ctime>
+#include <Eigen/Dense>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -46,6 +47,10 @@ typedef pcl::PointCloud<pcl::Normal> Normal;
 
 using namespace cv;
 using namespace std;
+using namespace Eigen;
+
+void RGBimage_seam_extration(Mat color_pic, Mat depth_pic);
+
 
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
 

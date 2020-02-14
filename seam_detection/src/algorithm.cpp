@@ -1,5 +1,206 @@
 #include <algorithm.h>
 
+const double camera_factor = 1000;
+const double camera_cx = 311.2325744628906;
+const double camera_cy = 226.9261474609375;
+const double camera_fx = 619.9661254882812;
+const double camera_fy = 619.856201171875;
+
+void swap(int array[], int i, int j)
+{
+	int temp = array[i];
+	array[i] = array[j];
+	array[j] = temp;
+}
+void BubbleSort1(int array[], int n)
+{
+	for (int i = 0; i < n-1; i++)
+	{
+		for (int j = i + 1; j < n-1; j++)
+		{
+			if (array[i]>array[j])
+				swap(array, j, i);//每次i后面的元素比array[i]小就交换。
+		}
+	}
+}
+
+
+//四元数 -> 旋转矩阵
+void Quaternion_to_RotationMatrix(float x, float y, float z, float w, float R[9])
+{
+  float r11 = 0, r12 = 0, r13 = 0;
+  float r21 = 0, r22 = 0, r23 = 0; 
+  float r31 = 0, r32 = 0, r33 = 0;
+
+  R[0]  = 1 - 2 * y * y - 2 * z * z;
+  R[1]  =     2 * x * y - 2 * z * w;
+  R[2]  =     2 * x * z + 2 * y * w;
+
+  R[3]  =     2 * x * y + 2 * z * w;
+  R[4]  = 1 - 2 * x * x - 2 * z * z;
+  R[5]  =     2 * y * z - 2 * x * w;
+
+  R[6]  =     2 * x * z - 2 * y * w;
+  R[7]  =     2 * y * z + 2 * x * w;
+  R[8]  = 1 - 2 * x * x - 2 * y * y;
+
+}
+
+//欧拉角 -> 四元数
+void euler_to_quaternion(float Yaw, float Pitch, float Roll, float Q[4])
+{
+  float yaw   = Yaw   * M_PI / 180 ;
+  float pitch = Roll  * M_PI / 180 ;
+  float roll  = Pitch * M_PI / 180 ;
+
+  float qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
+  float qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
+  float qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
+  float qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
+ 
+  Q[0] = qx;
+  Q[1] = qy;
+  Q[2] = qz;
+  Q[3] = qw;
+}
+
+
+void Obtain_pathPoint_BaseCoor(Point3f path_point_3D)
+{
+  // Base -> Camera
+	Matrix4d T_B_C; 
+
+  T_B_C << 1,            0,           -0,   -0.0405463,
+           0,           -1, -8.74228e-08,     0.443597,
+           0,  8.74228e-08,           -1,     0.830352,
+           0,            0,            0,            1;
+
+  // Camera -> object
+	Matrix4d T_C_o; 
+  float T_C_o_Q[4];
+  euler_to_quaternion(0, 180, 0, T_C_o_Q);
+  float T_C_o_r[9];
+  Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
+  // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
+	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], path_point_3D.x,
+           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], path_point_3D.y,
+           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], path_point_3D.z,
+           0,          0,          0,          1;
+  // cout << "T_C_o: " << endl << T_C_o << endl;
+
+
+  // Base -> object
+	Matrix4d T_B_o; 
+
+  T_B_o = T_B_C * T_C_o;
+  cout << "T_B_o: " << endl << T_B_o << endl;
+  // cout << endl;
+
+}
+
+
+void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
+{
+  float xMin = 180, xMax = 530;
+  float yMin = 140, yMax = 300;
+
+  color_pic(cv::Rect(xMin,yMin,xMax-xMin,yMax-yMin)).copyTo(color_pic);
+ 
+  // 遍历彩色图
+  // InterestImage.copyTo(result_image) ;//拷贝
+
+  for (int m = 0; m < color_pic.rows; m++)  //160
+  {
+    for (int n = 0; n < color_pic.cols; n++) //350
+    {
+      // if((n == 22  && m == 67)  ||
+      //    (n == 50  && m == 88)  ||
+      //    (n == 83  && m == 105) ||
+      //    (n == 124 && m == 115) ||
+      //    (n == 172 && m == 104) ||
+      //    (n == 223 && m == 80)  ||
+      //    (n == 273 && m == 67)  ||
+      //    (n == 301 && m == 78)  ||
+      //    (n == 330 && m == 115) )
+      // {
+      //   color_pic.ptr<uchar>(m)[n*3]   = 0;
+      //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
+      //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
+      // }
+
+      if( m == 80 )
+      {
+        color_pic.ptr<uchar>(m)[n*3]   = 0;
+        color_pic.ptr<uchar>(m)[n*3+1] = 0;
+        color_pic.ptr<uchar>(m)[n*3+2] = 200;
+      }
+
+    }
+  }
+  cv::imshow("crop_image", color_pic);
+
+
+  vector<Point2i> path_point;
+  Point2i p;
+  p.x = 22  + xMin; p.y = 67  + yMin; path_point.push_back(p);
+  p.x = 50  + xMin; p.y = 88  + yMin; path_point.push_back(p);
+  p.x = 83  + xMin; p.y = 105 + yMin; path_point.push_back(p);
+  p.x = 124 + xMin; p.y = 115 + yMin; path_point.push_back(p);
+  p.x = 172 + xMin; p.y = 104 + yMin; path_point.push_back(p);
+  p.x = 223 + xMin; p.y = 80  + yMin; path_point.push_back(p);
+  p.x = 273 + xMin; p.y = 67  + yMin; path_point.push_back(p);
+  p.x = 301 + xMin; p.y = 78  + yMin; path_point.push_back(p);
+  p.x = 330 + xMin; p.y = 115 + yMin; path_point.push_back(p);
+
+  for (int i = 0; i < path_point.size(); i++)  //160
+  {
+    Point3f p;
+    float d = depth_pic.ptr<float>(path_point[i].y)[path_point[i].x]; 
+    p.z = double(d) / camera_factor;
+    p.x = (path_point[i].x - camera_cx) * p.z / camera_fx; 
+    p.y = (path_point[i].y - camera_cy) * p.z / camera_fy;
+
+    cout << "i-th: " << i+1 << endl;
+    Obtain_pathPoint_BaseCoor(p);
+  }
+
+  
+
+	// Mat image;
+	// GaussianBlur(InterestImage,image,Size(3,3),0);
+	// Canny(InterestImage,image,70,180);
+	// vector<vector<Point> > contours;
+	// vector<Vec4i> hierarchy;
+	// findContours(image,contours,hierarchy,RETR_TREE,CHAIN_APPROX_SIMPLE,Point());
+	// Mat imageContours=Mat::zeros(image.size(),CV_8UC1);
+	// Mat Contours=Mat::zeros(image.size(),CV_8UC1);  //绘制
+	// for(int i=0;i<contours.size();i++)
+	// {
+	// 	//contours[i]代表的是第i个轮廓，contours[i].size()代表的是第i个轮廓上所有的像素点数
+	// 	for(int j=0;j<contours[i].size();j++) 
+	// 	{
+	// 		//绘制出contours向量内所有的像素点
+	// 		Point P=Point(contours[i][j].x,contours[i][j].y);
+	// 		Contours.at<uchar>(P)=255;
+	// 	}
+ 
+	// 	//输出hierarchy向量内容
+	// 	char ch[256];
+	// 	sprintf(ch,"%d",i);
+	// 	string str=ch;
+	// 	cout<<"向量hierarchy的第" <<str<<" 个元素内容为："<<endl<<hierarchy[i]<<endl<<endl;
+ 
+	// 	//绘制轮廓
+	// 	drawContours(imageContours,contours,i,Scalar(255),1,8,hierarchy);
+	// }
+	// imshow("Contours Image",imageContours); //轮廓
+	// imshow("Point of Contours",Contours);   //向量contours内保存的所有轮廓点集
+ 
+}
+
+
+
+
 
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 {
