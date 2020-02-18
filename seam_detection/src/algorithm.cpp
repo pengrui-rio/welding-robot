@@ -128,12 +128,12 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
       //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
       // }
 
-      if( m == 80 )
-      {
-        color_pic.ptr<uchar>(m)[n*3]   = 0;
-        color_pic.ptr<uchar>(m)[n*3+1] = 0;
-        color_pic.ptr<uchar>(m)[n*3+2] = 200;
-      }
+      // if( m == 80 || m == 72 )
+      // {
+      //   color_pic.ptr<uchar>(m)[n*3]   = 0;
+      //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
+      //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
+      // }
 
     }
   }

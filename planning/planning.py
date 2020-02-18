@@ -136,19 +136,20 @@ class MoveGroupPythonInteface(object):
     raw_input()
 
     #################################################################
-    #bottom straight:
-    # x = 0.02
-    # y = 0.25
-    # z = 0.45 
-
-    x = 0.0
-    y = 0.44
-    z = 0.25            
-           
     #对应哪个颜色的柱子，右手坐标系，转多少度，顺序按yaw->pitch->roll,也有很大可能任意顺序
     #yaw->purple   pitch->red   roll->green
+
+    #bottom straight:
+    x = 0.0
+    y = 0.25
+    z = 0.45 
+
+    # x = 0.0
+    # y = 0.44
+    # z = 0.25            
+           
     yaw   = 0       
-    pitch = 0               
+    pitch = 180               
     roll  =  0  
      
 
@@ -382,9 +383,9 @@ def main():
     print "============ Press `Enter` to start configuration ..."
     ur3 = MoveGroupPythonInteface()
  
-    # ur3.robot_sensor_cali()
+    ur3.robot_sensor_cali()
 
-    ur3.motion()
+    # ur3.motion()
  
 
     

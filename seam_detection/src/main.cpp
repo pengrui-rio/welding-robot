@@ -136,7 +136,7 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
 int main(int argc, char **argv)
 {
   //initial configuration
-  ros::init(argc, argv, "image_listener");
+  ros::init(argc, argv, "seam_detection");
   ros::NodeHandle nh;
   ros::Rate naptime(10); // use to regulate loop rate 
 
@@ -144,7 +144,7 @@ int main(int argc, char **argv)
   image_transport::ImageTransport it(nh);
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
   image_transport::Subscriber color_sub = it.subscribe("/camera/color/image_raw", 1, color_Callback);
-  image_transport::Subscriber depth_sub = it.subscribe("/camera/aligned_depth_to_color/image_raw", 1, depth_Callback);
+  image_transport::Subscriber depth_sub = it.subscribe("/camera/aligned_depth_to_color/image_raw", 1, depth_Callback);///camera/depth/image_rect_raw
  
   //publisher:
   ros::Publisher path_publisher              = nh.advertise<geometry_msgs::Pose>("motion_Path", 1);
@@ -225,11 +225,11 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
       p.g = 200;//color_pic.ptr<uchar>(m)[n*3+1];
       p.r = 200;//color_pic.ptr<uchar>(m)[n*3+2];
 
-      if( m == 140 + 80 )
+      if( m == 80 || m == 72)
       {
-        color_pic.ptr<uchar>(m)[n*3]   = 0;
-        color_pic.ptr<uchar>(m)[n*3+1] = 0;
-        color_pic.ptr<uchar>(m)[n*3+2] = 200;
+        p.b   = 0;
+        p.g = 0;
+        p.r = 200;
       }
 
       cloud->points.push_back( p );        
@@ -249,7 +249,7 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     p.z    = camera_pointcloud->points[i].z; 
 
     rotate_y(p.x,   p.y,   p.z,   current_yaw    , &p_y.x, &p_y.y, &p_y.z);
-    rotate_z(p_y.x, p_y.y, p_y.z, current_roll - 2  , &p_x.x, &p_x.y, &p_x.z); 
+    rotate_z(p_y.x, p_y.y, p_y.z, current_roll  , &p_x.x, &p_x.y, &p_x.z); 
     rotate_x(p_x.x, p_x.y, p_x.z, current_pitch  , &p_z.x, &p_z.y, &p_z.z);
 
     //bottom_straight:

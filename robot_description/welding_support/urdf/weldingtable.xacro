@@ -81,11 +81,18 @@
     <origin xyz="0 0.33 0.3785" rpy="0 0 -1.5708"/>
   </joint>
 
+<!-- 
   <sensor_d415 parent="world">
-    <origin xyz="0 0.443 0.8303" rpy="0 ${pi/2} ${pi/2}"/>    <!-- origin xyz="0 -0.11 0.065 -->
+    <origin xyz="0 0.443 0.8303" rpy="0 ${pi/2} ${pi/2}"/>    
+  </sensor_d415> 
+-->
+
+  <sensor_d415 parent="tool0">
+    <origin xyz="0.01 -0.05 0.0282" rpy="0 ${-pi/2} ${pi/2}"/>    <!-- origin xyz="0 -0.11 0.065 -->
   </sensor_d415>
+ 
 
-
+<!-- 
     <link name="welding_torch">
       <visual>
         <geometry>
@@ -109,7 +116,7 @@
     <origin xyz="0 0.055 0.29" rpy="0 0 0"/>
   </joint> 
 
-
+-->
 
 
 

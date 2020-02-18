@@ -6,7 +6,8 @@
 #include <transformation.h>
 #include <Eigen/Dense>
 #include <tf/transform_listener.h>
-#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
+
 #include <std_msgs/Bool.h>
 
 #include <image_transport/image_transport.h>
@@ -71,9 +72,6 @@ float current_yaw = 0, current_pitch = 0, current_roll = 0;
 float current_orientation_x = 0, current_orientation_y = 0, current_orientation_z = 0, current_orientation_w = 0;  
 
 
-void Quaternion_to_RotationMatrix(float x, float y, float z, float w, float R[9]);
-void euler_to_quaternion(float Yaw, float Pitch, float Roll, float Q[4]);
-void euler_to_RotationMatrix(float Yaw, float Pitch, float Roll, float R[9]);
 
 void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
 {
@@ -115,20 +113,22 @@ int main(int argc, char **argv)
   image_transport::ImageTransport it(nh);
   ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
 
-  EyetoHand_compute_TBC();
-  // EyeinHand_compute_TEC();
+  // EyetoHand_compute_TBC();
+  EyeinHand_compute_TEC();
   // EyeinHand_Result_validation();
   cout << " \n" << endl; 
 
 
   tf::TransformListener listener;
+  tf::TransformBroadcaster tf_broadcaster;
 
   while (ros::ok()) 
   {
+    // // listen other coordinates
     tf::StampedTransform transform;
     try
     {
-      listener.lookupTransform("/base_link", "/camera_color_optical_frame", ros::Time(0), transform);
+      listener.lookupTransform("/tool0", "/camera_color_optical_frame", ros::Time(0), transform);
     }
     catch (tf::TransformException ex)
     {
@@ -136,13 +136,45 @@ int main(int argc, char **argv)
       ros::Duration(1.0).sleep();
     }
 
-    // cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
-    //                                   << transform.getOrigin().y() << " " 
-    //                                   << transform.getOrigin().z()<< endl;
-    // cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
-    //                                     << transform.getRotation().y() << " " 
-    //                                     << transform.getRotation().z() << " " 
-    //                                     << transform.getRotation().w() << endl<< endl;
+    cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
+                                      << transform.getOrigin().y() << " " 
+                                      << transform.getOrigin().z()<< endl;
+    cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
+                                        << transform.getRotation().y() << " " 
+                                        << transform.getRotation().z() << " " 
+                                        << transform.getRotation().w() << endl<< endl;
+
+
+    //broadcast ground truth of AR marker:
+    double px = 0.056;//double px = -0.04;
+    double py = 0.328;
+    double pz = 0.001;
+    float T_o_B_q[4];
+    euler_to_quaternion(90, 0, 0, T_o_B_q);
+    double qx = T_o_B_q[0];
+    double qy = T_o_B_q[1];
+    double qz = T_o_B_q[2];
+    double qw = T_o_B_q[3];
+
+    tf::Quaternion rotation (qx,qy,qz,qw);
+    tf::Vector3 origin (px,py,pz);
+    tf::Transform t (rotation, origin);
+
+    std::string markerFrame = "GT_ar_marker_";
+    std::stringstream out;
+    out << 1;
+    std::string id_string = out.str();
+    markerFrame += id_string;
+    tf::StampedTransform GT_Marker (t, ros::Time::now(), "/base_link", markerFrame.c_str());
+    tf_broadcaster. sendTransform(GT_Marker);
+
+
+
+
+
+
+
+
 
     ros::spinOnce(); //allow data update from callback; 
     // naptime.sleep(); // wait for remainder of specified period; 
@@ -244,18 +276,18 @@ void EyeinHand_compute_TEC(void)
   //Base -> End:
   float T_B_E_Q[4];
   euler_to_quaternion(20, -170, 0, T_B_E_Q);
-  T_B_E_Q[0] = -0.999951264231;
-  T_B_E_Q[1] = -0.00534872895094;
-  T_B_E_Q[2] = -0.00359072703145;
-  T_B_E_Q[3] = 0.0074811055935;
+  T_B_E_Q[0] = -0.999961879971;
+  T_B_E_Q[1] = -0.00503657323601;
+  T_B_E_Q[2] = -0.00243954619579;
+  T_B_E_Q[3] =  0.00670224956124;
 
   float T_B_E_r[9];
   Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);
   // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
   Matrix4d T_B_E; // Base -> End
-	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], 0.0187,
-           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], 0.2508,
-           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], 0.4520,
+	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], 0.000,
+           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], 0.2506,
+           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], 0.4517,
            0,          0,          0,          1;
   cout << "T_B_E: " << endl << T_B_E << endl;
   cout << "purple: " << 180*atan2(T_B_E_r[2], T_B_E_r[8]) / M_PI << endl;
@@ -271,9 +303,9 @@ void EyeinHand_compute_TEC(void)
   float T_C_o_r[9];
   Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
   // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
-	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], -0.0326393,
-           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], -0.0169698,
-           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], 0.4194,
+	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], -0.01479443,
+           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], -0.0157338,
+           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8],  0.423117,
            0,          0,          0,          1;
   cout << "T_C_o: " << endl << T_C_o << endl;
   cout << "purple: " << 180*atan2(T_C_o_r[2], T_C_o_r[8]) / M_PI << endl;
@@ -306,9 +338,13 @@ void EyeinHand_compute_TEC(void)
 
 	T_E_C = T_B_E.inverse() * T_o_B * T_C_o.inverse();
 	cout << "T_E_C: " << endl << T_E_C << endl;
-  // cout << "purple: " << 180*atan2(T_E_C(0,2), T_E_C(2,2)) / M_PI << endl;
-  // cout << "red: "    << 180*atan2(T_E_C(1,0), T_E_C(1,1)) / M_PI << endl;
-  // cout << "green: "  << 180*asin(-T_E_C(1,2))             / M_PI << endl;
+
+  // T_E_C: 
+  //   0.999937  -0.0100401 -0.00494651  -0.0247213
+  //   0.0101056     0.99986   0.0133794  -0.0615432
+  // 0.00481148  -0.0134286    0.999898    0.028287
+  //         -0           0           0           1
+
 
 }
 
@@ -360,77 +396,5 @@ void EyeinHand_Result_validation(void)
   T_R = T_B_C * T_C_o;
   cout << "T_R: " << endl << T_R << endl;
 
-
-
-
-}
-
-
-
-//四元数 -> 旋转矩阵
-void Quaternion_to_RotationMatrix(float x, float y, float z, float w, float R[9])
-{
-  float r11 = 0, r12 = 0, r13 = 0;
-  float r21 = 0, r22 = 0, r23 = 0; 
-  float r31 = 0, r32 = 0, r33 = 0;
-
-  R[0]  = 1 - 2 * y * y - 2 * z * z;
-  R[1]  =     2 * x * y - 2 * z * w;
-  R[2]  =     2 * x * z + 2 * y * w;
-
-  R[3]  =     2 * x * y + 2 * z * w;
-  R[4]  = 1 - 2 * x * x - 2 * z * z;
-  R[5]  =     2 * y * z - 2 * x * w;
-
-  R[6]  =     2 * x * z - 2 * y * w;
-  R[7]  =     2 * y * z + 2 * x * w;
-  R[8]  = 1 - 2 * x * x - 2 * y * y;
-
-}
-
-//欧拉角 -> 四元数
-void euler_to_quaternion(float Yaw, float Pitch, float Roll, float Q[4])
-{
-  float yaw   = Yaw   * M_PI / 180 ;
-  float pitch = Roll  * M_PI / 180 ;
-  float roll  = Pitch * M_PI / 180 ;
-
-  float qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
-  float qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
-  float qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
-  float qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
- 
-  Q[0] = qx;
-  Q[1] = qy;
-  Q[2] = qz;
-  Q[3] = qw;
-}
-
-
-//欧拉角 -> 旋转矩阵
-void euler_to_RotationMatrix(float Yaw, float Pitch, float Roll, float R[9])
-{
-  float yaw   = Yaw   * M_PI / 180 ;
-  float pitch = Roll  * M_PI / 180 ;
-  float roll  = Pitch * M_PI / 180 ;
-
-  float c1 = cos(yaw);
-  float c2 = cos(pitch);
-  float c3 = cos(roll);
-  float s1 = sin(yaw);
-  float s2 = sin(pitch);
-  float s3 = sin(roll);
-
-  R[0]  = c1 * c3 + s1 * s2 * s3;
-  R[1]  = c3 * s1 * s2 - c1 * s3;
-  R[2]  = c2 * s1;
-
-  R[3]  = c2 * s3;
-  R[4]  = c2 * c3;
-  R[5]  = -s2;
-
-  R[6]  = c1 * s2 * s3 - s1 * c3;
-  R[7]  = s1 * s3 + c1 * c3 * s2;
-  R[8]  = c1 * c2;
 }
 

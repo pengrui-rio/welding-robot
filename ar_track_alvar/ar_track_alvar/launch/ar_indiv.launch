@@ -1,7 +1,7 @@
 <launch>
-	<arg name="marker_size" default="5" />
-	<arg name="max_new_marker_error" default="0.008" />
-	<arg name="max_track_error" default="0.02" />
+	<arg name="marker_size" default="4.8" />
+	<arg name="max_new_marker_error" default="0.00008" />
+	<arg name="max_track_error" default="0.0002" />
 	<arg name="cam_image_topic" default="/camera/color/image_raw" />
 	<arg name="cam_info_topic" default="/camera/color/camera_info" />	
 	<arg name="output_frame" default="/camera_color_optical_frame" />
