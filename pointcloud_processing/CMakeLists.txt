@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(seam_detection)
+project(pointcloud_processing)
 
 
 find_package(OpenCV REQUIRED)
@@ -35,18 +35,20 @@ add_definitions(${PCL_DEFINITIONS})
 
  
 add_executable(
-seam_detection_node 
+pointcloud_processing_node 
 
 src/main.cpp
  
-src/algorithm.cpp
+src/motion_planning.cpp
 
 src/transformation.cpp
+
+src/seam_location.cpp
 )
 
 
 target_link_libraries(
-seam_detection_node  
+pointcloud_processing_node  
 
 ${catkin_LIBRARIES}
 ${OpenCV_LIBS}

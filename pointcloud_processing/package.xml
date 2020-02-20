@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>surface_reconstruction</name>
+  <name>pointcloud_processing</name>
   <version>0.0.0</version>
-  <description>The surface_reconstruction package</description>
+  <description>The pointcloud_processing package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->
@@ -15,6 +15,8 @@
   <!--   BSD, MIT, Boost Software License, GPLv2, GPLv3, LGPLv2.1, LGPLv3 -->
   <license>TODO</license>
 
+
+ 
 
   <buildtool_depend>catkin</buildtool_depend>
   <build_depend>geometry_msgs</build_depend>
@@ -37,6 +39,8 @@
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>image_transport</exec_depend>
 
+
+ 
   <export>
     <!-- Other tools can request additional information be placed here -->
 

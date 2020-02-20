@@ -136,13 +136,13 @@ int main(int argc, char **argv)
       ros::Duration(1.0).sleep();
     }
 
-    cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
-                                      << transform.getOrigin().y() << " " 
-                                      << transform.getOrigin().z()<< endl;
-    cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
-                                        << transform.getRotation().y() << " " 
-                                        << transform.getRotation().z() << " " 
-                                        << transform.getRotation().w() << endl<< endl;
+    // cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
+    //                                   << transform.getOrigin().y() << " " 
+    //                                   << transform.getOrigin().z()<< endl;
+    // cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
+    //                                     << transform.getRotation().y() << " " 
+    //                                     << transform.getRotation().z() << " " 
+    //                                     << transform.getRotation().w() << endl<< endl;
 
 
     //broadcast ground truth of AR marker:

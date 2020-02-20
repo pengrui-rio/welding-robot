@@ -92,7 +92,7 @@
   </sensor_d415>
  
 
-<!-- 
+  
     <link name="welding_torch">
       <visual>
         <geometry>
@@ -116,8 +116,7 @@
     <origin xyz="0 0.055 0.29" rpy="0 0 0"/>
   </joint> 
 
--->
-
+ 
 
 
 

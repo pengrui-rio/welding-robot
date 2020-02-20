@@ -1,4 +1,4 @@
-#include <algorithm.h>
+#include <seam_location.h>
 
 const double camera_factor = 1000;
 const double camera_cx = 311.2325744628906;

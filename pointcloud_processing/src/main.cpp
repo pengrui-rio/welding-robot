@@ -2,7 +2,7 @@
 #include <math.h>
 #include <iostream>   
 #include <vector>
-#include <algorithm.h>
+#include <seam_location.h>
 #include <transformation.h>
 
 #include <image_transport/image_transport.h>
@@ -227,7 +227,7 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
 
       if( m == 80 || m == 72)
       {
-        p.b   = 0;
+        p.b = 0;
         p.g = 0;
         p.r = 200;
       }
