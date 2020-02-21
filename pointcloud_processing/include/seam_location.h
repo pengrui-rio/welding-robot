@@ -1,3 +1,12 @@
+//焊接缝检测：
+//1.删除大面积的平面点云
+//2.提取边沿，两个面的连接处
+//3.找到三条能构成等腰三角形的线，则判断这个区域属于焊接缝的一部分
+//4.将所有可能的区域连起来，看能不能构成一条连续的空间曲线
+//5.将所有检测出的焊接缝标号
+
+
+
 #include <ros/ros.h>
 #include <math.h>
 #include <iostream>   
@@ -54,6 +63,24 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic);
 
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
 
+void PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////////////////////////
 vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr cloud_ptr );
 
 void basic_normal_computation(Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float *basic_normal_x, float *basic_normal_y, float *basic_normal_z);

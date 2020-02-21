@@ -161,25 +161,28 @@ int main(int argc, char **argv)
   //pointcloud:
   PointCloud::Ptr camera_pointcloud (new PointCloud);
   PointCloud::Ptr map_pointcloud    (new PointCloud);
-  Cloud::Ptr      cloud_ptr (new Cloud);
+  Cloud::Ptr      cloud_ptr         (new Cloud);
+
+
+  seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
 
 
   while (ros::ok()) 
   {
-    analyze_realsense_data(camera_pointcloud);
-    coordinate_transformation(camera_pointcloud, map_pointcloud, cloud_ptr);
+    // analyze_realsense_data(camera_pointcloud);
+    // coordinate_transformation(camera_pointcloud, map_pointcloud, cloud_ptr);
 
-    pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
-    pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
-    pub_camera_pointcloud.header.stamp = ros::Time::now();
-    pointcloud_publisher.publish(pub_camera_pointcloud);
+    // pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
+    // pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
+    // pub_camera_pointcloud.header.stamp = ros::Time::now();
+    // pointcloud_publisher.publish(pub_camera_pointcloud);
 
 
-    if(process_flag == 1)
-    {
-      seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
-      break;
-    }
+    // if(process_flag == 1)
+    // {
+    //   seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
+    //   break;
+    // }
 
     camera_pointcloud->points.clear();
     map_pointcloud->points.clear();
@@ -291,10 +294,11 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
   for(float i = 0; i < show_Pointcloud_timeMax; i++)
   {
     pcl::toROSMsg(*show_Rviz_cloud, pub_pointcloud);
-    pub_pointcloud.header.frame_id = "world";
+    pub_pointcloud.header.frame_id = "base_link";
     pub_pointcloud.header.stamp = ros::Time::now();
     pointcloud_publisher.publish(pub_pointcloud);
   }
+  cloud->points.clear();
   show_Rviz_cloud->points.clear();
 }
 
@@ -308,90 +312,106 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
 
   float sphere_computation = 0.005;
 
-  //1.读入原始pointcloud
-  PointCloud::Ptr cloud_ptr_show (new PointCloud);
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[i].x; 
-    p.y = cloud_ptr->points[i].y;
-    p.z = cloud_ptr->points[i].z;
-    p.b = 200; 
-    p.g = 200;
-    p.r = 200;
 
-    cloud_ptr_show->points.push_back( p );    
-  }
-  // Cloud::Ptr cloud_ptr = read_pointcloud(cloud_ptr_show);
+  cout << "1.读入原始pointcloud" << endl;
+  PointCloud::Ptr cloud_ptr_show (new PointCloud);
+  Cloud::Ptr cloud_ptr_new = read_pointcloud(cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
   ////////////////////////////////////////////////////////////
 
-  //2.算出所有点的法向量
-  vector<Point3f> cloud_normals = allPoint_normal_computation(sphere_computation, cloud_ptr);
-  ////////////////////////////////////////////////////////////
+  cout << "2.算出所有点的法向量" << endl;
+  PointNormal_Computation(cloud_ptr_new, cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
-  //3.计算基准法向量，并返回提出nan点后的点云
-  float basic_normal_x = 0, basic_normal_y = 0, basic_normal_z = 0;
-  basic_normal_computation(cloud_ptr, cloud_normals, &basic_normal_x, &basic_normal_y, &basic_normal_z );
-  ////////////////////////////////////////////////////////////
 
-  //4.计算每个点的方向描述子
-  PointCloud::Ptr descriptor_cloud (new PointCloud);
-  vector<float> Dir_descriptor = Point_descriptor_computation(descriptor_cloud, cloud_ptr, cloud_normals, basic_normal_x, basic_normal_y, basic_normal_z);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, descriptor_cloud, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
 
-  //5.计算每个点在邻域内的方差
-  Cloud::Ptr cloud_tree_variance (new Cloud);
-  PointCloud::Ptr cloud_tree_variance_show (new PointCloud);
-  vector<float> variance_descriptor = Point_variance_computation(cloud_tree_variance, cloud_tree_variance_show, descriptor_cloud, Dir_descriptor);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_variance_show, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
 
-  //6.提取目标区域点云，可能有干扰
-  PointCloud::Ptr cloud_tree_rm_irrelativePoint (new PointCloud);
-  exact_Target_regionPointcloud(cloud_tree_rm_irrelativePoint, cloud_tree_variance, cloud_tree_variance_show);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_rm_irrelativePoint, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
 
-  //7.利用欧式聚类剔除干扰区域，这里选取聚类数目最多的区域作为最终目标区域
-  PointCloud::Ptr cloud_seamRegion (new PointCloud);
-  Exact_seam_region(cloud_tree_rm_irrelativePoint, cloud_seamRegion);
-  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
   ////////////////////////////////////////////////////////////
 
-  //8.分割seam区域并确定path主方向
-  vector< vector<int> > seg_pointcloud = Segment_seam_region(cloud_seamRegion);
-  show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+  // //2.算出所有点的法向量
+  // vector<Point3f> cloud_normals = allPoint_normal_computation(sphere_computation, cloud_ptr);
+  // ////////////////////////////////////////////////////////////
 
-  ////////////////////////////////////////////////////////////
+  // //3.计算基准法向量，并返回提出nan点后的点云
+  // float basic_normal_x = 0, basic_normal_y = 0, basic_normal_z = 0;
+  // basic_normal_computation(cloud_ptr, cloud_normals, &basic_normal_x, &basic_normal_y, &basic_normal_z );
+  // ////////////////////////////////////////////////////////////
 
-  //9.通过梯度下降优化出最佳运动path
-  PointCloud::Ptr path_cloud (new PointCloud);
-  PointCloud::Ptr path_cloud_showRviz (new PointCloud);
-  vector<float> orientation_pathpoints = Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
-  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
-  show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
+  // //4.计算每个点的方向描述子
+  // PointCloud::Ptr descriptor_cloud (new PointCloud);
+  // vector<float> Dir_descriptor = Point_descriptor_computation(descriptor_cloud, cloud_ptr, cloud_normals, basic_normal_x, basic_normal_y, basic_normal_z);
+  // show_pointcloud_Rviz(show_Pointcloud_timeMax, descriptor_cloud, pub_pointcloud, pointcloud_publisher);
+  // ////////////////////////////////////////////////////////////
 
-  PointCloud::Ptr grooveRegion_onProfile = show_grooveRegion_onProfile(cloud_ptr, path_cloud_showRviz);
-  show_pointcloud_Rviz(1*show_Pointcloud_timeMax, grooveRegion_onProfile, pub_pointcloud, pointcloud_publisher);
-  //////////////////////////////////////////////////////////
-  cout << "3D path is generated !!!!!!!!!" << endl;
+  // //5.计算每个点在邻域内的方差
+  // Cloud::Ptr cloud_tree_variance (new Cloud);
+  // PointCloud::Ptr cloud_tree_variance_show (new PointCloud);
+  // vector<float> variance_descriptor = Point_variance_computation(cloud_tree_variance, cloud_tree_variance_show, descriptor_cloud, Dir_descriptor);
+  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_variance_show, pub_pointcloud, pointcloud_publisher);
+  // ////////////////////////////////////////////////////////////
 
-  geometry_msgs::Pose path_point;
-  for(int i = 0; i < path_cloud->points.size(); i++)
-  {
-    path_point.position.x = path_cloud->points[i].x;//- 0.035;
-    path_point.position.y = path_cloud->points[i].y ;
-    path_point.position.z = path_cloud->points[i].z;//+ 0.036;
-    path_point.orientation.x = orientation_pathpoints[i];
+  // //6.提取目标区域点云，可能有干扰
+  // PointCloud::Ptr cloud_tree_rm_irrelativePoint (new PointCloud);
+  // exact_Target_regionPointcloud(cloud_tree_rm_irrelativePoint, cloud_tree_variance, cloud_tree_variance_show);
+  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_tree_rm_irrelativePoint, pub_pointcloud, pointcloud_publisher);
+  // ////////////////////////////////////////////////////////////
 
-    path_publisher.publish(path_point);
+  // //7.利用欧式聚类剔除干扰区域，这里选取聚类数目最多的区域作为最终目标区域
+  // PointCloud::Ptr cloud_seamRegion (new PointCloud);
+  // Exact_seam_region(cloud_tree_rm_irrelativePoint, cloud_seamRegion);
+  // show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
 
-    naptime.sleep(); // wait for remainder of specified period; 
-  }
-  cout << "3D path is published !!!!!!!!!" << endl;
+  // ////////////////////////////////////////////////////////////
+
+  // //8.分割seam区域并确定path主方向
+  // vector< vector<int> > seg_pointcloud = Segment_seam_region(cloud_seamRegion);
+  // show_pointcloud_Rviz(50*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+
+  // ////////////////////////////////////////////////////////////
+
+  // //9.通过梯度下降优化出最佳运动path
+  // PointCloud::Ptr path_cloud (new PointCloud);
+  // PointCloud::Ptr path_cloud_showRviz (new PointCloud);
+  // vector<float> orientation_pathpoints = Path_Generation(seg_pointcloud, cloud_seamRegion, path_cloud, path_cloud_showRviz);
+  // show_pointcloud_Rviz(100*show_Pointcloud_timeMax, cloud_seamRegion, pub_pointcloud, pointcloud_publisher);
+  // show_pointcloud_Rviz(100*show_Pointcloud_timeMax, path_cloud_showRviz, pub_pointcloud, pointcloud_publisher);
+
+  // PointCloud::Ptr grooveRegion_onProfile = show_grooveRegion_onProfile(cloud_ptr, path_cloud_showRviz);
+  // show_pointcloud_Rviz(1*show_Pointcloud_timeMax, grooveRegion_onProfile, pub_pointcloud, pointcloud_publisher);
+  // //////////////////////////////////////////////////////////
+  // cout << "3D path is generated !!!!!!!!!" << endl;
+
+  // geometry_msgs::Pose path_point;
+  // for(int i = 0; i < path_cloud->points.size(); i++)
+  // {
+  //   path_point.position.x = path_cloud->points[i].x;//- 0.035;
+  //   path_point.position.y = path_cloud->points[i].y ;
+  //   path_point.position.z = path_cloud->points[i].z;//+ 0.036;
+  //   path_point.orientation.x = orientation_pathpoints[i];
+
+  //   path_publisher.publish(path_point);
+
+  //   naptime.sleep(); // wait for remainder of specified period; 
+  // }
+  // cout << "3D path is published !!!!!!!!!" << endl;
 
 
   clock_t end = clock();

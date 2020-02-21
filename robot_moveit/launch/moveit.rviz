@@ -4,10 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1
         - /TF1/Frames1
         - /Camera1
-      Splitter Ratio: 0.877906978
+      Splitter Ratio: 0.727777779
     Tree Height: 837
   - Class: rviz/Help
     Name: Help
@@ -149,6 +148,11 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
+          welding_torch:
+            Alpha: 1
+            Show Axes: false
+            Show Trail: false
+            Value: true
           world:
             Alpha: 1
             Show Axes: false
@@ -207,21 +211,11 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        ar_marker_0:
-          Value: true
-        ar_marker_1:
-          Value: true
-        ar_marker_2:
-          Value: true
         bar:
           Value: false
         base:
           Value: false
         base_link:
-          Value: false
-        camera_aligned_depth_to_color_frame:
-          Value: false
-        camera_aligned_depth_to_infra1_frame:
           Value: false
         camera_bottom_screw_frame:
           Value: false
@@ -232,14 +226,6 @@ Visualization Manager:
         camera_depth_frame:
           Value: false
         camera_depth_optical_frame:
-          Value: false
-        camera_infra1_frame:
-          Value: false
-        camera_infra1_optical_frame:
-          Value: false
-        camera_infra2_frame:
-          Value: false
-        camera_infra2_optical_frame:
           Value: false
         camera_left_ir_frame:
           Value: false
@@ -263,10 +249,10 @@ Visualization Manager:
           Value: false
         tool0:
           Value: false
-        tool0_controller:
-          Value: false
         upper_arm_link:
           Value: false
+        welding_torch:
+          Value: true
         world:
           Value: true
         wrist_1_link:
@@ -284,8 +270,7 @@ Visualization Manager:
         world:
           base_link:
             base:
-              tool0_controller:
-                {}
+              {}
             shoulder_link:
               upper_arm_link:
                 forearm_link:
@@ -297,20 +282,10 @@ Visualization Manager:
                         tool0:
                           camera_bottom_screw_frame:
                             camera_link:
-                              camera_aligned_depth_to_color_frame:
-                                {}
-                              camera_aligned_depth_to_infra1_frame:
-                                camera_infra1_optical_frame:
-                                  {}
                               camera_depth_frame:
                                 camera_color_frame:
                                   camera_color_optical_frame:
-                                    ar_marker_0:
-                                      {}
-                                    ar_marker_1:
-                                      {}
-                                    ar_marker_2:
-                                      {}
+                                    {}
                                 camera_depth_optical_frame:
                                   {}
                                 camera_left_ir_frame:
@@ -319,11 +294,8 @@ Visualization Manager:
                                 camera_right_ir_frame:
                                   camera_right_ir_optical_frame:
                                     {}
-                              camera_infra1_frame:
-                                {}
-                              camera_infra2_frame:
-                                camera_infra2_optical_frame:
-                                  {}
+                          welding_torch:
+                            {}
           table:
             post:
               bar:
@@ -423,25 +395,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.806305528
+      Distance: 0.590117753
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0775077194
-        Y: 0.376822472
+        X: -0.0656949133
+        Y: -0.0808983743
         Z: -1.0430756e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.0152030559
+      Pitch: 0.845204711
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.15496111
+      Yaw: 5.8999486
     Saved: ~
 Window Geometry:
   Camera:

@@ -12,6 +12,7 @@ void swap(int array[], int i, int j)
 	array[i] = array[j];
 	array[j] = temp;
 }
+
 void BubbleSort1(int array[], int n)
 {
 	for (int i = 0; i < n-1; i++)
@@ -113,28 +114,7 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
   {
     for (int n = 0; n < color_pic.cols; n++) //350
     {
-      // if((n == 22  && m == 67)  ||
-      //    (n == 50  && m == 88)  ||
-      //    (n == 83  && m == 105) ||
-      //    (n == 124 && m == 115) ||
-      //    (n == 172 && m == 104) ||
-      //    (n == 223 && m == 80)  ||
-      //    (n == 273 && m == 67)  ||
-      //    (n == 301 && m == 78)  ||
-      //    (n == 330 && m == 115) )
-      // {
-      //   color_pic.ptr<uchar>(m)[n*3]   = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
-      // }
-
-      // if( m == 80 || m == 72 )
-      // {
-      //   color_pic.ptr<uchar>(m)[n*3]   = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
-      // }
-
+ 
     }
   }
   cv::imshow("crop_image", color_pic);
@@ -163,43 +143,11 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
     cout << "i-th: " << i+1 << endl;
     Obtain_pathPoint_BaseCoor(p);
   }
-
-  
-
-	// Mat image;
-	// GaussianBlur(InterestImage,image,Size(3,3),0);
-	// Canny(InterestImage,image,70,180);
-	// vector<vector<Point> > contours;
-	// vector<Vec4i> hierarchy;
-	// findContours(image,contours,hierarchy,RETR_TREE,CHAIN_APPROX_SIMPLE,Point());
-	// Mat imageContours=Mat::zeros(image.size(),CV_8UC1);
-	// Mat Contours=Mat::zeros(image.size(),CV_8UC1);  //绘制
-	// for(int i=0;i<contours.size();i++)
-	// {
-	// 	//contours[i]代表的是第i个轮廓，contours[i].size()代表的是第i个轮廓上所有的像素点数
-	// 	for(int j=0;j<contours[i].size();j++) 
-	// 	{
-	// 		//绘制出contours向量内所有的像素点
-	// 		Point P=Point(contours[i][j].x,contours[i][j].y);
-	// 		Contours.at<uchar>(P)=255;
-	// 	}
- 
-	// 	//输出hierarchy向量内容
-	// 	char ch[256];
-	// 	sprintf(ch,"%d",i);
-	// 	string str=ch;
-	// 	cout<<"向量hierarchy的第" <<str<<" 个元素内容为："<<endl<<hierarchy[i]<<endl<<endl;
- 
-	// 	//绘制轮廓
-	// 	drawContours(imageContours,contours,i,Scalar(255),1,8,hierarchy);
-	// }
-	// imshow("Contours Image",imageContours); //轮廓
-	// imshow("Point of Contours",Contours);   //向量contours内保存的所有轮廓点集
  
 }
 
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
@@ -209,10 +157,10 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("/home/robot/Documents/a_system/src/seam_detection/save_pcd/bottom_straight.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/pointcloud_processing/src/run_export.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
-       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl << endl;
+       << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl ;
 
 
   //bottom_straight
@@ -220,30 +168,14 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   {
     pcl::PointXYZRGB p;
 
-    p.x = cloud_ptr->points[i].x + 0.05; 
-    p.y = cloud_ptr->points[i].y - 0.03;
-    p.z = cloud_ptr->points[i].z - 0.02;//- 0.457; // 0.125
-    p.b = 200; 
-    p.g = 200;
-    p.r = 200;
-    cloud_ptr_show->points.push_back( p );    
-  }
-
-
-  //box
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-
-    p.x = cloud_ptr->points[i].x + 0.03; 
-    p.y = cloud_ptr->points[i].y - 0.03;
+    p.x = cloud_ptr->points[i].x ; 
+    p.y = cloud_ptr->points[i].y ;
     p.z = cloud_ptr->points[i].z ;//- 0.457; // 0.125
     p.b = 200; 
     p.g = 200;
     p.r = 200;
     cloud_ptr_show->points.push_back( p );    
   }
-
 
   //这个不用动
   cloud_ptr->clear();
@@ -257,10 +189,199 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   }
 
 
-  cout << "cloud_ptr_show->points.size()" << cloud_ptr->points.size() << endl;
+  cout << "cloud_ptr_show->points.size()" << cloud_ptr->points.size() << endl << endl;
 
   return cloud_ptr;
 }
+
+
+ 
+ 
+ 
+void PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+{
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+
+    p.x = cloud_ptr->points[i].x ; 
+    p.y = cloud_ptr->points[i].y ;
+    p.z = cloud_ptr->points[i].z ;//- 0.457; // 0.125
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
+
+  // define kdtree
+  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
+  kdtree.setInputCloud (cloud_ptr);  // 将前面创建的随机点云作为 KdTree 输入
+  vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
+  vector<float> pointRadiusSquaredDistance;
+  float radius = 0.005;
+
+
+  kdtree.radiusSearch (cloud_ptr->points[132151], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+
+
+  //根据临域内任意三个点先求一个初始平面用于后面的优化
+  //首先选三个不共线的点：
+  float p3_index = 0;
+  for( float j = pointIdxRadiusSearch.size() - 1; j > 0; j--)
+  {
+    float x0 = cloud_ptr_show->points[pointIdxRadiusSearch[0]].x;
+    float y0 = cloud_ptr_show->points[pointIdxRadiusSearch[0]].y;
+    float z0 = cloud_ptr_show->points[pointIdxRadiusSearch[0]].z;
+
+    float x1 = cloud_ptr_show->points[pointIdxRadiusSearch[1]].x;
+    float y1 = cloud_ptr_show->points[pointIdxRadiusSearch[1]].y;
+    float z1 = cloud_ptr_show->points[pointIdxRadiusSearch[1]].z;
+    
+    float x2 = cloud_ptr_show->points[pointIdxRadiusSearch[j + 2]].x;
+    float y2 = cloud_ptr_show->points[pointIdxRadiusSearch[j + 2]].y;
+    float z2 = cloud_ptr_show->points[pointIdxRadiusSearch[j + 2]].z;
+
+    //求两个向量：
+    Point3f v1, v2;
+    v1.x = x0 - x1; v1.y = y0 - y1; v1.z = z0 - z1;
+    v2.x = x0 - x2; v2.y = y0 - y2; v2.z = z0 - z2;
+
+    //求夹角：
+    float angle_v12 = 180 / M_PI * acos ( (v1.x * v2.x + v1.y * v2.y + v1.z * v2.z) / (sqrt ( pow(v1.x, 2) + pow(v1.y, 2) + pow(v1.z, 2) ) * sqrt ( pow(v2.x, 2) + pow(v2.y, 2) + pow(v2.z, 2) )) );
+    
+    //如果三个点在同一条直线上则略过，因为无法定义唯一一个平面
+    if(abs(angle_v12) == 180 || abs(angle_v12) == 0)
+    {
+      continue;
+    }
+    else
+    {
+      p3_index = j ;
+      cout << "p3_index: " << p3_index << endl;
+      cout << "angle_v12: " << angle_v12 << endl;
+      break;
+    }
+  }
+
+  //赋值
+  Point3f p1, p2, p3;
+  p1.x = cloud_ptr_show->points[pointIdxRadiusSearch[0]].x;        p1.y = cloud_ptr_show->points[pointIdxRadiusSearch[0]].y;        p1.z = cloud_ptr_show->points[pointIdxRadiusSearch[0]].z;
+  p2.x = cloud_ptr_show->points[pointIdxRadiusSearch[1]].x;        p2.y = cloud_ptr_show->points[pointIdxRadiusSearch[1]].y;        p2.z = cloud_ptr_show->points[pointIdxRadiusSearch[1]].z;
+  p3.x = cloud_ptr_show->points[pointIdxRadiusSearch[p3_index]].x; p3.y = cloud_ptr_show->points[pointIdxRadiusSearch[p3_index]].y; p3.z = cloud_ptr_show->points[pointIdxRadiusSearch[p3_index]].z;
+ 
+  //三个点先求一个初始平面
+  float a = ( (p2.y-p1.y)*(p3.z-p1.z)-(p2.z-p1.z)*(p3.y-p1.y) );
+  float b = ( (p2.z-p1.z)*(p3.x-p1.x)-(p2.x-p1.x)*(p3.z-p1.z) );
+  float c = ( (p2.x-p1.x)*(p3.y-p1.y)-(p2.y-p1.y)*(p3.x-p1.x) );
+  float d = ( 0-(a*p1.x+b*p1.y+c*p1.z) );
+  // float n0 = sqrt ( pow(a, 2) + pow(b, 2) + pow(c, 2) );
+  // a = a / n0; b = b / n0; c = c / n0; d = d / n0; //归一化到单位法向量
+  cout << "A: " << a << " " << "B: " << b << " " << "C: " << c << " " << "D: " << d << endl;
+
+  //定义拟合平面： Ax + By + Cz + D = 0
+  //空间中一点到平面的距离公式为： d^2 =  (Ax_0 + By_0 + Cz_0 + D)^2 / (pow(A, 2) + pow(B, 2) + pow(C, 2))
+  float A      = a, B      = b, C      = c, D      = d; //定义初始值
+  float A_upd  = 0, B_upd  = 0, C_upd  = 0, D_upd  = 0; //定义更新后的值
+  float A_goal = 0, B_goal = 0, C_goal = 0, D_goal = 0; //定义最终结果
+  float theta    = 0.01;
+  float loop_max = 10000;
+  float epsilon  = 0.0001;
+  float loss     = 0;
+  for (float loop_count = 0; loop_count < loop_max; loop_count++)
+  {
+    // cost computation:
+    float cost_function = 0;
+    for( float j = 0; j < pointIdxRadiusSearch.size(); j++)
+    {
+      cloud_ptr_show->points[pointIdxRadiusSearch[j]].b = 0;
+      cloud_ptr_show->points[pointIdxRadiusSearch[j]].g = 0;
+      cloud_ptr_show->points[pointIdxRadiusSearch[j]].r = 200;
+      float x0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].x;
+      float y0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].y;
+      float z0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].z;
+
+      cost_function += pow((A * x0 + B * y0 + C * z0 + D), 2) / (pow(A, 2) + pow(B, 2) + pow(C, 2));
+    }
+
+    //gradient computation:
+    float gA = 0, gB = 0, gC = 0, gD = 0;  
+    for( float j = 0; j < pointIdxRadiusSearch.size(); j++)
+    {
+      float x0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].x;
+      float y0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].y;
+      float z0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].z;
+      float norm = pow(A, 2) + pow(B, 2) + pow(C, 2);
+      float quat = A * x0 + B * y0 + C * z0 + D;
+
+      gA += (2 * x0 * quat * norm - quat * quat * 2 * A) / (norm * norm);
+
+      gB += (2 * y0 * quat * norm - quat * quat * 2 * B) / (norm * norm);
+
+      gC += (2 * z0 * quat * norm - quat * quat * 2 * C) / (norm * norm);
+
+      gD += (2 * 1  * quat)                              / (norm);
+    }
+
+    // xyz step in one step
+    A_upd = A - theta * gA;
+    B_upd = B - theta * gB;
+    C_upd = C - theta * gC;
+    D_upd = D - theta * gD;
+
+
+    //compute updated cost function
+    float cost_function_update = 0;
+    for( float j = 0; j < pointIdxRadiusSearch.size(); j++)
+    {
+      float x0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].x;
+      float y0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].y;
+      float z0 = cloud_ptr_show->points[pointIdxRadiusSearch[j]].z;
+
+      cost_function_update += pow(A_upd * x0 + B_upd * y0 + C_upd * z0 + D_upd, 2) / (pow(A_upd, 2) + pow(B_upd, 2) + pow(C_upd, 2));
+    }
+
+    //判断loss是否小于阈值
+    loss = cost_function - cost_function_update;
+    cout << "loss: " << loss << endl;
+
+    //loss 大于 最小误差， 在更新后的值的基础上继续迭代
+    if(loss > epsilon)
+    {
+      A = A_upd;
+      B = B_upd;
+      C = C_upd;
+      D = D_upd;
+    }
+
+    //减少步长
+    else if(cost_function_update - cost_function > epsilon)
+    {
+      theta = theta * 0.8;
+    }
+
+    //满足迭代条件，得到目标点
+    else
+    {
+      A_goal = A;
+      B_goal = B;
+      C_goal = C;
+      D_goal = D;
+ 
+      break;
+    }
+  }
+  
+  float n = sqrt ( pow(A_goal, 2) + pow(B_goal, 2) + pow(C_goal, 2) );
+  A_goal = A_goal / n; B_goal = B_goal / n; C_goal = C_goal / n; D_goal = D_goal / n; //归一化到单位法向量
+  cout << "A: " << A_goal  << " " << "B: " << B_goal << " " << "C: " << C_goal << " " << "D: " << D_goal << endl;
+
+
+}
+
+
+
+
 
 
 vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr cloud_ptr )
