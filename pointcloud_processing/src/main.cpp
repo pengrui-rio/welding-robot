@@ -307,30 +307,42 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
 {
   clock_t begin = clock();
 
-
   int show_Pointcloud_timeMax = 100;
-
   float sphere_computation = 0.005;
 
 
-  cout << "1.读入原始pointcloud" << endl;
+  cout << "1.读入原始pointcloud" << endl << endl;
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
   Cloud::Ptr cloud_ptr_new = read_pointcloud(cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  ////////////////////////////////////////////////////////////
 
-  cout << "2.算出所有点的法向量" << endl;
-  PointNormal_Computation(cloud_ptr_new, cloud_ptr_show);
+  cout << "2.算出所有点的法向量" << endl << endl;
+  vector<Point3f> Normal = PointNormal_Computation(cloud_ptr_new, cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
+  cout << "3.剔除均匀变化的部分" << endl << endl;
+  Delete_SmoothChange_Plane(cloud_ptr_new, cloud_ptr_show, Normal);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
+  cout << "4.筛选出可能的焊接缝" << endl << endl;
+  vector < vector <float> > seam_cluster_all = Screen_Candidate_Seam(cloud_ptr_new, cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
+  cout << "5.求焊接缝的几何中心" << endl << endl;
+  int seam_label = 0;
+  Compute_Seam_GeometryCenter(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label);
 
+  // cout << "5.选择焊接缝的起点和终点" << endl;
+  // int seam_label = 0;
+  // while(ros::ok())
+  // {
+  //   char axis;
+  //   float coordinate;
+  //   cin >> axis >> coordinate;
 
-
-
-
-
+  //   Define_StartEnd_Point(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label, axis, coordinate);
+  //   show_pointcloud_Rviz(show_Pointcloud_timeMax/10, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  // }
 
 
 
@@ -414,6 +426,7 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
   // cout << "3D path is published !!!!!!!!!" << endl;
 
 
+  cout << endl;
   clock_t end = clock();
   double elapsed_secs = static_cast<double>(end - begin) / CLOCKS_PER_SEC;
   cout << elapsed_secs << " s" << endl;

@@ -4,6 +4,7 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
+        - /TF1
         - /TF1/Frames1
         - /Camera1
       Splitter Ratio: 0.727777779
@@ -211,11 +212,21 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        ar_marker_0:
+          Value: true
+        ar_marker_1:
+          Value: true
+        ar_marker_2:
+          Value: true
         bar:
           Value: false
         base:
           Value: false
         base_link:
+          Value: false
+        camera_aligned_depth_to_color_frame:
+          Value: false
+        camera_aligned_depth_to_infra1_frame:
           Value: false
         camera_bottom_screw_frame:
           Value: false
@@ -226,6 +237,14 @@ Visualization Manager:
         camera_depth_frame:
           Value: false
         camera_depth_optical_frame:
+          Value: false
+        camera_infra1_frame:
+          Value: false
+        camera_infra1_optical_frame:
+          Value: false
+        camera_infra2_frame:
+          Value: false
+        camera_infra2_optical_frame:
           Value: false
         camera_left_ir_frame:
           Value: false
@@ -282,10 +301,20 @@ Visualization Manager:
                         tool0:
                           camera_bottom_screw_frame:
                             camera_link:
+                              camera_aligned_depth_to_color_frame:
+                                {}
+                              camera_aligned_depth_to_infra1_frame:
+                                camera_infra1_optical_frame:
+                                  {}
                               camera_depth_frame:
                                 camera_color_frame:
                                   camera_color_optical_frame:
-                                    {}
+                                    ar_marker_0:
+                                      {}
+                                    ar_marker_1:
+                                      {}
+                                    ar_marker_2:
+                                      {}
                                 camera_depth_optical_frame:
                                   {}
                                 camera_left_ir_frame:
@@ -294,6 +323,11 @@ Visualization Manager:
                                 camera_right_ir_frame:
                                   camera_right_ir_optical_frame:
                                     {}
+                              camera_infra1_frame:
+                                {}
+                              camera_infra2_frame:
+                                camera_infra2_optical_frame:
+                                  {}
                           welding_torch:
                             {}
           table:
@@ -395,25 +429,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.590117753
+      Distance: 0.715440512
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0656949133
-        Y: -0.0808983743
-        Z: -1.0430756e-07
+        X: 0.0520957261
+        Y: -0.0183309987
+        Z: -1.41599355e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.845204711
+      Pitch: 1.01479733
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 5.8999486
+      Yaw: 3.29859447
     Saved: ~
 Window Geometry:
   Camera:

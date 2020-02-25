@@ -63,7 +63,15 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic);
 
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
 
-void PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+
+void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal);
+
+vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+
+void Compute_Seam_GeometryCenter(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label);
+
+void Define_StartEnd_Point(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label, char axis, float coordinate);
 
 
 
@@ -73,29 +81,4 @@ void PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_sho
 
 
 
-
-
-
-
-
-
-
-//////////////////////////////////////
-vector<Point3f> allPoint_normal_computation(float sphere_computation, Cloud::Ptr cloud_ptr );
-
-void basic_normal_computation(Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float *basic_normal_x, float *basic_normal_y, float *basic_normal_z);
-
-vector<float> Point_descriptor_computation(PointCloud::Ptr descriptor_cloud, Cloud::Ptr cloud_ptr, vector<Point3f> cloud_normals, float basic_normal_x, float basic_normal_y, float basic_normal_z);
-
-vector<float> Point_variance_computation(Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show, PointCloud::Ptr descriptor_cloud, vector<float> Dir_descriptor);
-
-void exact_Target_regionPointcloud(PointCloud::Ptr cloud_tree_rm_irrelativePoint, Cloud::Ptr cloud_tree_variance, PointCloud::Ptr cloud_tree_variance_show);
-
-void Exact_seam_region(PointCloud::Ptr cloud_tree_rm_irrelativePoint, PointCloud::Ptr cloud_seamRegion);
-
-PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion);
-
-vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion);
-
-vector<float> Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz);
-
+ 
