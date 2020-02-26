@@ -3,6 +3,7 @@
 #include <iostream>   
 #include <vector>
 #include <seam_location.h>
+#include <motion_planning.h>
 #include <transformation.h>
 
 #include <image_transport/image_transport.h>
@@ -189,17 +190,16 @@ int main(int argc, char **argv)
     cloud_ptr->points.clear();
 
     ros::spinOnce(); //allow data update from callback; 
-    // naptime.sleep(); // wait for remainder of specified period; 
+    naptime.sleep(); // wait for remainder of specified period; 
   }
 
 
   ros::spin();
- 
 }
 
 
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void analyze_realsense_data(PointCloud::Ptr cloud)
 {
   // 遍历深度图
@@ -239,7 +239,7 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
     }
   }
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud, Cloud::Ptr cloud_ptr)
 {
   for (float i = 0; i < camera_pointcloud->points.size(); i++)  //480
@@ -302,6 +302,7 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
   show_Rviz_cloud->points.clear();
 }
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
@@ -310,42 +311,67 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
   int show_Pointcloud_timeMax = 100;
   float sphere_computation = 0.005;
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "1.读入原始pointcloud" << endl << endl;
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
   Cloud::Ptr cloud_ptr_new = read_pointcloud(cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "2.算出所有点的法向量" << endl << endl;
   vector<Point3f> Normal = PointNormal_Computation(cloud_ptr_new, cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "3.剔除均匀变化的部分" << endl << endl;
   Delete_SmoothChange_Plane(cloud_ptr_new, cloud_ptr_show, Normal);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
-  cout << "4.筛选出可能的焊接缝" << endl << endl;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "4.人工筛选出可能的焊接缝" << endl << endl;
   vector < vector <float> > seam_cluster_all = Screen_Candidate_Seam(cloud_ptr_new, cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
-  cout << "5.求焊接缝的几何中心" << endl << endl;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "5.提取焊接缝边界" << endl << endl;
   int seam_label = 0;
-  Compute_Seam_GeometryCenter(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label);
+  Cloud::Ptr seam_edge = Extract_Seam_edge(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "6.焊接缝拟合一条曲线" << endl << endl; 
 
-  // cout << "5.选择焊接缝的起点和终点" << endl;
-  // int seam_label = 0;
-  // while(ros::ok())
+  // cout << "6.人工选择焊接缝的起点和终点" << endl << endl; 
+  // seam_label = 0;
+  // char axis;  float coordinate; string Done;
+  // cout << "Define start point: " << endl;
+  // cout << "which axis?: " << endl << endl; cin >> axis;
+  // Point3f start_point, end_point;
+  // while(ros::ok()) // -0.185
   // {
-  //   char axis;
-  //   float coordinate;
-  //   cin >> axis >> coordinate;
+  //   cout << "input coordinate: " << endl << endl; cin >> coordinate;
 
-  //   Define_StartEnd_Point(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label, axis, coordinate);
+  //   start_point = Define_StartEnd_Point(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label, axis, coordinate);
   //   show_pointcloud_Rviz(show_Pointcloud_timeMax/10, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+
+  //   cout << "Done?" << endl; cin >> Done;
+  //   if(Done == "yes")
+  //   {
+  //     break;
+  //   }
   // }
+  // cout << "Define end point: " << endl;
+  // cout << "which axis?: " << endl << endl; cin >> axis;
+  // while(ros::ok()) // 0.213
+  // {
+  //   cout << "input coordinate: " << endl << endl; cin >> coordinate;
 
+  //   end_point = Define_StartEnd_Point(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label, axis, coordinate);
+  //   show_pointcloud_Rviz(show_Pointcloud_timeMax/10, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
-
+  //   cout << "Done?" << endl; cin >> Done;
+  //   if(Done == "yes")
+  //   {
+  //     break;
+  //   }
+  // }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "7.为焊接缝拟合一条曲线" << endl;
 
 
 

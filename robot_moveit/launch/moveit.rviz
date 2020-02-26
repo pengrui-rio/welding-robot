@@ -4,7 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1
         - /TF1/Frames1
         - /Camera1
       Splitter Ratio: 0.727777779
@@ -212,6 +211,8 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        GT_ar_marker_1:
+          Value: true
         ar_marker_0:
           Value: true
         ar_marker_1:
@@ -288,6 +289,8 @@ Visualization Manager:
       Tree:
         world:
           base_link:
+            GT_ar_marker_1:
+              {}
             base:
               {}
             shoulder_link:
@@ -429,25 +432,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.715440512
+      Distance: 0.709406674
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0520957261
-        Y: -0.0183309987
-        Z: -1.41599355e-06
+        X: 0.0270998627
+        Y: -0.0474030599
+        Z: -1.05836568e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.01479733
+      Pitch: 1.04479921
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 3.29859447
+      Yaw: 2.60678864
     Saved: ~
 Window Geometry:
   Camera:

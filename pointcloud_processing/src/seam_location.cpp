@@ -508,7 +508,7 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
   // }
   cout << "size:" << PointVariance.size() << endl; 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //求每个点的平面变化描述子
   vector<float> PointDescriptor;
   for(float i = 0; i < cloud_ptr->points.size(); i++)
@@ -638,8 +638,6 @@ vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud
   vector < vector <float> > seam_cluster_all;
   for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
   {
-    pcl::PointXYZRGB p;
-
     Cloud::Ptr cloud_cluster (new Cloud);
     
     // push back
@@ -672,166 +670,19 @@ vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud
 }
 
 
-void Compute_Seam_GeometryCenter(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label)
-{
-  Cloud::Ptr seam_cloud (new Cloud);
-  for(float i = 0; i < seam_cluster_all[seam_label].size(); i++)
-  { 
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].x;
-    p.y = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].y;
-    p.z = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].z;
-    p.b = 200;
-    p.g = 200;
-    p.r = 200;
-
-    cloud_ptr_show->points.push_back( p ); 
-    /////////////////////////////////////////////
-    pcl::PointXYZ ps;
-    ps.x = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].x;
-    ps.y = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].y;
-    ps.z = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].z;
-    seam_cloud->points.push_back( ps ); 
-  }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //求所有的点距离之和：
-  vector < float > Point_DisSum;
-  for(float i = 0; i < seam_cloud->points.size(); i++)
-  { 
-    float point_sum = 0;
-    for(float j = 0; j < seam_cloud->points.size(); j++)
-    { 
-      point_sum += sqrt(pow( seam_cloud->points[i].x - seam_cloud->points[j].x, 2) +
-                        pow( seam_cloud->points[i].y - seam_cloud->points[j].y, 2) +
-                        pow( seam_cloud->points[i].z - seam_cloud->points[j].z, 2));
-    }
-    Point_DisSum.push_back(point_sum);
-    cout << "point_sum: " << i << " " << point_sum << endl;
-  }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //求Point_DisSum 最小值 
-  cout << "Point_DisSum: " << Point_DisSum.size() << endl;
-  float Point_DisSum_min = 0;
-  float Point_DisSum_index = 0;
-  for(float j = 0; j < Point_DisSum.size(); j++)
-  { 
-    if(j == 0)
-    {
-      Point_DisSum_min = Point_DisSum[0];
-    }
-
-    if(Point_DisSum_min > Point_DisSum[j])
-    {
-      Point_DisSum_min = Point_DisSum[j];
-      Point_DisSum_index = j;
-    }
-  }
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //显示几何中心：
-  cout << "Point_DisSum_index: " << Point_DisSum_index << endl;
-
-  // define kdtree
-  pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
-  kdtree.setInputCloud (seam_cloud);  // 将前面创建的随机点云作为 KdTree 输入
-  vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
-  vector<float> pointRadiusSquaredDistance;
-  float radius = 0.005;
-  kdtree.radiusSearch (seam_cloud->points[Point_DisSum_index], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  //132151
-  cout << " pointIdxRadiusSearch.size() : " << pointIdxRadiusSearch.size() << endl;
-  for(float j = 0; j < pointIdxRadiusSearch.size(); j++)
-  {
-    cloud_ptr_show->points[pointIdxRadiusSearch[j]].b = 0; 
-    cloud_ptr_show->points[pointIdxRadiusSearch[j]].g = 0;
-    cloud_ptr_show->points[pointIdxRadiusSearch[j]].r = 200;
-  }
-}
 
 
 
 
 
-void Define_StartEnd_Point(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label, char axis, float coordinate)
-{
-  for(float i = 0; i < seam_cluster_all[seam_label].size(); i++)
-  { 
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].x;
-    p.y = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].y;
-    p.z = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].z;
-    p.b = 200;
-    p.g = 200;
-    p.r = 200;
-
-    cloud_ptr_show->points.push_back( p ); 
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  //确定起点终点
-  switch (axis)
-  {
-    case 'x':
-      for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-      { 
-        if( abs(cloud_ptr_show->points[ i ].x - coordinate) <= 1e-3)
-        {
-          cloud_ptr_show->points[ i ].b = 200;
-          cloud_ptr_show->points[ i ].g = 0;
-          cloud_ptr_show->points[ i ].r = 0;
-        }
-      }
-      break;
-
-    case 'y':
-      for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-      { 
-        if( abs(cloud_ptr_show->points[ i ].x - coordinate) <= 1e-3)
-        {
-          cloud_ptr_show->points[ i ].b = 200;
-          cloud_ptr_show->points[ i ].g = 0;
-          cloud_ptr_show->points[ i ].r = 0;
-        }
-      }
-      break;
-
-    case 'z':
-      for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-      { 
-        if( abs(cloud_ptr_show->points[ i ].x - coordinate) <= 1e-3)
-        {
-          cloud_ptr_show->points[ i ].b = 200;
-          cloud_ptr_show->points[ i ].g = 0;
-          cloud_ptr_show->points[ i ].r = 0;
-        }
-      }
-      break;
-    
-    default:
-      break;
-  }
-
-}
-
-
-void Segment_Weld_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, Point3f start_point, Point3f end_point)
-{
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  for(float i = 0; i < seam_cluster_all[0].size(); i++)
-  { 
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[ seam_cluster_all[0][i] ].x;
-    p.y = cloud_ptr->points[ seam_cluster_all[0][i] ].y;
-    p.z = cloud_ptr->points[ seam_cluster_all[0][i] ].z;
-    p.b = 200;
-    p.g = 200;
-    p.r = 200;
-
-    cloud_ptr_show->points.push_back( p ); 
-  }
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 
-}
+
+
+
+
 
 
 
