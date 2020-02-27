@@ -167,34 +167,35 @@ int main(int argc, char **argv)
 
   seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
 
+  // while (ros::ok()) 
+  // {
+  //   // analyze_realsense_data(camera_pointcloud);
+  //   // coordinate_transformation(camera_pointcloud, map_pointcloud, cloud_ptr);
 
-  while (ros::ok()) 
-  {
-    // analyze_realsense_data(camera_pointcloud);
-    // coordinate_transformation(camera_pointcloud, map_pointcloud, cloud_ptr);
-
-    // pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
-    // pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
-    // pub_camera_pointcloud.header.stamp = ros::Time::now();
-    // pointcloud_publisher.publish(pub_camera_pointcloud);
-
-
-    // if(process_flag == 1)
-    // {
-    //   seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
-    //   break;
-    // }
-
-    camera_pointcloud->points.clear();
-    map_pointcloud->points.clear();
-    cloud_ptr->points.clear();
-
-    ros::spinOnce(); //allow data update from callback; 
-    naptime.sleep(); // wait for remainder of specified period; 
-  }
+  //   // pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
+  //   // pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";
+  //   // pub_camera_pointcloud.header.stamp = ros::Time::now();
+  //   // pointcloud_publisher.publish(pub_camera_pointcloud);
 
 
-  ros::spin();
+  //   // if(process_flag == 1)
+  //   // {
+  //   //   seam_detection(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
+  //   //   break;
+  //   // }
+
+  //   // camera_pointcloud->points.clear();
+  //   // map_pointcloud->points.clear();
+  //   // cloud_ptr->points.clear();
+
+  //   ros::spinOnce(); //allow data update from callback; 
+  //   // naptime.sleep(); // wait for remainder of specified period; 
+  // }
+
+
+  // ros::spin();
+
+  return 0;
 }
 
 
@@ -335,6 +336,8 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "6.焊接缝拟合一条曲线" << endl << endl; 
+  Cloud::Ptr Path_Cloud = PathPoint_Generation(seam_edge, cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
   // cout << "6.人工选择焊接缝的起点和终点" << endl << endl; 
   // seam_label = 0;

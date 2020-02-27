@@ -298,19 +298,19 @@ vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cl
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // define kdtree
+  float radius = 0.005;
   pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
   kdtree.setInputCloud (cloud_ptr);  // 将前面创建的随机点云作为 KdTree 输入
   vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
   vector<float> pointRadiusSquaredDistance;
-  float radius = 0.005;
 
-  kdtree.radiusSearch (cloud_ptr->points[132151], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  //132151
-  for(float j = 0; j < pointIdxRadiusSearch.size(); j++)
-  {
-    cloud_ptr_show->points[pointIdxRadiusSearch[j]].b = 200; 
-    cloud_ptr_show->points[pointIdxRadiusSearch[j]].g = 0;
-    cloud_ptr_show->points[pointIdxRadiusSearch[j]].r = 0;
-  }
+  // kdtree.radiusSearch (cloud_ptr->points[132151], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  //132151
+  // for(float j = 0; j < pointIdxRadiusSearch.size(); j++)
+  // {
+  //   cloud_ptr_show->points[pointIdxRadiusSearch[j]].b = 200; 
+  //   cloud_ptr_show->points[pointIdxRadiusSearch[j]].g = 0;
+  //   cloud_ptr_show->points[pointIdxRadiusSearch[j]].r = 0;
+  // }
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //计算所有点的法向量
   vector<Point3f> Normal;
@@ -385,8 +385,8 @@ vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cl
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  // cout << "Normal:\n" << Normal << endl;
-  // cout << "size:" << Normal.size() << endl; 
+  cout << "Normal:\n" << Normal << endl;
+  cout << "size:" << Normal.size() << endl; 
 
   Point3f Cam_Position; Cam_Position.x = 0, Cam_Position.y = 0, Cam_Position.z = 0;
 
@@ -502,10 +502,10 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
     PointVariance.push_back(variance);
   }
 
-  // for(float j = 0; j < PointVariance.size(); j++)
-  // {
-  //   cout << "PointVariance: " << PointVariance[j] << endl;
-  // }
+  for(float j = 0; j < PointVariance.size(); j++)
+  {
+    cout << "PointVariance: " << PointVariance[j] << endl;
+  }
   cout << "size:" << PointVariance.size() << endl; 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -557,20 +557,20 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
       PointDescriptor_min = PointDescriptor[j];
     }
   }
-  cout << "PointDescriptor_max: "    << PointDescriptor_max << endl;
-  cout << "PointDescriptor_min: "    << PointDescriptor_min << endl;
+  // cout << "PointDescriptor_max: "    << PointDescriptor_max << endl;
+  // cout << "PointDescriptor_min: "    << PointDescriptor_min << endl;
 
   for(float j = 0; j < PointDescriptor.size(); j++)
   { 
     PointDescriptor[j] = PointDescriptor[j] / (PointDescriptor_max - PointDescriptor_min);
   }
 
-  // //打印PointDescriptor
-  // for(float j = 0; j < PointDescriptor.size(); j++)
-  // {
-  //   cout << "PointDescriptor: " << PointDescriptor[j] << endl;
-  // }
-  // cout << "size:" << PointDescriptor.size() << endl; 
+  //打印PointDescriptor
+  for(float j = 0; j < PointDescriptor.size(); j++)
+  {
+    cout << "PointDescriptor: " << PointDescriptor[j] << endl;
+  }
+  cout << "size:" << PointDescriptor.size() << endl; 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //将变化率高的部分分离出来
   float screen_threshold = 0.0085;
@@ -695,557 +695,557 @@ vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud
 
 
 
-PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion)
-{
-  PointCloud::Ptr grooveRegion_onProfile (new PointCloud);
+// PointCloud::Ptr show_grooveRegion_onProfile(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_seamRegion)
+// {
+//   PointCloud::Ptr grooveRegion_onProfile (new PointCloud);
 
-  // for(float i = 0; i < cloud_ptr->points.size(); i++)
-  // {
-  //   pcl::PointXYZRGB p;
+//   // for(float i = 0; i < cloud_ptr->points.size(); i++)
+//   // {
+//   //   pcl::PointXYZRGB p;
     
-  //   p.x = cloud_ptr->points[ i ].x;
-  //   p.y = cloud_ptr->points[ i ].y;
-  //   p.z = cloud_ptr->points[ i ].z;
-  //   p.b = 200;
-  //   p.g = 200;
-  //   p.r = 200;
+//   //   p.x = cloud_ptr->points[ i ].x;
+//   //   p.y = cloud_ptr->points[ i ].y;
+//   //   p.z = cloud_ptr->points[ i ].z;
+//   //   p.b = 200;
+//   //   p.g = 200;
+//   //   p.r = 200;
 
-  //   for(float j = 0; j < cloud_seamRegion->points.size(); j++)
-  //   {
-  //     if(fabs(cloud_ptr->points[i].x - cloud_seamRegion->points[j].x) < 1e-5 &&
-  //        fabs(cloud_ptr->points[i].y - cloud_seamRegion->points[j].y) < 1e-5 &&
-  //        fabs(cloud_ptr->points[i].z - cloud_seamRegion->points[j].z) < 1e-5)
-  //        {
-  //           p.x = cloud_ptr->points[ i ].x;
-  //           p.y = cloud_ptr->points[ i ].y;
-  //           p.z = cloud_ptr->points[ i ].z;
-  //           p.b = cloud_seamRegion->points[ j ].b;
-  //           p.g = cloud_seamRegion->points[ j ].g;
-  //           p.r = cloud_seamRegion->points[ j ].r;
+//   //   for(float j = 0; j < cloud_seamRegion->points.size(); j++)
+//   //   {
+//   //     if(fabs(cloud_ptr->points[i].x - cloud_seamRegion->points[j].x) < 1e-5 &&
+//   //        fabs(cloud_ptr->points[i].y - cloud_seamRegion->points[j].y) < 1e-5 &&
+//   //        fabs(cloud_ptr->points[i].z - cloud_seamRegion->points[j].z) < 1e-5)
+//   //        {
+//   //           p.x = cloud_ptr->points[ i ].x;
+//   //           p.y = cloud_ptr->points[ i ].y;
+//   //           p.z = cloud_ptr->points[ i ].z;
+//   //           p.b = cloud_seamRegion->points[ j ].b;
+//   //           p.g = cloud_seamRegion->points[ j ].g;
+//   //           p.r = cloud_seamRegion->points[ j ].r;
 
-  //           break;
-  //        }
-  //   }
+//   //           break;
+//   //        }
+//   //   }
 
-  //   grooveRegion_onProfile->points.push_back( p ); 
-  // }
+//   //   grooveRegion_onProfile->points.push_back( p ); 
+//   // }
 
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
+//   for(float i = 0; i < cloud_ptr->points.size(); i++)
+//   {
+//     pcl::PointXYZRGB p;
 
-    p.x = cloud_ptr->points[ i ].x;
-    p.y = cloud_ptr->points[ i ].y;
-    p.z = cloud_ptr->points[ i ].z;
-    p.b = 200;
-    p.g = 200;
-    p.r = 200;
+//     p.x = cloud_ptr->points[ i ].x;
+//     p.y = cloud_ptr->points[ i ].y;
+//     p.z = cloud_ptr->points[ i ].z;
+//     p.b = 200;
+//     p.g = 200;
+//     p.r = 200;
 
-    grooveRegion_onProfile->points.push_back( p ); 
-  }
+//     grooveRegion_onProfile->points.push_back( p ); 
+//   }
 
-  for(float j = 0; j < cloud_seamRegion->points.size(); j++)
-  {
-    pcl::PointXYZRGB p;
+//   for(float j = 0; j < cloud_seamRegion->points.size(); j++)
+//   {
+//     pcl::PointXYZRGB p;
 
-    p.x = cloud_seamRegion->points[ j ].x;
-    p.y = cloud_seamRegion->points[ j ].y;
-    p.z = cloud_seamRegion->points[ j ].z;
-    p.b = cloud_seamRegion->points[ j ].b;
-    p.g = cloud_seamRegion->points[ j ].g;
-    p.r = cloud_seamRegion->points[ j ].r;
+//     p.x = cloud_seamRegion->points[ j ].x;
+//     p.y = cloud_seamRegion->points[ j ].y;
+//     p.z = cloud_seamRegion->points[ j ].z;
+//     p.b = cloud_seamRegion->points[ j ].b;
+//     p.g = cloud_seamRegion->points[ j ].g;
+//     p.r = cloud_seamRegion->points[ j ].r;
 
-    grooveRegion_onProfile->points.push_back( p ); 
-  }
-
-
-  cout << "grooveRegion_onProfile->points.size(): " << grooveRegion_onProfile->points.size() << endl;
-
-  return grooveRegion_onProfile;
-}
+//     grooveRegion_onProfile->points.push_back( p ); 
+//   }
 
 
-vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion)
-{
-  float min_x = 0, max_x = 0;
-  float min_y = 0, max_y = 0;
-  float min_z = 0, max_z = 0;
+//   cout << "grooveRegion_onProfile->points.size(): " << grooveRegion_onProfile->points.size() << endl;
 
-  // find maximum for XX YY ZZ
-  for(float i = 0; i < cloud_seamRegion->points.size(); i++)
-  { 
-    if(i == 0)
-    {
-      min_x = cloud_seamRegion->points[ i ].x;
-      min_y = cloud_seamRegion->points[ i ].y;
-      min_z = cloud_seamRegion->points[ i ].z;
+//   return grooveRegion_onProfile;
+// }
 
-      max_x = cloud_seamRegion->points[ i ].x;
-      max_y = cloud_seamRegion->points[ i ].y;
-      max_z = cloud_seamRegion->points[ i ].z;
-    }
-    //x
-    if (max_x < cloud_seamRegion->points[ i ].x)
-    {
-      max_x = cloud_seamRegion->points[ i ].x;
-    }
 
-    if(min_x > cloud_seamRegion->points[ i ].x)
-    {
-      min_x = cloud_seamRegion->points[ i ].x;
-    }
-    //y
-    if (max_y < cloud_seamRegion->points[ i ].y)
-    {
-      max_y = cloud_seamRegion->points[ i ].y;
-    }
+// vector< vector<int> > Segment_seam_region(PointCloud::Ptr cloud_seamRegion)
+// {
+//   float min_x = 0, max_x = 0;
+//   float min_y = 0, max_y = 0;
+//   float min_z = 0, max_z = 0;
 
-    if(min_y > cloud_seamRegion->points[ i ].y)
-    {
-      min_y = cloud_seamRegion->points[ i ].y;
-    }
-    //z
-    if (max_z < cloud_seamRegion->points[ i ].z)
-    {
-      max_z = cloud_seamRegion->points[ i ].z;
-    }
+//   // find maximum for XX YY ZZ
+//   for(float i = 0; i < cloud_seamRegion->points.size(); i++)
+//   { 
+//     if(i == 0)
+//     {
+//       min_x = cloud_seamRegion->points[ i ].x;
+//       min_y = cloud_seamRegion->points[ i ].y;
+//       min_z = cloud_seamRegion->points[ i ].z;
 
-    if(min_z > cloud_seamRegion->points[ i ].z)
-    {
-      min_z = cloud_seamRegion->points[ i ].z;
-    }
-  }
+//       max_x = cloud_seamRegion->points[ i ].x;
+//       max_y = cloud_seamRegion->points[ i ].y;
+//       max_z = cloud_seamRegion->points[ i ].z;
+//     }
+//     //x
+//     if (max_x < cloud_seamRegion->points[ i ].x)
+//     {
+//       max_x = cloud_seamRegion->points[ i ].x;
+//     }
 
-  float range_x = max_x - min_x, range_y = max_y - min_y, range_z = max_z - min_z;
-  cout << "max_x - min_x:  " << range_x << endl;
-  cout << "max_y - min_y:  " << range_y << endl;
-  cout << "max_z - min_z:  " << range_z << endl ;
+//     if(min_x > cloud_seamRegion->points[ i ].x)
+//     {
+//       min_x = cloud_seamRegion->points[ i ].x;
+//     }
+//     //y
+//     if (max_y < cloud_seamRegion->points[ i ].y)
+//     {
+//       max_y = cloud_seamRegion->points[ i ].y;
+//     }
 
-  // find largest range in X Y Z for defining main direction of seam pointcloud
-  char range_max = '0';
-  if( range_x > range_y)
-  {
-    range_max = 'x';
-  }
-  else
-  {
-    range_max = 'y';
-  }
+//     if(min_y > cloud_seamRegion->points[ i ].y)
+//     {
+//       min_y = cloud_seamRegion->points[ i ].y;
+//     }
+//     //z
+//     if (max_z < cloud_seamRegion->points[ i ].z)
+//     {
+//       max_z = cloud_seamRegion->points[ i ].z;
+//     }
+
+//     if(min_z > cloud_seamRegion->points[ i ].z)
+//     {
+//       min_z = cloud_seamRegion->points[ i ].z;
+//     }
+//   }
+
+//   float range_x = max_x - min_x, range_y = max_y - min_y, range_z = max_z - min_z;
+//   cout << "max_x - min_x:  " << range_x << endl;
+//   cout << "max_y - min_y:  " << range_y << endl;
+//   cout << "max_z - min_z:  " << range_z << endl ;
+
+//   // find largest range in X Y Z for defining main direction of seam pointcloud
+//   char range_max = '0';
+//   if( range_x > range_y)
+//   {
+//     range_max = 'x';
+//   }
+//   else
+//   {
+//     range_max = 'y';
+//   }
   
-  if( range_max == range_x)
-  {
-    if( range_x > range_z)
-    {
-      range_max = 'x';
-    }
-    else
-    {
-      range_max = 'z';
-    }
-  }
+//   if( range_max == range_x)
+//   {
+//     if( range_x > range_z)
+//     {
+//       range_max = 'x';
+//     }
+//     else
+//     {
+//       range_max = 'z';
+//     }
+//   }
 
-  if( range_max == range_y)
-  {
-    if( range_y > range_z)
-    {
-      range_max = 'y';
-    }
-    else
-    {
-      range_max = 'z';
-    }
-  }
-  cout << "range_max:  " << range_max << endl ;
+//   if( range_max == range_y)
+//   {
+//     if( range_y > range_z)
+//     {
+//       range_max = 'y';
+//     }
+//     else
+//     {
+//       range_max = 'z';
+//     }
+//   }
+//   cout << "range_max:  " << range_max << endl ;
 
-  //define segmentation number and compute interval length of each segment
-  float segmentation_count = 50, seg_interval = range_x / segmentation_count;
+//   //define segmentation number and compute interval length of each segment
+//   float segmentation_count = 50, seg_interval = range_x / segmentation_count;
 
-  //define double verctor for recording segment point
-  vector< vector<int> > seg_pointcloud;
-  seg_pointcloud.resize(segmentation_count);
+//   //define double verctor for recording segment point
+//   vector< vector<int> > seg_pointcloud;
+//   seg_pointcloud.resize(segmentation_count);
 
-  //get 50 segment with each point position
-  switch (range_max)
-  {
-    case 'x':
-      for( int j = 0; j < segmentation_count; j++)
-      {
-        for(float i = 0; i < cloud_seamRegion->points.size(); i++)
-        {
-          if(cloud_seamRegion->points[i].x >= min_x + seg_interval*(j) && cloud_seamRegion->points[i].x < seg_interval*(j+1) + min_x)
-          {
-            seg_pointcloud[j].push_back( i );
-          }
-          if(cloud_seamRegion->points[i].x == seg_interval*(segmentation_count) + min_x && j == segmentation_count - 1)
-          {
-            seg_pointcloud[segmentation_count - 1].push_back( i );            
-          }
-        }
-      } 
-      break;
+//   //get 50 segment with each point position
+//   switch (range_max)
+//   {
+//     case 'x':
+//       for( int j = 0; j < segmentation_count; j++)
+//       {
+//         for(float i = 0; i < cloud_seamRegion->points.size(); i++)
+//         {
+//           if(cloud_seamRegion->points[i].x >= min_x + seg_interval*(j) && cloud_seamRegion->points[i].x < seg_interval*(j+1) + min_x)
+//           {
+//             seg_pointcloud[j].push_back( i );
+//           }
+//           if(cloud_seamRegion->points[i].x == seg_interval*(segmentation_count) + min_x && j == segmentation_count - 1)
+//           {
+//             seg_pointcloud[segmentation_count - 1].push_back( i );            
+//           }
+//         }
+//       } 
+//       break;
 
-    case 'y':
-      for(float i = 0; i < cloud_seamRegion->points.size(); i++)
-      {
+//     case 'y':
+//       for(float i = 0; i < cloud_seamRegion->points.size(); i++)
+//       {
         
-      } 
-      break;
+//       } 
+//       break;
 
-    case 'z':
-      for(float i = 0; i < cloud_seamRegion->points.size(); i++)
-      {
+//     case 'z':
+//       for(float i = 0; i < cloud_seamRegion->points.size(); i++)
+//       {
         
-      } 
-      break;
+//       } 
+//       break;
 
-    default:
-      break;
-  }
+//     default:
+//       break;
+//   }
 
-  //check total points of all the segment 
-  float seg_counttt = 0;
-  for( float j = 0; j < seg_pointcloud.size(); j++)
-  {
-    cout << "seg_pointcloud[j].size(): " << seg_pointcloud[j].size() << endl; 
-    seg_counttt += seg_pointcloud[j].size();
-  }
+//   //check total points of all the segment 
+//   float seg_counttt = 0;
+//   for( float j = 0; j < seg_pointcloud.size(); j++)
+//   {
+//     cout << "seg_pointcloud[j].size(): " << seg_pointcloud[j].size() << endl; 
+//     seg_counttt += seg_pointcloud[j].size();
+//   }
 
-  cout << "seg_counttt:" << seg_counttt << endl;
-  cout << "cloud_seamRegion->points.size(): " << cloud_seamRegion->points.size() << endl << endl;
+//   cout << "seg_counttt:" << seg_counttt << endl;
+//   cout << "cloud_seamRegion->points.size(): " << cloud_seamRegion->points.size() << endl << endl;
 
-  //show segmentation divided into 3 types of color
-  for(int k = 0; k < seg_pointcloud.size(); k++)
-  {
-    for( float j = 0; j < seg_pointcloud[k].size(); j++)
-    {
-      switch (k % 3)
-      {
-        case 0:
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].b = 200;
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].g = 0;
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].r = 0;
-          break;
-        case 1:
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].b = 0;
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].g = 200;
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].r = 0;
-          break;
-        case 2:
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].b = 0;
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].g = 0;
-          cloud_seamRegion->points[ seg_pointcloud[k][j] ].r = 200;
-        break;
-      }
-    }
-  }
-  cout << "seg_pointcloud.size(): " << seg_pointcloud.size() << endl;
-  cout <<"segmentation is done!!!" << endl << endl;
+//   //show segmentation divided into 3 types of color
+//   for(int k = 0; k < seg_pointcloud.size(); k++)
+//   {
+//     for( float j = 0; j < seg_pointcloud[k].size(); j++)
+//     {
+//       switch (k % 3)
+//       {
+//         case 0:
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].b = 200;
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].g = 0;
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].r = 0;
+//           break;
+//         case 1:
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].b = 0;
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].g = 200;
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].r = 0;
+//           break;
+//         case 2:
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].b = 0;
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].g = 0;
+//           cloud_seamRegion->points[ seg_pointcloud[k][j] ].r = 200;
+//         break;
+//       }
+//     }
+//   }
+//   cout << "seg_pointcloud.size(): " << seg_pointcloud.size() << endl;
+//   cout <<"segmentation is done!!!" << endl << endl;
 
-  return seg_pointcloud;
-}
+//   return seg_pointcloud;
+// }
 
 
-vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud);
+// vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud);
 
-vector<float> Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz)
-{
-  pcl::PointXYZRGB Xp_goal;
-  Xp_goal.x = 0; Xp_goal.y = 0; Xp_goal.z = 0;
+// vector<float> Path_Generation(vector< vector<int> > seg_pointcloud, PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud, PointCloud::Ptr path_cloud_showRviz)
+// {
+//   pcl::PointXYZRGB Xp_goal;
+//   Xp_goal.x = 0; Xp_goal.y = 0; Xp_goal.z = 0;
 
-  pcl::PointXYZ Xp;
-  Xp.x = 0; Xp.y = 0; Xp.z = 0;
+//   pcl::PointXYZ Xp;
+//   Xp.x = 0; Xp.y = 0; Xp.z = 0;
 
-  pcl::PointXYZ Xpi; 
-  Xpi.x = 0; Xpi.y = 0; Xpi.z = 0;
+//   pcl::PointXYZ Xpi; 
+//   Xpi.x = 0; Xpi.y = 0; Xpi.z = 0;
 
-  float theta = 0.01;
-  float loop_max = 10000;
-  float epsilon = 0.0001;
-  float loss = 0;
+//   float theta = 0.01;
+//   float loop_max = 10000;
+//   float epsilon = 0.0001;
+//   float loss = 0;
 
-  //定义每个segmet的点云
-  Cloud::Ptr cloud_segment (new Cloud);
+//   //定义每个segmet的点云
+//   Cloud::Ptr cloud_segment (new Cloud);
 
-  for(int k = 0; k < seg_pointcloud.size(); k++)
-  {
-    //迭代计算每个segment 的中心点及其position
-    for (float loop_count = 0; loop_count < loop_max; loop_count++)
-    {
-      // cost computation:
-      float cost_function = 0;
-      for( float j = 0; j < seg_pointcloud[k].size(); j++)
-      {
-        cost_function += sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
-                              pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
-                              pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
-      }
+//   for(int k = 0; k < seg_pointcloud.size(); k++)
+//   {
+//     //迭代计算每个segment 的中心点及其position
+//     for (float loop_count = 0; loop_count < loop_max; loop_count++)
+//     {
+//       // cost computation:
+//       float cost_function = 0;
+//       for( float j = 0; j < seg_pointcloud[k].size(); j++)
+//       {
+//         cost_function += sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
+//                               pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
+//                               pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
+//       }
 
-      //gradient computation:
-      pcl::PointXYZ Gradient_Xp;
-      for( float j = 0; j < seg_pointcloud[k].size(); j++)
-      {
-        Gradient_Xp.x += (Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x) / 
-                          sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
-                               pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
-                               pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
+//       //gradient computation:
+//       pcl::PointXYZ Gradient_Xp;
+//       for( float j = 0; j < seg_pointcloud[k].size(); j++)
+//       {
+//         Gradient_Xp.x += (Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x) / 
+//                           sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
+//                                pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
+//                                pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
 
-        Gradient_Xp.y += (Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y) / 
-                          sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
-                               pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
-                               pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
+//         Gradient_Xp.y += (Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y) / 
+//                           sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
+//                                pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
+//                                pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
 
-        Gradient_Xp.z += (Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z) / 
-                          sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
-                               pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
-                               pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
-      }
+//         Gradient_Xp.z += (Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z) / 
+//                           sqrt(pow(Xp.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
+//                                pow(Xp.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
+//                                pow(Xp.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
+//       }
 
-      // xyz step in one step
-      Xpi.x = Xp.x - theta * Gradient_Xp.x;
-      Xpi.y = Xp.y - theta * Gradient_Xp.y;
-      Xpi.z = Xp.z - theta * Gradient_Xp.z;
+//       // xyz step in one step
+//       Xpi.x = Xp.x - theta * Gradient_Xp.x;
+//       Xpi.y = Xp.y - theta * Gradient_Xp.y;
+//       Xpi.z = Xp.z - theta * Gradient_Xp.z;
 
-      //compute updated cost function
-      float cost_function_update = 0;
-      for( float j = 0; j < seg_pointcloud[k].size(); j++)
-      {
-        cost_function_update += sqrt(pow(Xpi.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
-                                     pow(Xpi.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
-                                     pow(Xpi.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
-      }
+//       //compute updated cost function
+//       float cost_function_update = 0;
+//       for( float j = 0; j < seg_pointcloud[k].size(); j++)
+//       {
+//         cost_function_update += sqrt(pow(Xpi.x - cloud_seamRegion->points[ seg_pointcloud[k][j] ].x, 2) + 
+//                                      pow(Xpi.y - cloud_seamRegion->points[ seg_pointcloud[k][j] ].y, 2) + 
+//                                      pow(Xpi.z - cloud_seamRegion->points[ seg_pointcloud[k][j] ].z, 2) );
+//       }
 
-      //判断loss是否小于阈值
-      loss = cost_function - cost_function_update;
-      // cout << "loss: " << loss << endl;
+//       //判断loss是否小于阈值
+//       loss = cost_function - cost_function_update;
+//       // cout << "loss: " << loss << endl;
 
-      //loss 大于 最小误差， 继续迭代
-      if(loss > epsilon)
-      {
-        Xp.x = Xpi.x;
-        Xp.y = Xpi.y;
-        Xp.z = Xpi.z;
+//       //loss 大于 最小误差， 继续迭代
+//       if(loss > epsilon)
+//       {
+//         Xp.x = Xpi.x;
+//         Xp.y = Xpi.y;
+//         Xp.z = Xpi.z;
 
-        cost_function = cost_function_update;
-      }
+//         cost_function = cost_function_update;
+//       }
 
-      //减少步长
-      else if(cost_function_update - cost_function > epsilon)
-      {
-        theta = theta * 0.8;
-      }
+//       //减少步长
+//       else if(cost_function_update - cost_function > epsilon)
+//       {
+//         theta = theta * 0.8;
+//       }
 
-      //满足迭代条件，得到目标点
-      else
-      {
-        Xp_goal.x = Xp.x;
-        Xp_goal.y = Xp.y;
-        Xp_goal.z = Xp.z;
-        Xp_goal.b = 0;
-        Xp_goal.g = 0;
-        Xp_goal.r = 0;
-        cloud_seamRegion->points.push_back( Xp_goal ) ; 
+//       //满足迭代条件，得到目标点
+//       else
+//       {
+//         Xp_goal.x = Xp.x;
+//         Xp_goal.y = Xp.y;
+//         Xp_goal.z = Xp.z;
+//         Xp_goal.b = 0;
+//         Xp_goal.g = 0;
+//         Xp_goal.r = 0;
+//         cloud_seamRegion->points.push_back( Xp_goal ) ; 
 
-        break;
-      }
-    }
+//         break;
+//       }
+//     }
 
-    // cout << "seg_count: " << k+1 << endl;
-    // cout << "Xp_goal: " << Xp_goal << endl << endl;
-    path_cloud->points.push_back( Xp_goal );
-    path_cloud_showRviz->points.push_back( Xp_goal );
+//     // cout << "seg_count: " << k+1 << endl;
+//     // cout << "Xp_goal: " << Xp_goal << endl << endl;
+//     path_cloud->points.push_back( Xp_goal );
+//     path_cloud_showRviz->points.push_back( Xp_goal );
 
-    // 插值， 构成完整轨迹, 每个path点之间插5个点
-    if(k > 0)
-    {
-      pcl::PointXYZRGB p_add1, p_add2, p_add3, p_add4, p_add5, p_add6, p_add7;
+//     // 插值， 构成完整轨迹, 每个path点之间插5个点
+//     if(k > 0)
+//     {
+//       pcl::PointXYZRGB p_add1, p_add2, p_add3, p_add4, p_add5, p_add6, p_add7;
 
-      p_add1.x = (path_cloud->points[k - 1].x + path_cloud->points[k].x) / 2.0;
-      p_add1.y = (path_cloud->points[k - 1].y + path_cloud->points[k].y) / 2.0;
-      p_add1.z = (path_cloud->points[k - 1].z + path_cloud->points[k].z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add1 );
-      path_cloud_showRviz->points.push_back( p_add1 );
+//       p_add1.x = (path_cloud->points[k - 1].x + path_cloud->points[k].x) / 2.0;
+//       p_add1.y = (path_cloud->points[k - 1].y + path_cloud->points[k].y) / 2.0;
+//       p_add1.z = (path_cloud->points[k - 1].z + path_cloud->points[k].z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add1 );
+//       path_cloud_showRviz->points.push_back( p_add1 );
 
-      p_add2.x = (path_cloud->points[k - 1].x + p_add1.x) / 2.0;
-      p_add2.y = (path_cloud->points[k - 1].y + p_add1.y) / 2.0;
-      p_add2.z = (path_cloud->points[k - 1].z + p_add1.z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add2 );
-      path_cloud_showRviz->points.push_back( p_add2 );
+//       p_add2.x = (path_cloud->points[k - 1].x + p_add1.x) / 2.0;
+//       p_add2.y = (path_cloud->points[k - 1].y + p_add1.y) / 2.0;
+//       p_add2.z = (path_cloud->points[k - 1].z + p_add1.z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add2 );
+//       path_cloud_showRviz->points.push_back( p_add2 );
 
-      p_add3.x = (p_add1.x + path_cloud->points[k].x) / 2.0;
-      p_add3.y = (p_add1.y + path_cloud->points[k].y) / 2.0;
-      p_add3.z = (p_add1.z + path_cloud->points[k].z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add3 );
-      path_cloud_showRviz->points.push_back( p_add3 );
+//       p_add3.x = (p_add1.x + path_cloud->points[k].x) / 2.0;
+//       p_add3.y = (p_add1.y + path_cloud->points[k].y) / 2.0;
+//       p_add3.z = (p_add1.z + path_cloud->points[k].z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add3 );
+//       path_cloud_showRviz->points.push_back( p_add3 );
 
-      p_add4.x = (path_cloud->points[k - 1].x + p_add2.x) / 2.0;
-      p_add4.y = (path_cloud->points[k - 1].y + p_add2.y) / 2.0;
-      p_add4.z = (path_cloud->points[k - 1].z + p_add2.z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add4 );
-      path_cloud_showRviz->points.push_back( p_add4 );
+//       p_add4.x = (path_cloud->points[k - 1].x + p_add2.x) / 2.0;
+//       p_add4.y = (path_cloud->points[k - 1].y + p_add2.y) / 2.0;
+//       p_add4.z = (path_cloud->points[k - 1].z + p_add2.z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add4 );
+//       path_cloud_showRviz->points.push_back( p_add4 );
 
-      p_add5.x = (p_add1.x + p_add2.x) / 2.0;
-      p_add5.y = (p_add1.y + p_add2.y) / 2.0;
-      p_add5.z = (p_add1.z + p_add2.z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add5 );
-      path_cloud_showRviz->points.push_back( p_add5 );
+//       p_add5.x = (p_add1.x + p_add2.x) / 2.0;
+//       p_add5.y = (p_add1.y + p_add2.y) / 2.0;
+//       p_add5.z = (p_add1.z + p_add2.z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add5 );
+//       path_cloud_showRviz->points.push_back( p_add5 );
 
-      p_add6.x = (p_add1.x + p_add3.x) / 2.0;
-      p_add6.y = (p_add1.y + p_add3.y) / 2.0;
-      p_add6.z = (p_add1.z + p_add3.z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add6 );
-      path_cloud_showRviz->points.push_back( p_add6 );
+//       p_add6.x = (p_add1.x + p_add3.x) / 2.0;
+//       p_add6.y = (p_add1.y + p_add3.y) / 2.0;
+//       p_add6.z = (p_add1.z + p_add3.z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add6 );
+//       path_cloud_showRviz->points.push_back( p_add6 );
 
-      p_add7.x = (path_cloud->points[k].x + p_add3.x) / 2.0;
-      p_add7.y = (path_cloud->points[k].y + p_add3.y) / 2.0;
-      p_add7.z = (path_cloud->points[k].z + p_add3.z) / 2.0;
-      cloud_seamRegion->points.push_back( p_add7 );
-      path_cloud_showRviz->points.push_back( p_add7 );
-    }
-  }
+//       p_add7.x = (path_cloud->points[k].x + p_add3.x) / 2.0;
+//       p_add7.y = (path_cloud->points[k].y + p_add3.y) / 2.0;
+//       p_add7.z = (path_cloud->points[k].z + p_add3.z) / 2.0;
+//       cloud_seamRegion->points.push_back( p_add7 );
+//       path_cloud_showRviz->points.push_back( p_add7 );
+//     }
+//   }
  
-  cout << "path_cloud->points.size(): "          << path_cloud->points.size() << endl;
-  cout << "path_cloud_showRviz->points.size(): " << path_cloud_showRviz->points.size() << endl << endl;
+//   cout << "path_cloud->points.size(): "          << path_cloud->points.size() << endl;
+//   cout << "path_cloud_showRviz->points.size(): " << path_cloud_showRviz->points.size() << endl << endl;
 
 
-  /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//   /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  vector<float> orientation_pathpoints = cylinder_pathComputation(cloud_seamRegion, path_cloud);
+//   vector<float> orientation_pathpoints = cylinder_pathComputation(cloud_seamRegion, path_cloud);
 
-  return orientation_pathpoints;
-}
+//   return orientation_pathpoints;
+// }
 
-Point3f circle_estimation(vector<Point3f> path_points);
+// Point3f circle_estimation(vector<Point3f> path_points);
 
-vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud)
-{
-  vector<Point3f> path_points;
-  for( float i = 0; i < path_cloud->points.size(); i++)
-  {
-    Point3f p;
+// vector<float> cylinder_pathComputation(PointCloud::Ptr cloud_seamRegion, PointCloud::Ptr path_cloud)
+// {
+//   vector<Point3f> path_points;
+//   for( float i = 0; i < path_cloud->points.size(); i++)
+//   {
+//     Point3f p;
 
-    p.x = path_cloud->points[ i ].x;
-    p.y = path_cloud->points[ i ].y;
-    p.z = path_cloud->points[ i ].z;
+//     p.x = path_cloud->points[ i ].x;
+//     p.y = path_cloud->points[ i ].y;
+//     p.z = path_cloud->points[ i ].z;
 
-    path_points.push_back( p );
-  }
+//     path_points.push_back( p );
+//   }
   
-  path_cloud->clear();
-  cout << "path_points.size(): "          << path_points.size() << endl;
+//   path_cloud->clear();
+//   cout << "path_points.size(): "          << path_points.size() << endl;
 
-  Point3f p_circle = circle_estimation(path_points);
+//   Point3f p_circle = circle_estimation(path_points);
 
-  pcl::PointXYZRGB p ;
-  p.x = p_circle.x;
-  p.y = p_circle.y;
-  p.z = p_circle.z;
-  p.b = 0;
-  p.g = 0;
-  p.r = 200;
-  cloud_seamRegion->points.push_back(p);
+//   pcl::PointXYZRGB p ;
+//   p.x = p_circle.x;
+//   p.y = p_circle.y;
+//   p.z = p_circle.z;
+//   p.b = 0;
+//   p.g = 0;
+//   p.r = 200;
+//   cloud_seamRegion->points.push_back(p);
 
 
-  vector<Point3f> cylinder_path_points;        
-  Point3f path_cylinder;
+//   vector<Point3f> cylinder_path_points;        
+//   Point3f path_cylinder;
 
-  vector<float> orientation_pathpoints;
-  float   k_orientation;
+//   vector<float> orientation_pathpoints;
+//   float   k_orientation;
 
-  for(int i = 0; i < path_points.size(); i++)
-  {
-    k_orientation = (p_circle.y - path_points[i].y) / (p_circle.x - path_points[i].x);
-    cout << "yaw: " << atan( -1 / k_orientation ) * 180 / M_PI << endl;
-    orientation_pathpoints.push_back( atan( -1 / k_orientation ) * 180 / M_PI );
+//   for(int i = 0; i < path_points.size(); i++)
+//   {
+//     k_orientation = (p_circle.y - path_points[i].y) / (p_circle.x - path_points[i].x);
+//     cout << "yaw: " << atan( -1 / k_orientation ) * 180 / M_PI << endl;
+//     orientation_pathpoints.push_back( atan( -1 / k_orientation ) * 180 / M_PI );
 
-    //////////////////////////////////////////////////////
+//     //////////////////////////////////////////////////////
 
-    path_cylinder.x = path_points[i].x;//(2 * path_points[i].x) - p_circle.x;
-    path_cylinder.y = path_points[i].y;//(2 * path_points[i].y) - p_circle.y;
-    path_cylinder.z = path_points[i].z;//(2 * path_points[i].z) - p_circle.z;
-    cout << "path_cylinder: " << path_cylinder << endl;
+//     path_cylinder.x = path_points[i].x;//(2 * path_points[i].x) - p_circle.x;
+//     path_cylinder.y = path_points[i].y;//(2 * path_points[i].y) - p_circle.y;
+//     path_cylinder.z = path_points[i].z;//(2 * path_points[i].z) - p_circle.z;
+//     cout << "path_cylinder: " << path_cylinder << endl;
 
-    cylinder_path_points.push_back( path_cylinder );
+//     cylinder_path_points.push_back( path_cylinder );
 
-    // pcl::PointXYZRGB p ;
-    // p.x = path_cylinder.x;
-    // p.y = path_cylinder.y;
-    // p.z = path_cylinder.z;
-    // p.b = 0;
-    // p.g = 0;
-    // p.r = 200;
-    // cloud_seamRegion->points.push_back(p);
-  }
-  cout << "orientation_pathpoints.size(): " << orientation_pathpoints.size() << endl;
-  cout << "cylinder_path_points.size(): "      << cylinder_path_points.size() << endl;
+//     // pcl::PointXYZRGB p ;
+//     // p.x = path_cylinder.x;
+//     // p.y = path_cylinder.y;
+//     // p.z = path_cylinder.z;
+//     // p.b = 0;
+//     // p.g = 0;
+//     // p.r = 200;
+//     // cloud_seamRegion->points.push_back(p);
+//   }
+//   cout << "orientation_pathpoints.size(): " << orientation_pathpoints.size() << endl;
+//   cout << "cylinder_path_points.size(): "      << cylinder_path_points.size() << endl;
 
-  for(int i = 0; i < cylinder_path_points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
+//   for(int i = 0; i < cylinder_path_points.size(); i++)
+//   {
+//     pcl::PointXYZRGB p;
 
-    p.x = cylinder_path_points[i].x;
-    p.y = cylinder_path_points[i].y;
-    p.z = cylinder_path_points[i].z;
+//     p.x = cylinder_path_points[i].x;
+//     p.y = cylinder_path_points[i].y;
+//     p.z = cylinder_path_points[i].z;
 
-    path_cloud->points.push_back(p);
-  }
+//     path_cloud->points.push_back(p);
+//   }
 
-  cout << "path_cloud->points.size(): "        << path_cloud->points.size() << endl;
+//   cout << "path_cloud->points.size(): "        << path_cloud->points.size() << endl;
 
-  return  orientation_pathpoints;
-}
+//   return  orientation_pathpoints;
+// }
 
-Point3f circle_estimation(vector<Point3f> path_points)
-{
-  Point3f p_start, p_mid, p_end;
+// Point3f circle_estimation(vector<Point3f> path_points)
+// {
+//   Point3f p_start, p_mid, p_end;
 
-  //赋值给三个点
-  p_start.x = path_points[0].x;                      p_start.y = path_points[0].y;                      p_start.z = path_points[0].z;
-    p_mid.x = path_points[path_points.size() / 2].x;   p_mid.y = path_points[path_points.size() / 2].y;   p_mid.z = path_points[path_points.size() / 2].z;
-    p_end.x = path_points[path_points.size() - 1].x;   p_end.y = path_points[path_points.size() - 1].y;   p_end.z = path_points[path_points.size() - 1].z;
+//   //赋值给三个点
+//   p_start.x = path_points[0].x;                      p_start.y = path_points[0].y;                      p_start.z = path_points[0].z;
+//     p_mid.x = path_points[path_points.size() / 2].x;   p_mid.y = path_points[path_points.size() / 2].y;   p_mid.z = path_points[path_points.size() / 2].z;
+//     p_end.x = path_points[path_points.size() - 1].x;   p_end.y = path_points[path_points.size() - 1].y;   p_end.z = path_points[path_points.size() - 1].z;
 
-  //算两条线的斜率
-  float line1_k = (p_mid.y - p_start.y) / (p_mid.x - p_start.x);
-  float line2_k = (p_mid.y -   p_end.y) / (p_mid.x -   p_end.x);
+//   //算两条线的斜率
+//   float line1_k = (p_mid.y - p_start.y) / (p_mid.x - p_start.x);
+//   float line2_k = (p_mid.y -   p_end.y) / (p_mid.x -   p_end.x);
 
-  //得到两条线直线方程
-  cout << "line1_k: " << line1_k << endl;
-  cout << "line2_k: " << line2_k << endl;
-  // cout << "得到两条直线方程为：" << endl;
-  cout << "y = " << line1_k << " * (x - p_mid.x) + p_mid.y: " << endl;
-  cout << "y = " << line2_k << " * (x - p_mid.x) + p_mid.y: " << endl;
+//   //得到两条线直线方程
+//   cout << "line1_k: " << line1_k << endl;
+//   cout << "line2_k: " << line2_k << endl;
+//   // cout << "得到两条直线方程为：" << endl;
+//   cout << "y = " << line1_k << " * (x - p_mid.x) + p_mid.y: " << endl;
+//   cout << "y = " << line2_k << " * (x - p_mid.x) + p_mid.y: " << endl;
 
-  //求两对点的中间点
-  Point3f p_midpoint1, p_midpoint2;
+//   //求两对点的中间点
+//   Point3f p_midpoint1, p_midpoint2;
 
-  p_midpoint1.x = (p_start.x + p_mid.x) / 2; p_midpoint1.y = (p_start.y + p_mid.y) / 2; p_midpoint1.z = (p_start.z + p_mid.z) / 2;
-  p_midpoint2.x = (  p_end.x + p_mid.x) / 2; p_midpoint2.y = (  p_end.y + p_mid.y) / 2; p_midpoint2.z = (  p_end.z + p_mid.z) / 2;
-  // cout << "得到两中点为：" << endl;
-  cout << "p_midpoint1：" << p_midpoint1 << endl;
-  cout << "p_midpoint2：" << p_midpoint2 << endl;
-  // cout << "相垂直的两条线斜率为：" << endl;
-  cout << "-1 / line1_k:" << -1 / line1_k << endl;
-  cout << "-1 / line2_k:" << -1 / line2_k << endl;
-  // cout << "得到两条垂直直线方程为：" << endl;
-  cout << "y = " <<  -1 / line1_k  << " * (x - " << p_midpoint1.x << " ) + " << p_midpoint1.y << endl;
-  cout << "y = " <<  -1 / line2_k  << " * (x - " << p_midpoint2.x << " ) + " << p_midpoint2.y << endl;
+//   p_midpoint1.x = (p_start.x + p_mid.x) / 2; p_midpoint1.y = (p_start.y + p_mid.y) / 2; p_midpoint1.z = (p_start.z + p_mid.z) / 2;
+//   p_midpoint2.x = (  p_end.x + p_mid.x) / 2; p_midpoint2.y = (  p_end.y + p_mid.y) / 2; p_midpoint2.z = (  p_end.z + p_mid.z) / 2;
+//   // cout << "得到两中点为：" << endl;
+//   cout << "p_midpoint1：" << p_midpoint1 << endl;
+//   cout << "p_midpoint2：" << p_midpoint2 << endl;
+//   // cout << "相垂直的两条线斜率为：" << endl;
+//   cout << "-1 / line1_k:" << -1 / line1_k << endl;
+//   cout << "-1 / line2_k:" << -1 / line2_k << endl;
+//   // cout << "得到两条垂直直线方程为：" << endl;
+//   cout << "y = " <<  -1 / line1_k  << " * (x - " << p_midpoint1.x << " ) + " << p_midpoint1.y << endl;
+//   cout << "y = " <<  -1 / line2_k  << " * (x - " << p_midpoint2.x << " ) + " << p_midpoint2.y << endl;
 
-  //求估计的圆心：
-  Point3f p_circle;
+//   //求估计的圆心：
+//   Point3f p_circle;
 
-  p_circle.x = ( ((-1 / line1_k) * p_midpoint1.x - p_midpoint1.y) - ((-1 / line2_k) * p_midpoint2.x - p_midpoint2.y) ) / ( (-1 / line1_k) - (-1 / line2_k) );
-  p_circle.y = (-1 / line1_k) * (p_circle.x - p_midpoint1.x) + p_midpoint1.y; 
+//   p_circle.x = ( ((-1 / line1_k) * p_midpoint1.x - p_midpoint1.y) - ((-1 / line2_k) * p_midpoint2.x - p_midpoint2.y) ) / ( (-1 / line1_k) - (-1 / line2_k) );
+//   p_circle.y = (-1 / line1_k) * (p_circle.x - p_midpoint1.x) + p_midpoint1.y; 
 
-  for(int i = 0; i < path_points.size(); i++)
-  {
-    p_circle.z += path_points[i].z;
-  }
-  p_circle.z = p_circle.z / path_points.size();
+//   for(int i = 0; i < path_points.size(); i++)
+//   {
+//     p_circle.z += path_points[i].z;
+//   }
+//   p_circle.z = p_circle.z / path_points.size();
 
-  cout << "最后估计的圆中心为：" << endl;
-  cout << "p_circle: " << p_circle << endl << endl;
+//   cout << "最后估计的圆中心为：" << endl;
+//   cout << "p_circle: " << p_circle << endl << endl;
 
-  return p_circle;
-}
+//   return p_circle;
+// }
 
 
  

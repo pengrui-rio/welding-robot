@@ -53,7 +53,6 @@ typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud;
 typedef pcl::PointCloud<pcl::PointXYZRGBL> PointCloudL;  
 typedef pcl::PointCloud<pcl::PointXYZ>  Cloud;
 typedef pcl::PointXYZ PointType;
-
 typedef pcl::PointCloud<pcl::Normal> Normal;
 
 using namespace cv;
@@ -81,4 +80,8 @@ vector <float> Compute_Segment_GeometryCenter(Cloud::Ptr cloud_ptr);
 void Define_StartEnd_Point(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label, char axis, float coordinate);
 
 
+float Distance_two_Points(pcl::PointXYZ p1, pcl::PointXYZ p2);
+
 Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label);
+
+Cloud::Ptr PathPoint_Generation(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show);

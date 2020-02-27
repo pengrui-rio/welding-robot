@@ -536,79 +536,79 @@
 
 
 
-// vector <float> Compute_Segment_GeometryCenter(Cloud::Ptr cloud_ptr)
-// {
-//   //求所有的点距离之和：
-//   vector <float> Point_DisSum;
-//   for(float i = 0; i < cloud_ptr->points.size(); i++)
-//   { 
-//     float point_sum = 0;
-//     for(float j = 0; j < cloud_ptr->points.size(); j++)
-//     { 
-//       point_sum += Distance_two_Points(cloud_ptr->points[i], cloud_ptr->points[j]);
-//     }
-//     Point_DisSum.push_back(point_sum);
-//     cout << "point_sum: " << i << " " << point_sum << endl;
-//   }
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//   //求Point_DisSum 最小值 
+vector <float> Compute_Segment_GeometryCenter(Cloud::Ptr cloud_ptr)
+{
+  //求所有的点距离之和：
+  vector <float> Point_DisSum;
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  { 
+    float point_sum = 0;
+    for(float j = 0; j < cloud_ptr->points.size(); j++)
+    { 
+      point_sum += Distance_two_Points(cloud_ptr->points[i], cloud_ptr->points[j]);
+    }
+    Point_DisSum.push_back(point_sum);
+    // cout << "point_sum: " << i << " " << point_sum << endl;
+  }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //求Point_DisSum 最小值 
 //   cout << "Point_DisSum: " << Point_DisSum.size() << endl;
-//   float Point_DisSum_min = 0;
-//   float Point_DisSum_index = 0;
-//   for(float j = 0; j < Point_DisSum.size(); j++)
-//   { 
-//     if(j == 0)
-//     {
-//       Point_DisSum_min = Point_DisSum[0];
-//     }
+  float Point_DisSum_min = 0;
+  float Point_DisSum_index = 0;
+  for(float j = 0; j < Point_DisSum.size(); j++)
+  { 
+    if(j == 0)
+    {
+      Point_DisSum_min = Point_DisSum[0];
+    }
 
-//     if(Point_DisSum_min > Point_DisSum[j])
-//     {
-//       Point_DisSum_min = Point_DisSum[j];
-//       Point_DisSum_index = j;
-//     }
-//   }
-// //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//   //显示几何中心：
-//   cout << "Point_DisSum_index: " << Point_DisSum_index << endl;
+    if(Point_DisSum_min > Point_DisSum[j])
+    {
+      Point_DisSum_min = Point_DisSum[j];
+      Point_DisSum_index = j;
+    }
+  }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  //显示几何中心：
+  cout << "Point_DisSum_min: " << Point_DisSum_index << endl;
 
-//   pcl::PointXYZ Seam_GeometryCenter;
-//   Seam_GeometryCenter.x = cloud_ptr->points[Point_DisSum_index].x;
-//   Seam_GeometryCenter.y = cloud_ptr->points[Point_DisSum_index].y;
-//   Seam_GeometryCenter.z = cloud_ptr->points[Point_DisSum_index].z;
-//   cout << "Seam_GeometryCenter: " << Seam_GeometryCenter << endl << endl;
+  pcl::PointXYZ Seam_GeometryCenter;
+  Seam_GeometryCenter.x = cloud_ptr->points[Point_DisSum_index].x;
+  Seam_GeometryCenter.y = cloud_ptr->points[Point_DisSum_index].y;
+  Seam_GeometryCenter.z = cloud_ptr->points[Point_DisSum_index].z;
+  cout << "Seam_GeometryCenter: " << Seam_GeometryCenter << endl << endl;
 
-//   vector <float> Seam_GeometryCenter_pack;
-//   Seam_GeometryCenter_pack.push_back(Point_DisSum_index);
-//   Seam_GeometryCenter_pack.push_back(Seam_GeometryCenter.x);
-//   Seam_GeometryCenter_pack.push_back(Seam_GeometryCenter.y);
-//   Seam_GeometryCenter_pack.push_back(Seam_GeometryCenter.z);
+  vector <float> cloud_GeometryCenter_pack;
+  cloud_GeometryCenter_pack.push_back(Point_DisSum_index);
+  cloud_GeometryCenter_pack.push_back(Seam_GeometryCenter.x);
+  cloud_GeometryCenter_pack.push_back(Seam_GeometryCenter.y);
+  cloud_GeometryCenter_pack.push_back(Seam_GeometryCenter.z);
 
-//   return Seam_GeometryCenter_pack;
-// }
+  return cloud_GeometryCenter_pack;
+}
 
 
-// float Distance_two_Points(pcl::PointXYZ p1, pcl::PointXYZ p2)
-// {
-//     return sqrt(pow( p1.x - p2.x, 2) +
-//                 pow( p1.y - p2.y, 2) +
-//                 pow( p1.z - p2.z, 2));
-// }
+float Distance_two_Points(pcl::PointXYZ p1, pcl::PointXYZ p2)
+{
+    return sqrt(pow( p1.x - p2.x, 2) +
+                pow( p1.y - p2.y, 2) +
+                pow( p1.z - p2.z, 2));
+}
 
-// vector<pcl::PointXYZ> Points_Exchange(pcl::PointXYZ p1, pcl::PointXYZ p2)
-// {
-//     pcl::PointXYZ p_temp;
+vector<pcl::PointXYZ> Points_Exchange(pcl::PointXYZ p1, pcl::PointXYZ p2)
+{
+    pcl::PointXYZ p_temp;
 
-//     p_temp.x = p1.x    ; p_temp.y = p1.y    ; p_temp.z = p1.z;
-//     p1.x     = p2.x    ; p1.y     = p2.y    ; p1.z     = p2.z;
-//     p2.x     = p_temp.x; p2.y     = p_temp.y; p2.z     = p_temp.z;
+    p_temp.x = p1.x    ; p_temp.y = p1.y    ; p_temp.z = p1.z;
+    p1.x     = p2.x    ; p1.y     = p2.y    ; p1.z     = p2.z;
+    p2.x     = p_temp.x; p2.y     = p_temp.y; p2.z     = p_temp.z;
 
-//     vector<pcl::PointXYZ> p;
-//     p.push_back(p1);
-//     p.push_back(p2);
+    vector<pcl::PointXYZ> p;
+    p.push_back(p1);
+    p.push_back(p2);
 
-//     return p;
-// }
+    return p;
+}
 
 
 
@@ -736,11 +736,384 @@ Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_sho
     }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    cloud_ptr_show->points[500].b = 0;cloud_ptr_show->points[500].g = 0;cloud_ptr_show->points[500].r = 0;
-
     return seam_edge;
 }
 
 
 
-Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label)
+Cloud::Ptr PathPoint_Generation(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show)
+{
+    for(float i = 0; i < seam_edge->points.size(); i++)
+    { 
+        pcl::PointXYZRGB p;
+        p.x = seam_edge->points[ i ].x;
+        p.y = seam_edge->points[ i ].y;
+        p.z = seam_edge->points[ i ].z;
+        p.b = 200;
+        p.g = 200;
+        p.r = 200;
+
+        cloud_ptr_show->points.push_back( p ); 
+    }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    Cloud::Ptr Path_Cloud (new Cloud);
+    for(float i = 0; i < seam_edge->points.size(); i++)
+    { 
+        float radius = 0.001;
+        while(ros::ok())
+        {
+            pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
+            kdtree.setInputCloud (seam_edge);  // 将前面创建的随机点云作为 KdTree 输入
+            vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
+            vector<float> pointRadiusSquaredDistance;
+            kdtree.radiusSearch (seam_edge->points[i], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            if(pointIdxRadiusSearch.size() <= 1)
+            {
+                radius += 0.001;
+                break;
+            }
+            if(radius >= 0.05)
+            {
+                break;  
+            }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            vector<Point3f> Distance_Points;
+            for(float i = 0; i < pointIdxRadiusSearch.size(); i++)
+            {         
+                for(float j = i+1; j < pointIdxRadiusSearch.size(); j++)
+                { 
+                    float dis = Distance_two_Points(seam_edge->points[ pointIdxRadiusSearch[i] ], seam_edge->points[ pointIdxRadiusSearch[j] ]);
+                    Point3f p; p.x = dis; p.y = i; p.z = j;
+                    Distance_Points.push_back( p );
+                }
+            }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            float Distance_Points_max = 0, Distance_Points_max_index = 0;
+            for(float j = 0; j < Distance_Points.size(); j++)
+            { 
+                if(j == 0)
+                {
+                    Distance_Points_max = Distance_Points[0].x;
+                }
+                if (Distance_Points_max < Distance_Points[j].x)
+                {
+                    Distance_Points_max = Distance_Points[j].x;
+                    Distance_Points_max_index = j;
+                }
+            }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            float index_1 = Distance_Points[Distance_Points_max_index].y, index_2 = Distance_Points[Distance_Points_max_index].z;
+
+            Point3f Tangency_vector;
+            Tangency_vector.x = seam_edge->points[ pointIdxRadiusSearch[index_1] ].x - seam_edge->points[ pointIdxRadiusSearch[index_2] ].x;
+            Tangency_vector.y = seam_edge->points[ pointIdxRadiusSearch[index_1] ].y - seam_edge->points[ pointIdxRadiusSearch[index_2] ].y;
+            Tangency_vector.z = seam_edge->points[ pointIdxRadiusSearch[index_1] ].z - seam_edge->points[ pointIdxRadiusSearch[index_2] ].z;
+
+            int find_right_point_flag = 0;
+            float right_point_index = 0;
+            for(float i = 1; i < pointIdxRadiusSearch.size(); i++)
+            {     
+                Point3f each_vector;
+                each_vector.x = seam_edge->points[ pointIdxRadiusSearch[0] ].x - seam_edge->points[ pointIdxRadiusSearch[i] ].x;
+                each_vector.y = seam_edge->points[ pointIdxRadiusSearch[0] ].y - seam_edge->points[ pointIdxRadiusSearch[i] ].y;
+                each_vector.z = seam_edge->points[ pointIdxRadiusSearch[0] ].z - seam_edge->points[ pointIdxRadiusSearch[i] ].z;
+
+                float a_b = Tangency_vector.x * each_vector.x + Tangency_vector.y * each_vector.y + Tangency_vector.z * each_vector.z;
+                float a   = sqrt(pow(Tangency_vector.x, 2) + pow(Tangency_vector.y, 2) + pow(Tangency_vector.z, 2));
+                float b   = sqrt(pow(each_vector.x, 2)     + pow(each_vector.y, 2)     + pow(each_vector.z, 2));
+                float theta = acos(a_b / (a * b)) * 180 / M_PI;
+
+                if(abs(abs(theta) - 90) <= 5)
+                {
+                    cout << "theta: " << theta << endl;
+                    find_right_point_flag = 1;
+                    right_point_index = i;
+                    break;
+                }
+            }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            if(find_right_point_flag == 0)
+            {
+                radius += 0.001;
+            }
+            else
+            {
+                pcl::PointXYZ path_point;
+                path_point.x = (seam_edge->points[ pointIdxRadiusSearch[0] ].x + seam_edge->points[ pointIdxRadiusSearch[right_point_index] ].x) / 2;
+                path_point.y = (seam_edge->points[ pointIdxRadiusSearch[0] ].y + seam_edge->points[ pointIdxRadiusSearch[right_point_index] ].y) / 2;
+                path_point.z = (seam_edge->points[ pointIdxRadiusSearch[0] ].z + seam_edge->points[ pointIdxRadiusSearch[right_point_index] ].z) / 2;
+
+                Path_Cloud->points.push_back( path_point ); 
+                break;
+            }
+            cout << "radius: " << radius << endl;
+        }
+    }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //消除噪声点，下采样
+    float radius = 0.001;
+    Cloud::Ptr Path_Point_Cloud (new Cloud);
+    int loop_count = 0, loop_max = 20;
+    while(ros::ok())
+    {
+        loop_count++;
+        cout << "loop_count: " << loop_count << endl;
+
+        for(float i = 0; i < Path_Cloud->points.size(); i++)
+        { 
+            pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
+            kdtree.setInputCloud (Path_Cloud);  // 将前面创建的随机点云作为 KdTree 输入
+            vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
+            vector<float> pointRadiusSquaredDistance;
+            kdtree.radiusSearch (Path_Cloud->points[i], radius, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+            if(pointIdxRadiusSearch.size() <= 2)
+            {
+                continue;
+            }
+
+            pcl::PointXYZ m_p;
+            for(float j = 0; j < pointIdxRadiusSearch.size(); j++)
+            { 
+                pcl::PointXYZ p = Path_Cloud->points[ pointIdxRadiusSearch[j] ];
+
+                m_p.x += p.x;  m_p.y += p.y;  m_p.z += p.z;
+            }
+            m_p.x = m_p.x / pointIdxRadiusSearch.size(); m_p.y = m_p.y / pointIdxRadiusSearch.size(); m_p.z = m_p.z / pointIdxRadiusSearch.size();
+
+            Path_Point_Cloud->points.push_back( m_p );       
+        }
+        Path_Cloud->clear();
+
+        for(float i = 0; i < Path_Point_Cloud->points.size(); i++)
+        {  
+            pcl::PointXYZ p = Path_Point_Cloud->points[ i ];
+            Path_Cloud->points.push_back( p );       
+        }
+        Path_Point_Cloud->clear();
+
+        if(loop_count == loop_max)
+        {
+            break;
+        }
+    }
+    cout << "Path_Cloud->points.size(): " << Path_Cloud->points.size() << endl;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    //将距离特别近的点合并为一个点
+    Cloud::Ptr Path_Cloud_filtered (new Cloud);
+    pcl::VoxelGrid<pcl::PointXYZ> voxel;
+    voxel.setLeafSize( radius, radius, radius );
+    voxel.setInputCloud( Path_Cloud );
+    voxel.filter( *Path_Cloud_filtered );
+    cout << "Path_Cloud_filtered->points.size(): " << Path_Cloud_filtered->points.size() << endl;
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //给pathpoint排序
+    pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
+    kdtree.setInputCloud (Path_Cloud_filtered);  // 将前面创建的随机点云作为 KdTree 输入
+    vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
+    vector<float> pointRadiusSquaredDistance;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    vector<float> Path_Cloud_indexOrder; 
+
+    vector <float> GeometryCenter = Compute_Segment_GeometryCenter(Path_Cloud_filtered);
+    float nextPoint_index = GeometryCenter[0], lastPoint_index = 0;
+    pcl::PointXYZ vector_direction, last_vector_direction;
+    vector<float> Path_Cloud_indexOrder_half1; 
+    while(ros::ok())
+    {
+        int breakAll_flag = 0;
+        if(Path_Cloud_indexOrder_half1.size() == 0)
+        {
+            kdtree.radiusSearch (Path_Cloud_filtered->points[nextPoint_index], radius * 20, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+            lastPoint_index = nextPoint_index;
+            nextPoint_index = pointIdxRadiusSearch[1];
+
+            vector_direction.x = Path_Cloud_filtered->points[nextPoint_index].x - Path_Cloud_filtered->points[lastPoint_index].x;
+            vector_direction.y = Path_Cloud_filtered->points[nextPoint_index].y - Path_Cloud_filtered->points[lastPoint_index].y;
+            vector_direction.z = Path_Cloud_filtered->points[nextPoint_index].z - Path_Cloud_filtered->points[lastPoint_index].z;
+
+            Path_Cloud_indexOrder_half1.push_back(nextPoint_index); 
+        }
+        else
+        {
+            last_vector_direction.x = vector_direction.x; 
+            last_vector_direction.y = vector_direction.y; 
+            last_vector_direction.z = vector_direction.z;
+
+            kdtree.radiusSearch (Path_Cloud_filtered->points[nextPoint_index], radius * 20, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+            lastPoint_index = nextPoint_index;
+
+            for(float j = 1; j < pointIdxRadiusSearch.size(); j++)
+            { 
+                nextPoint_index = pointIdxRadiusSearch[j];
+
+                vector_direction.x = Path_Cloud_filtered->points[nextPoint_index].x - Path_Cloud_filtered->points[lastPoint_index].x;
+                vector_direction.y = Path_Cloud_filtered->points[nextPoint_index].y - Path_Cloud_filtered->points[lastPoint_index].y;
+                vector_direction.z = Path_Cloud_filtered->points[nextPoint_index].z - Path_Cloud_filtered->points[lastPoint_index].z;
+
+                float a_b = last_vector_direction.x * vector_direction.x + last_vector_direction.y * vector_direction.y + last_vector_direction.z * vector_direction.z;
+                float a   = sqrt(pow(last_vector_direction.x, 2)         + pow(last_vector_direction.y, 2)              + pow(last_vector_direction.z, 2));
+                float b   = sqrt(pow(vector_direction.x, 2)              + pow(vector_direction.y, 2)                   + pow(vector_direction.z, 2));
+                float theta = acos(a_b / (a * b)) * 180 / M_PI;
+
+                cout << "acos(a_b / (a * b)): " << (a_b / (a * b)) << " " << "theta: " << theta << " " << j << endl << endl;
+                if( a_b / (a * b) <= 1 && a_b / (a * b) > 0)
+                {
+                    break;
+                }
+
+                if(j == pointIdxRadiusSearch.size() - 1 && a_b / (a * b) < 0)
+                {
+                    breakAll_flag = 1;
+                }
+            }
+            if(breakAll_flag == 0)
+            {
+                Path_Cloud_indexOrder_half1.push_back(nextPoint_index); 
+            }
+        }
+        cout << "Path_Cloud_indexOrder_half1.size():" << Path_Cloud_indexOrder_half1.size() << endl;
+
+        if(breakAll_flag)
+        {
+            break;
+        }
+    }
+ 
+    for(float j = 0; j < Path_Cloud_indexOrder_half1.size(); j++)
+    {
+        Path_Cloud_indexOrder.push_back(Path_Cloud_indexOrder_half1[Path_Cloud_indexOrder_half1.size() - 1 - j]);
+    }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    vector<float> Path_Cloud_indexOrder_half2; 
+    nextPoint_index = GeometryCenter[0], lastPoint_index = Path_Cloud_indexOrder_half1[0];
+    while(ros::ok())
+    {
+        int breakAll_flag = 0;
+        if(Path_Cloud_indexOrder_half2.size() == 0)
+        {
+            last_vector_direction.x = Path_Cloud_filtered->points[nextPoint_index].x - Path_Cloud_filtered->points[lastPoint_index].x;
+            last_vector_direction.y = Path_Cloud_filtered->points[nextPoint_index].y - Path_Cloud_filtered->points[lastPoint_index].y;
+            last_vector_direction.z = Path_Cloud_filtered->points[nextPoint_index].z - Path_Cloud_filtered->points[lastPoint_index].z;
+
+            kdtree.radiusSearch (Path_Cloud_filtered->points[nextPoint_index], radius * 20, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+            lastPoint_index = nextPoint_index;
+ 
+            for(float j = 1; j < pointIdxRadiusSearch.size(); j++)
+            { 
+                nextPoint_index = pointIdxRadiusSearch[j];
+
+                vector_direction.x = Path_Cloud_filtered->points[nextPoint_index].x - Path_Cloud_filtered->points[lastPoint_index].x;
+                vector_direction.y = Path_Cloud_filtered->points[nextPoint_index].y - Path_Cloud_filtered->points[lastPoint_index].y;
+                vector_direction.z = Path_Cloud_filtered->points[nextPoint_index].z - Path_Cloud_filtered->points[lastPoint_index].z;
+
+                float a_b = last_vector_direction.x * vector_direction.x + last_vector_direction.y * vector_direction.y + last_vector_direction.z * vector_direction.z;
+                float a   = sqrt(pow(last_vector_direction.x, 2)         + pow(last_vector_direction.y, 2)              + pow(last_vector_direction.z, 2));
+                float b   = sqrt(pow(vector_direction.x, 2)              + pow(vector_direction.y, 2)                   + pow(vector_direction.z, 2));
+                float theta = acos(a_b / (a * b)) * 180 / M_PI;
+
+                cout << "acos(a_b / (a * b)): " << (a_b / (a * b)) << " " << "theta: " << theta << " " << j << endl << endl;
+                if( a_b / (a * b) <= 1 && a_b / (a * b) > 0)
+                {
+                    break;
+                }
+            }
+            Path_Cloud_indexOrder_half2.push_back(nextPoint_index); 
+        }
+        else
+        {
+            last_vector_direction.x = vector_direction.x; 
+            last_vector_direction.y = vector_direction.y; 
+            last_vector_direction.z = vector_direction.z;
+
+            kdtree.radiusSearch (Path_Cloud_filtered->points[nextPoint_index], radius * 20, pointIdxRadiusSearch, pointRadiusSquaredDistance);  
+
+            lastPoint_index = nextPoint_index;
+
+            for(float j = 1; j < pointIdxRadiusSearch.size(); j++)
+            { 
+                nextPoint_index = pointIdxRadiusSearch[j];
+
+                vector_direction.x = Path_Cloud_filtered->points[nextPoint_index].x - Path_Cloud_filtered->points[lastPoint_index].x;
+                vector_direction.y = Path_Cloud_filtered->points[nextPoint_index].y - Path_Cloud_filtered->points[lastPoint_index].y;
+                vector_direction.z = Path_Cloud_filtered->points[nextPoint_index].z - Path_Cloud_filtered->points[lastPoint_index].z;
+
+                float a_b = last_vector_direction.x * vector_direction.x + last_vector_direction.y * vector_direction.y + last_vector_direction.z * vector_direction.z;
+                float a   = sqrt(pow(last_vector_direction.x, 2)         + pow(last_vector_direction.y, 2)              + pow(last_vector_direction.z, 2));
+                float b   = sqrt(pow(vector_direction.x, 2)              + pow(vector_direction.y, 2)                   + pow(vector_direction.z, 2));
+                float theta = acos(a_b / (a * b)) * 180 / M_PI;
+
+                cout << "acos(a_b / (a * b)): " << (a_b / (a * b)) << " " << "theta: " << theta << " " << j << endl << endl;
+                if( a_b / (a * b) <= 1 && a_b / (a * b) > 0)
+                {
+                    break;
+                }
+
+                if(j == pointIdxRadiusSearch.size() - 1 && a_b / (a * b) < 0)
+                {
+                    breakAll_flag = 1;
+                }
+            }
+            if(breakAll_flag == 0)
+            {
+                Path_Cloud_indexOrder_half2.push_back(nextPoint_index); 
+            }
+        }
+        cout << "Path_Cloud_indexOrder_half2.size():" << Path_Cloud_indexOrder_half2.size() << endl;
+
+        if(breakAll_flag)
+        {
+            break;
+        }
+
+    }
+
+    Path_Cloud_indexOrder.push_back(GeometryCenter[0]);
+
+    for(float j = 0; j < Path_Cloud_indexOrder_half2.size(); j++)
+    {
+        Path_Cloud_indexOrder.push_back( Path_Cloud_indexOrder_half2[j] );
+    }
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    for(float j = 0; j < Path_Cloud_indexOrder.size(); j++)
+    {
+        cout << "point:" << Path_Cloud_filtered->points[ Path_Cloud_indexOrder[j] ] << endl << endl;
+    }
+
+    cout << "Path_Cloud_indexOrder.size():" << Path_Cloud_indexOrder.size() << endl;
+
+
+    for(float i = 0; i < Path_Cloud_filtered->points.size(); i++)
+    {
+        pcl::PointXYZRGB p;
+        p.x = Path_Cloud_filtered->points[ i ].x;
+        p.y = Path_Cloud_filtered->points[ i ].y;
+        p.z = Path_Cloud_filtered->points[ i ].z;
+        p.b = 200;
+        p.g = 0;
+        p.r = 0;
+
+        for(float j = 0; j < Path_Cloud_indexOrder.size(); j++)
+        {
+            if(i == Path_Cloud_indexOrder[j])
+            {
+                p.b = 0;
+                p.g = 0;
+                p.r = 200;     
+            }
+      
+        }
+        cloud_ptr_show->points.push_back( p );         
+    }
+ 
+    return Path_Cloud_filtered;
+}
