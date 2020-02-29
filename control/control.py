@@ -64,7 +64,7 @@ class MoveGroupPythonInteface(object):
  
     scene = moveit_commander.PlanningSceneInterface()
  
-    group_name = "ur3"
+    group_name = "ur5"
     group = moveit_commander.MoveGroupCommander(group_name)
  
     display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',

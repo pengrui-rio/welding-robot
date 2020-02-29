@@ -72,16 +72,63 @@ using namespace cv;
 using namespace std;
 using namespace Eigen;
 
-void Seam_Curve_Fitting(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label);
+
+vector <float> compute_Points_disSum(Cloud::Ptr cloud_ptr);
+
+float Point_DisSum_min_Compute(vector <float> Point_DisSum);
+
+vector <float> cloud_GeometryCenter_pack(float Point_DisSum_min_index, Cloud::Ptr cloud_ptr);
 
 vector <float> Compute_Segment_GeometryCenter(Cloud::Ptr cloud_ptr);
 
-
-void Define_StartEnd_Point(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label, char axis, float coordinate);
-
-
 float Distance_two_Points(pcl::PointXYZ p1, pcl::PointXYZ p2);
+
+vector<pcl::PointXYZ> Points_Exchange(pcl::PointXYZ p1, pcl::PointXYZ p2);
+
+Cloud::Ptr Create_SeamCloud( Cloud::Ptr cloud_ptr, vector < vector <float> > seam_cluster_all, int seam_label );
+
+Cloud::Ptr Output_Boundary_SeamCloud(Cloud::Ptr seam_cloud);
+
+Cloud::Ptr Delete_noiseBoundary(Cloud::Ptr boundPoints);
+
+void cloud_ptr_show_creation(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show);
+
+vector<int> FindAllIndex_Around_OnePoint(Cloud::Ptr seam_edge, float i, float radius);
+
+vector<Point3f> Distance_and_Index(Cloud::Ptr seam_edge, vector<int> pointIdxRadiusSearch);
+
+float Distance_Points_max_index_Compute(vector<Point3f> Distance_Points);
+
+Point3f Compute_Vector_TwoPoints(pcl::PointXYZ p1, pcl::PointXYZ p2);
+
+float Compute_Included_Angle(Point3f vector1, Point3f vector2);
+
+vector<float> Find_relevantPoint_onTheOherCurve(vector<Point3f> Distance_Points, float Distance_Points_max_index, Cloud::Ptr seam_edge, vector<int> pointIdxRadiusSearch);
+
+pcl::PointXYZ Compute_Single_PathPoint(Cloud::Ptr seam_edge, vector<int> pointIdxRadiusSearch, float right_point_index);
+
+void DownSample_DeleteNoisePoint(Cloud::Ptr Path_Cloud, float radius);
+
+Cloud::Ptr Merge_NearPoints(Cloud::Ptr Path_Cloud, float radius);
+
+float Included_Value_TwoPoints(Point3f vector1, Point3f vector2);
+
+Cloud::Ptr Order_PathPoints_Cloud(Cloud::Ptr Path_Cloud_filtered, float radius);
+
+void Show_Ordered_PathPoints(Cloud::Ptr Path_Cloud_final, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show);
+
+Cloud::Ptr Compute_All_PathPoints(Cloud::Ptr seam_edge);
+
+void push_point_showCloud(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show);
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label);
 
-Cloud::Ptr PathPoint_Generation(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show);
+Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show);
+
+
+void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show);
+
+
+

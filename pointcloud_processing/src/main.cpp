@@ -305,6 +305,21 @@ void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr cloud, se
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+Cloud::Ptr cloud_ptr_origin_copy(Cloud::Ptr cloud_ptr_new)
+{
+  Cloud::Ptr cloud_ptr_origin (new Cloud);
+  for(float i = 0; i < cloud_ptr_new->points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = cloud_ptr_new->points[i].x;
+    p.y = cloud_ptr_new->points[i].y;
+    p.z = cloud_ptr_new->points[i].z;
+    cloud_ptr_origin->points.push_back( p );    
+  }
+
+  return cloud_ptr_origin;
+}
+
 void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   clock_t begin = clock();
@@ -315,7 +330,8 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "1.读入原始pointcloud" << endl << endl;
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
-  Cloud::Ptr cloud_ptr_new = read_pointcloud(cloud_ptr_show);
+  Cloud::Ptr cloud_ptr_new    = read_pointcloud(cloud_ptr_show);
+  Cloud::Ptr cloud_ptr_origin = cloud_ptr_origin_copy(cloud_ptr_new);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "2.算出所有点的法向量" << endl << endl;
@@ -335,47 +351,13 @@ void seam_detection(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path
   Cloud::Ptr seam_edge = Extract_Seam_edge(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  cout << "6.焊接缝拟合一条曲线" << endl << endl; 
-  Cloud::Ptr Path_Cloud = PathPoint_Generation(seam_edge, cloud_ptr_show);
+  cout << "6.焊接缝轨迹生成" << endl << endl; 
+  Cloud::Ptr PathPoint_Position = PathPoint_Position_Generation(seam_edge, cloud_ptr_origin, cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
-  // cout << "6.人工选择焊接缝的起点和终点" << endl << endl; 
-  // seam_label = 0;
-  // char axis;  float coordinate; string Done;
-  // cout << "Define start point: " << endl;
-  // cout << "which axis?: " << endl << endl; cin >> axis;
-  // Point3f start_point, end_point;
-  // while(ros::ok()) // -0.185
-  // {
-  //   cout << "input coordinate: " << endl << endl; cin >> coordinate;
-
-  //   start_point = Define_StartEnd_Point(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label, axis, coordinate);
-  //   show_pointcloud_Rviz(show_Pointcloud_timeMax/10, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
-  //   cout << "Done?" << endl; cin >> Done;
-  //   if(Done == "yes")
-  //   {
-  //     break;
-  //   }
-  // }
-  // cout << "Define end point: " << endl;
-  // cout << "which axis?: " << endl << endl; cin >> axis;
-  // while(ros::ok()) // 0.213
-  // {
-  //   cout << "input coordinate: " << endl << endl; cin >> coordinate;
-
-  //   end_point = Define_StartEnd_Point(cloud_ptr_new, cloud_ptr_show, seam_cluster_all, seam_label, axis, coordinate);
-  //   show_pointcloud_Rviz(show_Pointcloud_timeMax/10, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
-  //   cout << "Done?" << endl; cin >> Done;
-  //   if(Done == "yes")
-  //   {
-  //     break;
-  //   }
-  // }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  cout << "7.为焊接缝拟合一条曲线" << endl;
-
+  cout << "7.焊接缝轨迹点旋转方向" << endl << endl;
+  PathPoint_Orientation_Generation(PathPoint_Position, cloud_ptr_origin, cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
 
 

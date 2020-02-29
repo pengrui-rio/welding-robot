@@ -385,8 +385,8 @@ vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cl
   }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////  
-  cout << "Normal:\n" << Normal << endl;
-  cout << "size:" << Normal.size() << endl; 
+  // cout << "Normal:\n" << Normal << endl;
+  // cout << "size:" << Normal.size() << endl; 
 
   Point3f Cam_Position; Cam_Position.x = 0, Cam_Position.y = 0, Cam_Position.z = 0;
 
@@ -442,6 +442,9 @@ vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Pt
     }
   }
 
+  cout << "Normal:\n" << Normal << endl;
+  cout << "size:" << Normal.size() << endl; 
+  
   return  Normal; 
 }
 

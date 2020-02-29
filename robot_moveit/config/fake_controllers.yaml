@@ -1,5 +1,5 @@
 controller_list:
-  - name: fake_ur3_controller
+  - name: fake_ur5_controller
     joints:
       - shoulder_pan_joint
       - shoulder_lift_joint
