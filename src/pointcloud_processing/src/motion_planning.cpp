@@ -1202,7 +1202,7 @@ Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_
     cloud_ptr_show_creation(seam_edge, cloud_ptr_show);
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //计算轨迹点
-    Cloud::Ptr Path_Cloud = Compute_All_PathPoints(seam_edge);
+    Cloud::Ptr Path_Cloud = Compute_All_PathPoints(seam_edge);  
     cout << "Path_Cloud->points.size(): " << Path_Cloud->points.size() << endl;
 
     // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
