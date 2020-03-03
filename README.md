@@ -199,6 +199,3 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
 
  8.realsense-ros:
  roslaunch realsense2_camera rs_camera.launch 
-
-
-ur5[外部控制配置](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/install_urcap_cb3.md)：

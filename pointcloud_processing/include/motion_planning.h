@@ -85,7 +85,7 @@ float Distance_two_Points(pcl::PointXYZ p1, pcl::PointXYZ p2);
 
 vector<pcl::PointXYZ> Points_Exchange(pcl::PointXYZ p1, pcl::PointXYZ p2);
 
-Cloud::Ptr Create_SeamCloud( Cloud::Ptr cloud_ptr, vector < vector <float> > seam_cluster_all, int seam_label );
+Cloud::Ptr Create_SeamCloud( Cloud::Ptr cloud_ptr );
 
 Cloud::Ptr Output_Boundary_SeamCloud(Cloud::Ptr seam_cloud);
 
@@ -123,12 +123,11 @@ void push_point_showCloud(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector < vector <float> > seam_cluster_all, int seam_label);
+Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
 
 Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show);
 
-
-void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show);
+void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
 
 
 

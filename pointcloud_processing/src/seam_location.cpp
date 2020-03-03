@@ -280,8 +280,62 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 }
 
 
+void SurfaceProfile_Reconstruction(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+{
+  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  pcl::PointCloud<pcl::PointNormal> mls_points;
+  pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+  mls.setComputeNormals (true);
+  mls.setInputCloud (cloud_ptr);
+  mls.setPolynomialOrder (2);
+  mls.setSearchMethod (tree);
+  mls.setSearchRadius (0.01);
+  mls.process (mls_points);
+  cout << "smooth size(): " <<  mls_points.size() << endl << endl;
+
+  Cloud::Ptr smooth_cloud ( new Cloud );
+  for(float i = 0; i < mls_points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = mls_points[i].x; 
+    p.y = mls_points[i].y;
+    p.z = mls_points[i].z;
+
+    smooth_cloud->points.push_back( p );
+  }
+
+  cloud_ptr_show->clear();
+  for(float i = 0; i < smooth_cloud->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = smooth_cloud->points[i].x;
+    p.y = smooth_cloud->points[i].y;
+    p.z = smooth_cloud->points[i].z;
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
+
+
+  //这个不用动
+  cloud_ptr->clear();
+  for(float i = 0; i < cloud_ptr_show->points.size(); i++)
+  {
+    pcl::PointXYZ p;
+    p.x = cloud_ptr_show->points[i].x; 
+    p.y = cloud_ptr_show->points[i].y;
+    p.z = cloud_ptr_show->points[i].z;
+    cloud_ptr->points.push_back( p );    
+  }
+
+  cout << "cloud_ptr_show->points.size()" << cloud_ptr->points.size() << endl << endl;
+
+}
+
+
 vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, Point3f Cam_Position);
-vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position)
 {
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
@@ -388,7 +442,7 @@ vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cl
   // cout << "Normal:\n" << Normal << endl;
   // cout << "size:" << Normal.size() << endl; 
 
-  Point3f Cam_Position; Cam_Position.x = 0, Cam_Position.y = 0, Cam_Position.z = 0;
+  // Point3f Cam_Position; Cam_Position.x = 0, Cam_Position.y = 0, Cam_Position.z = 0;
 
   return  Pointnormal_Direction_Unify(cloud_ptr, cloud_ptr_show, Normal, Cam_Position);
 }
@@ -426,30 +480,30 @@ vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Pt
 
     float COS_ab = a_b / (a2 * b2) ;
 
-    float theta = acos( COS_ab ) * 180.0 / M_PI ;
+    // float theta = acos( COS_ab ) * 180.0 / M_PI ;
 
     // cout << "theta: " << theta << endl;
-    Theta.push_back(theta);
+    Theta.push_back(COS_ab);
   }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //大于90度的需要反过来
   for(float i = 0; i < Normal.size(); i++)
   {
-    if(Theta[i] >= 90)
+    if(Theta[i] <= 0)
     {
       Normal[i] = Normal[i] * (-1);
     }
   }
 
-  cout << "Normal:\n" << Normal << endl;
-  cout << "size:" << Normal.size() << endl; 
+  // cout << "Normal:\n" << Normal << endl;
+  // cout << "size:" << Normal.size() << endl; 
   
   return  Normal; 
 }
 
 
-void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal)
+void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   // for(float i = 0; i < cloud_ptr->points.size(); i++)
   // {
@@ -473,10 +527,11 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
   float radius = 0.006;
 
 
-  // cout << "Normal:\n" << Normal << endl;
-  // cout << "size:" << Normal.size() << endl; 
+  cout << "Normal:\n" << Normal << endl;
+  cout << "size:" << Normal.size() << endl; 
 
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+ //求每个点的领域方向方差
   vector<float> PointVariance;
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
@@ -560,53 +615,80 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
       PointDescriptor_min = PointDescriptor[j];
     }
   }
-  // cout << "PointDescriptor_max: "    << PointDescriptor_max << endl;
-  // cout << "PointDescriptor_min: "    << PointDescriptor_min << endl;
+  cout << "PointDescriptor_max: "    << PointDescriptor_max << endl;
+  cout << "PointDescriptor_min: "    << PointDescriptor_min << endl;
 
-  for(float j = 0; j < PointDescriptor.size(); j++)
-  { 
-    PointDescriptor[j] = PointDescriptor[j] / (PointDescriptor_max - PointDescriptor_min);
-  }
+  // for(float j = 0; j < PointDescriptor.size(); j++)
+  // { 
+  //   PointDescriptor[j] = PointDescriptor[j] / (PointDescriptor_max - PointDescriptor_min);
+  // }
 
-  //打印PointDescriptor
-  for(float j = 0; j < PointDescriptor.size(); j++)
-  {
-    cout << "PointDescriptor: " << PointDescriptor[j] << endl;
-  }
-  cout << "size:" << PointDescriptor.size() << endl; 
+  // //打印PointDescriptor
+  // for(float j = 0; j < PointDescriptor.size(); j++)
+  // {
+  //   cout << "PointDescriptor: " << PointDescriptor[j] << endl;
+  // }
+  // cout << "size:" << PointDescriptor.size() << endl; 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //将变化率高的部分分离出来
-  float screen_threshold = 0.0085;
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  while(ros::ok())
   {
-    if(PointDescriptor[i] >= screen_threshold)
-    {
-      pcl::PointXYZRGB p;
+    cout << "PLease input screen_threshold: ";
+    float screen_threshold = 0;
+    cin >> screen_threshold;
 
-      p.x = cloud_ptr->points[i].x ; 
-      p.y = cloud_ptr->points[i].y ;
-      p.z = cloud_ptr->points[i].z ;//- 0.457; // 0.125
-      p.b = 200; 
-      p.g = 200;
-      p.r = 200;
-      cloud_ptr_show->points.push_back( p );    
+    for(float i = 0; i < cloud_ptr->points.size(); i++)
+    {
+      if(PointDescriptor[i] >= screen_threshold)
+      {
+        pcl::PointXYZRGB p;
+
+        p.x = cloud_ptr->points[i].x ; 
+        p.y = cloud_ptr->points[i].y ;
+        p.z = cloud_ptr->points[i].z ;//- 0.457; // 0.125
+        p.b = 200; 
+        p.g = 200;
+        p.r = 200;
+        cloud_ptr_show->points.push_back( p );    
+      }
     }
+    cout << "cloud_ptr->points.size(): "  << cloud_ptr->points.size() << endl ;
+    cout << "cloud_ptr_show->points.size(): "  << cloud_ptr_show->points.size() << endl ;
+
+    pcl::toROSMsg(*cloud_ptr_show, pub_pointcloud);
+    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_pointcloud.header.stamp = ros::Time::now();
+    pointcloud_publisher.publish(pub_pointcloud);
+
+    cout << endl << "Keep the pointcloud or not? yes or xxxx ";
+    string keep_flag;
+    cin >> keep_flag;
+    if(keep_flag == "yes")
+    {
+      //后续的输入点云
+      cloud_ptr->clear();
+      for(float i = 0; i < cloud_ptr_show->points.size(); i++)
+      {
+        pcl::PointXYZ p;
+        p.x = cloud_ptr_show->points[i].x; 
+        p.y = cloud_ptr_show->points[i].y;
+        p.z = cloud_ptr_show->points[i].z;
+        cloud_ptr->points.push_back( p );    
+      }
+      break;
+    }
+    
+    cloud_ptr_show->clear();
+    cout << endl;
+
   }
-  //后续的输入点云
-  cloud_ptr->clear();
-  for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = cloud_ptr_show->points[i].x; 
-    p.y = cloud_ptr_show->points[i].y;
-    p.z = cloud_ptr_show->points[i].z;
-    cloud_ptr->points.push_back( p );    
-  }
+
 }
 
 
-vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
+  cout << "ec_tree_cloud->points.size(): "  << cloud_ptr->points.size() << endl ;
   // push cloud_tree_rm_irrelativePoint into ec_tree_cloud
 //   Cloud::Ptr ec_tree_cloud (new Cloud);
 //   for(float i = 0; i < cloud_ptr->points.size(); i++)
@@ -628,7 +710,7 @@ vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
 
   EC.setClusterTolerance (0.002); //设置近邻搜索的搜索半径为2cm
-  EC.setMinClusterSize (5000);//设置一个聚类需要的最少点数目为100
+  EC.setMinClusterSize (500);//设置一个聚类需要的最少点数目为100
   EC.setMaxClusterSize (10000000); //设置一个聚类需要的最大点数目为25000
   EC.setSearchMethod (ec_tree);//设置点云的搜索机制
   EC.setInputCloud (cloud_ptr);// input cloud
@@ -656,20 +738,78 @@ vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud
   cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl;
   // cout << "seam_cluster_all[0].size(): " << seam_cluster_all[0].size() << endl;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  for(float i = 0; i < seam_cluster_all[0].size(); i++)
-  { 
-    pcl::PointXYZRGB p;
-    p.x = cloud_ptr->points[ seam_cluster_all[0][i] ].x;
-    p.y = cloud_ptr->points[ seam_cluster_all[0][i] ].y;
-    p.z = cloud_ptr->points[ seam_cluster_all[0][i] ].z;
-    p.b = 200;
-    p.g = 200;
-    p.r = 200;
+  // for(float i = 0; i < seam_cluster_all[0].size(); i++)
+  // { 
+  //   pcl::PointXYZRGB p;
+  //   p.x = cloud_ptr->points[ seam_cluster_all[0][i] ].x;
+  //   p.y = cloud_ptr->points[ seam_cluster_all[0][i] ].y;
+  //   p.z = cloud_ptr->points[ seam_cluster_all[0][i] ].z;
+  //   p.b = 200;
+  //   p.g = 200;
+  //   p.r = 200;
 
-    cloud_ptr_show->points.push_back( p ); 
+  //   cloud_ptr_show->points.push_back( p ); 
+  // }
+
+  int seam_label = 0;
+  while(ros::ok())
+  {
+    cout << "PLease input index of seam cluster: 0-max";
+    cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl;
+
+    float index_seam_cluster = 0;
+    cin >> index_seam_cluster;
+
+    for(float i = 0; i < seam_cluster_all[index_seam_cluster].size(); i++)
+    { 
+      pcl::PointXYZRGB p;
+      p.x = cloud_ptr->points[ seam_cluster_all[index_seam_cluster][i] ].x;
+      p.y = cloud_ptr->points[ seam_cluster_all[index_seam_cluster][i] ].y;
+      p.z = cloud_ptr->points[ seam_cluster_all[index_seam_cluster][i] ].z;
+      p.b = 200;
+      p.g = 200;
+      p.r = 200;
+
+      cloud_ptr_show->points.push_back( p ); 
+    }
+
+    pcl::toROSMsg(*cloud_ptr_show, pub_pointcloud);
+    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_pointcloud.header.stamp = ros::Time::now();
+    pointcloud_publisher.publish(pub_pointcloud);
+
+    cout << endl << "Keep the pointcloud or not? yes or xxxx ";
+    string keep_flag;
+    cin >> keep_flag;
+    if(keep_flag == "yes")
+    {
+      seam_label = index_seam_cluster;
+      break;
+    }
+    
+    cloud_ptr_show->clear();
+    cout << endl;
   }
 
-  return seam_cluster_all;
+  cloud_ptr->clear();
+  for(float i = 0; i < seam_cluster_all[seam_label].size(); i++)
+  { 
+    pcl::PointXYZ p;
+    p.x = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].x;
+    p.y = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].y;
+    p.z = cloud_ptr->points[ seam_cluster_all[seam_label][i] ].z;
+
+    cloud_ptr->points.push_back( p ); 
+  }
+
+  // cloud_ptr->width = 1;
+  // cloud_ptr->height = cloud_ptr->points.size();
+
+  // cout << "cloud_ptr->points.size()" << cloud_ptr->points.size() << endl;
+  // pcl::PCDWriter writer;
+  // writer.write("/home/rick/Documents/a_system/src/pointcloud_processing/src/seam_cloud.pcd", *cloud_ptr, false) ;
+
+
 }
 
 

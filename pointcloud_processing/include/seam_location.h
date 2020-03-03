@@ -63,11 +63,13 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic);
 
 Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
 
-vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+void SurfaceProfile_Reconstruction(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
 
-void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal);
+vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position);
 
-vector < vector <float> > Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
+
+void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
 
 
 

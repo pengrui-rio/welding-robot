@@ -97,20 +97,7 @@ class MoveGroupPythonInteface(object):
     self.motion_pathPoint = []
 
 
-  def callback_path(self, pose):
-    p = []
-    p.append(pose.position.x)
-    p.append(pose.position.y)
-    p.append(pose.position.z)
-    p.append(pose.orientation.x)
-    p.append(pose.orientation.y)
-    p.append(pose.orientation.z)
-    p.append(pose.orientation.w)
 
-    self.motion_pathPoint.append( p )
-    print p 
-    print len(self.motion_pathPoint)
-    print "\n"
 
 
   def robot_sensor_cali(self):
@@ -141,18 +128,17 @@ class MoveGroupPythonInteface(object):
 
     #bottom straight:
     x = 0.0
-    y = 0.25
-    z = 0.45 
+    y = 0.4
+    z = 0.55
 
     # x = 0.0
     # y = 0.44
     # z = 0.25            
            
-    yaw   = 0       
+    yaw   = 0#-1       
     pitch = 180               
     roll  =  0  
      
-
 
     pose_goal = geometry_msgs.msg.Pose()
     Q = euler_to_quaternion(yaw , pitch, roll)
@@ -192,23 +178,41 @@ class MoveGroupPythonInteface(object):
 
 
 
-  def motion(self):
-    print "============ Press `Enter` to set the initial pose ..."
-    raw_input()
 
-    group = self.group
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/200
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
+
+  def callback_path(self, pose):
+    p = []
+    p.append(pose.position.x)
+    p.append(pose.position.y)
+    p.append(pose.position.z)
+    p.append(pose.orientation.x)
+    p.append(pose.orientation.y)
+    p.append(pose.orientation.z)
+    p.append(pose.orientation.w)
+
+    self.motion_pathPoint.append( p )
+    print p 
+    print len(self.motion_pathPoint)
+    print "\n"
+
+
+  def motion(self):
+    # print "============ Press `Enter` to set the initial pose ..."
+    # raw_input()
+
+    # group = self.group
+    # joint_goal = group.get_current_joint_values()
+    # joint_goal[0] = 0
+    # joint_goal[1] = -pi/4
+    # joint_goal[2] = 0
+    # joint_goal[3] = -pi/2
+    # joint_goal[4] = 0
+    # joint_goal[5] = 0
  
-    group.go(joint_goal, wait=True)
-    group.stop()
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
+    # group.go(joint_goal, wait=True)
+    # group.stop()
+    # group.clear_pose_targets()
+    # current_pose = self.group.get_current_pose().pose
 
     print "============ Press `Enter` to set the initial pose ..."
     raw_input()
@@ -230,14 +234,15 @@ class MoveGroupPythonInteface(object):
 
     # print "============ Press `Enter` to capture pointcloud ============"
     # raw_input()
-    
-    # #bottom straight:
-    # x = 0
-    # y = 0.3
-    # z = 0.4
-    # yaw   = 179.589         
-    # pitch = -0.859868    #capture: -180  move: -135
-    # roll  = 179.339         
+    # group = self.group
+
+    #bottom straight:
+    x = 0.0
+    y = 0.4
+    z = 0.55
+    yaw   = 0         
+    pitch = -180    #capture: -180  move: -135
+    roll  = 0         
 
     # pose_goal = geometry_msgs.msg.Pose()
     # Q = euler_to_quaternion(yaw , pitch, roll)
@@ -252,63 +257,59 @@ class MoveGroupPythonInteface(object):
 
     # plan = group.go(wait=True)
     # group.stop()
-    # group.clear_pose_targets()
-    # current_pose = self.group.get_current_pose().pose
-    # print current_pose.position
-    # print "yaw   : %f" % yaw
-    # print "pitch : %f" % pitch
-    # print "roll  : %f" % roll
-    # print "\n"
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
 
-    # pub_pose = PoseStamped()
-    # pub_pose.header.stamp       = rospy.Time.now()
-    # pub_pose.header.frame_id    = "robot_currentpose"
-    # pub_pose.pose.position.x    = current_pose.position.x
-    # pub_pose.pose.position.y    = current_pose.position.y
-    # pub_pose.pose.position.z    = current_pose.position.z
-    # pub_pose.pose.orientation.x = yaw
-    # pub_pose.pose.orientation.y = pitch
-    # pub_pose.pose.orientation.z = roll
-    # pub_pose.pose.orientation.w = 0
-    # rospy.loginfo(pub_pose)
-    # self.pub.publish(pub_pose)
-    # #################################################################
+    group = self.group
+    group.clear_pose_targets()
+    current_pose = self.group.get_current_pose().pose
+    print current_pose.position
+    print "yaw   : %f" % yaw
+    print "pitch : %f" % pitch
+    print "roll  : %f" % roll
+    print "\n"
+
+    pub_pose = PoseStamped()
+    pub_pose.header.stamp       = rospy.Time.now()
+    pub_pose.header.frame_id    = "robot_currentpose"
+    pub_pose.pose.position.x    = current_pose.position.x
+    pub_pose.pose.position.y    = current_pose.position.y
+    pub_pose.pose.position.z    = current_pose.position.z
+    pub_pose.pose.orientation.x = yaw
+    pub_pose.pose.orientation.y = pitch
+    pub_pose.pose.orientation.z = roll
+    pub_pose.pose.orientation.w = 0
+    rospy.loginfo(pub_pose)
+    self.pub.publish(pub_pose)
+    #################################################################
 
 
-    # print "============ Press `Enter` to sent signal for processing the pointcloud ============"
-    # raw_input()
-    # pub_pose = PoseStamped()
-    # pub_pose.header.stamp       = rospy.Time.now()
-    # pub_pose.header.frame_id    = "robot_currentpose"
-    # pub_pose.pose.position.x    = current_pose.position.x
-    # pub_pose.pose.position.y    = current_pose.position.y
-    # pub_pose.pose.position.z    = current_pose.position.z
-    # pub_pose.pose.orientation.x = yaw
-    # pub_pose.pose.orientation.y = pitch
-    # pub_pose.pose.orientation.z = roll
-    # pub_pose.pose.orientation.w = 1
-    # rospy.loginfo(pub_pose)
-    # self.pub.publish(pub_pose)
+    print "============ Press `Enter` to sent signal for processing the pointcloud ============"
+    raw_input()
+    pub_pose = PoseStamped()
+    pub_pose.header.stamp       = rospy.Time.now()
+    pub_pose.header.frame_id    = "robot_currentpose"
+    pub_pose.pose.position.x    = current_pose.position.x
+    pub_pose.pose.position.y    = current_pose.position.y
+    pub_pose.pose.position.z    = current_pose.position.z
+    pub_pose.pose.orientation.x = yaw
+    pub_pose.pose.orientation.y = pitch
+    pub_pose.pose.orientation.z = roll
+    pub_pose.pose.orientation.w = 1
+    rospy.loginfo(pub_pose)
+    self.pub.publish(pub_pose)
 
 
     #################################################################
 
     print "============ Press `Enter` to start execution ============"
     raw_input()
-    offset_x = 0
-    offset_y = -0.01
-    offset_z = 0.02
-    p = []; p.append(-0.182909); p.append(0.469571 + offset_y); p.append(0.022352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(-0.147072); p.append(0.442188 + offset_y); p.append(0.017352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(-0.103719); p.append(0.419921 + offset_y); p.append(0.018352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(-0.0500075); p.append(0.406866 + offset_y); p.append(0.019352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(0.0124542); p.append(0.421396 + offset_y); p.append(0.024352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(0.0792019); p.append(0.452637 + offset_y); p.append(0.021352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(0.144905); p.append(0.469668 + offset_y); p.append(0.019352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(0.181533); p.append(0.455276 + offset_y); p.append(0.019352 + offset_z); self.motion_pathPoint.append( p )
-    p = []; p.append(0.217224); p.append(0.407183 + offset_y); p.append(0.026352 + offset_z); self.motion_pathPoint.append( p )
-    print self.motion_pathPoint
-
 
     yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
     pose_goal = geometry_msgs.msg.Pose(); 
@@ -383,9 +384,9 @@ def main():
     print "============ Press `Enter` to start configuration ..."
     ur3 = MoveGroupPythonInteface()
  
-    ur3.robot_sensor_cali()
+    # ur3.robot_sensor_cali()
 
-    # ur3.motion()
+    ur3.motion()
  
 
     
