@@ -1,10 +1,16 @@
 # welding-robot  
 roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=192.168.0.2
+
 roslaunch robot_moveit robot_planning.launch 
+
 rosrun control control.py 
+
 roslaunch realsense2_camera rs_camera.launch align_depth:=true
+
 roslaunch ar_track_alvar ar_indiv.launch 
+
 rosrun robot_sensor_calibration robot_sensor_calibration_node 
+
 rosrun pointcloud_processing pointcloud_processing_node 
 
 
