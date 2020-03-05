@@ -125,17 +125,28 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
   
 6. 创建controllers.yaml
  robot_moveit/config  创建controllers.yaml:
-
+ (For ur3, name: "" 双引号之间没有任何东西，包括空格！！！)
+ 
  controller_list:
+ 
   - name: ""
+  
     action_ns: follow_joint_trajectory
+    
     type: FollowJointTrajectory
+    
     joints:
+    
       - shoulder_pan_joint
+      
       - shoulder_lift_joint
+      
       - elbow_joint
+      
       - wrist_1_joint
+      
       - wrist_2_joint
+      
       - wrist_3_joint
  
  创建robot_moveit/launch/robot_planning.launch（copy from demo.launch）:
