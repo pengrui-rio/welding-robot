@@ -25,144 +25,105 @@ void BubbleSort1(int array[], int n)
 }
 
 
-//四元数 -> 旋转矩阵
-void Quaternion_to_RotationMatrix(float x, float y, float z, float w, float R[9])
-{
-  float r11 = 0, r12 = 0, r13 = 0;
-  float r21 = 0, r22 = 0, r23 = 0; 
-  float r31 = 0, r32 = 0, r33 = 0;
 
-  R[0]  = 1 - 2 * y * y - 2 * z * z;
-  R[1]  =     2 * x * y - 2 * z * w;
-  R[2]  =     2 * x * z + 2 * y * w;
+// void Obtain_pathPoint_BaseCoor(Point3f path_point_3D)
+// {
+//   // Base -> Camera
+// 	Matrix4d T_B_C; 
 
-  R[3]  =     2 * x * y + 2 * z * w;
-  R[4]  = 1 - 2 * x * x - 2 * z * z;
-  R[5]  =     2 * y * z - 2 * x * w;
+//   T_B_C << 1,            0,           -0,   -0.0405463,
+//            0,           -1, -8.74228e-08,     0.443597,
+//            0,  8.74228e-08,           -1,     0.830352,
+//            0,            0,            0,            1;
 
-  R[6]  =     2 * x * z - 2 * y * w;
-  R[7]  =     2 * y * z + 2 * x * w;
-  R[8]  = 1 - 2 * x * x - 2 * y * y;
+//   // Camera -> object
+// 	Matrix4d T_C_o; 
+//   float T_C_o_Q[4];
+//   euler_to_quaternion(0, 180, 0, T_C_o_Q);
+//   float T_C_o_r[9];
+//   Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
+//   // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
+// 	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], path_point_3D.x,
+//            T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], path_point_3D.y,
+//            T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], path_point_3D.z,
+//            0,          0,          0,          1;
+//   // cout << "T_C_o: " << endl << T_C_o << endl;
 
-}
 
-//欧拉角 -> 四元数
-void euler_to_quaternion(float Yaw, float Pitch, float Roll, float Q[4])
-{
-  float yaw   = Yaw   * M_PI / 180 ;
-  float pitch = Roll  * M_PI / 180 ;
-  float roll  = Pitch * M_PI / 180 ;
+//   // Base -> object
+// 	Matrix4d T_B_o; 
 
-  float qx = sin(roll/2) * cos(pitch/2) * cos(yaw/2) - cos(roll/2) * sin(pitch/2) * sin(yaw/2);
-  float qy = cos(roll/2) * sin(pitch/2) * cos(yaw/2) + sin(roll/2) * cos(pitch/2) * sin(yaw/2);
-  float qz = cos(roll/2) * cos(pitch/2) * sin(yaw/2) - sin(roll/2) * sin(pitch/2) * cos(yaw/2);
-  float qw = cos(roll/2) * cos(pitch/2) * cos(yaw/2) + sin(roll/2) * sin(pitch/2) * sin(yaw/2);
+//   T_B_o = T_B_C * T_C_o;
+//   cout << "T_B_o: " << endl << T_B_o << endl;
+//   // cout << endl;
+
+// }
+
+
+// void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
+// {
+//   float xMin = 180, xMax = 530;
+//   float yMin = 140, yMax = 300;
+
+//   color_pic(cv::Rect(xMin,yMin,xMax-xMin,yMax-yMin)).copyTo(color_pic);
  
-  Q[0] = qx;
-  Q[1] = qy;
-  Q[2] = qz;
-  Q[3] = qw;
-}
+//   // 遍历彩色图
+//   // InterestImage.copyTo(result_image) ;//拷贝
+
+//   for (int m = 0; m < color_pic.rows; m++)  //160
+//   {
+//     for (int n = 0; n < color_pic.cols; n++) //350
+//     {
+//       // if((n == 22  && m == 67)  ||
+//       //    (n == 50  && m == 88)  ||
+//       //    (n == 83  && m == 105) ||
+//       //    (n == 124 && m == 115) ||
+//       //    (n == 172 && m == 104) ||
+//       //    (n == 223 && m == 80)  ||
+//       //    (n == 273 && m == 67)  ||
+//       //    (n == 301 && m == 78)  ||
+//       //    (n == 330 && m == 115) )
+//       // {
+//       //   color_pic.ptr<uchar>(m)[n*3]   = 0;
+//       //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
+//       //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
+//       // }
+
+//       // if( m == 80 || m == 72 )
+//       // {
+//       //   color_pic.ptr<uchar>(m)[n*3]   = 0;
+//       //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
+//       //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
+//       // }
+
+//     }
+//   }
+//   cv::imshow("crop_image", color_pic);
 
 
-void Obtain_pathPoint_BaseCoor(Point3f path_point_3D)
-{
-  // Base -> Camera
-	Matrix4d T_B_C; 
+//   vector<Point2i> path_point;
+//   Point2i p;
+//   p.x = 22  + xMin; p.y = 67  + yMin; path_point.push_back(p);
+//   p.x = 50  + xMin; p.y = 88  + yMin; path_point.push_back(p);
+//   p.x = 83  + xMin; p.y = 105 + yMin; path_point.push_back(p);
+//   p.x = 124 + xMin; p.y = 115 + yMin; path_point.push_back(p);
+//   p.x = 172 + xMin; p.y = 104 + yMin; path_point.push_back(p);
+//   p.x = 223 + xMin; p.y = 80  + yMin; path_point.push_back(p);
+//   p.x = 273 + xMin; p.y = 67  + yMin; path_point.push_back(p);
+//   p.x = 301 + xMin; p.y = 78  + yMin; path_point.push_back(p);
+//   p.x = 330 + xMin; p.y = 115 + yMin; path_point.push_back(p);
 
-  T_B_C << 1,            0,           -0,   -0.0405463,
-           0,           -1, -8.74228e-08,     0.443597,
-           0,  8.74228e-08,           -1,     0.830352,
-           0,            0,            0,            1;
+//   for (int i = 0; i < path_point.size(); i++)  //160
+//   {
+//     Point3f p;
+//     float d = depth_pic.ptr<float>(path_point[i].y)[path_point[i].x]; 
+//     p.z = double(d) / camera_factor;
+//     p.x = (path_point[i].x - camera_cx) * p.z / camera_fx; 
+//     p.y = (path_point[i].y - camera_cy) * p.z / camera_fy;
 
-  // Camera -> object
-	Matrix4d T_C_o; 
-  float T_C_o_Q[4];
-  euler_to_quaternion(0, 180, 0, T_C_o_Q);
-  float T_C_o_r[9];
-  Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
-  // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
-	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], path_point_3D.x,
-           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], path_point_3D.y,
-           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], path_point_3D.z,
-           0,          0,          0,          1;
-  // cout << "T_C_o: " << endl << T_C_o << endl;
-
-
-  // Base -> object
-	Matrix4d T_B_o; 
-
-  T_B_o = T_B_C * T_C_o;
-  cout << "T_B_o: " << endl << T_B_o << endl;
-  // cout << endl;
-
-}
-
-
-void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
-{
-  float xMin = 180, xMax = 530;
-  float yMin = 140, yMax = 300;
-
-  color_pic(cv::Rect(xMin,yMin,xMax-xMin,yMax-yMin)).copyTo(color_pic);
- 
-  // 遍历彩色图
-  // InterestImage.copyTo(result_image) ;//拷贝
-
-  for (int m = 0; m < color_pic.rows; m++)  //160
-  {
-    for (int n = 0; n < color_pic.cols; n++) //350
-    {
-      // if((n == 22  && m == 67)  ||
-      //    (n == 50  && m == 88)  ||
-      //    (n == 83  && m == 105) ||
-      //    (n == 124 && m == 115) ||
-      //    (n == 172 && m == 104) ||
-      //    (n == 223 && m == 80)  ||
-      //    (n == 273 && m == 67)  ||
-      //    (n == 301 && m == 78)  ||
-      //    (n == 330 && m == 115) )
-      // {
-      //   color_pic.ptr<uchar>(m)[n*3]   = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
-      // }
-
-      // if( m == 80 || m == 72 )
-      // {
-      //   color_pic.ptr<uchar>(m)[n*3]   = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+1] = 0;
-      //   color_pic.ptr<uchar>(m)[n*3+2] = 200;
-      // }
-
-    }
-  }
-  cv::imshow("crop_image", color_pic);
-
-
-  vector<Point2i> path_point;
-  Point2i p;
-  p.x = 22  + xMin; p.y = 67  + yMin; path_point.push_back(p);
-  p.x = 50  + xMin; p.y = 88  + yMin; path_point.push_back(p);
-  p.x = 83  + xMin; p.y = 105 + yMin; path_point.push_back(p);
-  p.x = 124 + xMin; p.y = 115 + yMin; path_point.push_back(p);
-  p.x = 172 + xMin; p.y = 104 + yMin; path_point.push_back(p);
-  p.x = 223 + xMin; p.y = 80  + yMin; path_point.push_back(p);
-  p.x = 273 + xMin; p.y = 67  + yMin; path_point.push_back(p);
-  p.x = 301 + xMin; p.y = 78  + yMin; path_point.push_back(p);
-  p.x = 330 + xMin; p.y = 115 + yMin; path_point.push_back(p);
-
-  for (int i = 0; i < path_point.size(); i++)  //160
-  {
-    Point3f p;
-    float d = depth_pic.ptr<float>(path_point[i].y)[path_point[i].x]; 
-    p.z = double(d) / camera_factor;
-    p.x = (path_point[i].x - camera_cx) * p.z / camera_fx; 
-    p.y = (path_point[i].y - camera_cy) * p.z / camera_fy;
-
-    cout << "i-th: " << i+1 << endl;
-    Obtain_pathPoint_BaseCoor(p);
-  }
+//     cout << "i-th: " << i+1 << endl;
+//     Obtain_pathPoint_BaseCoor(p);
+//   }
 
   
 
@@ -196,7 +157,7 @@ void RGBimage_seam_extration(Mat color_pic, Mat depth_pic)
 	// imshow("Contours Image",imageContours); //轮廓
 	// imshow("Point of Contours",Contours);   //向量contours内保存的所有轮廓点集
  
-}
+// }
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -497,7 +458,7 @@ vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Pt
   }
 
   // cout << "Normal:\n" << Normal << endl;
-  // cout << "size:" << Normal.size() << endl; 
+  cout << "size:" << Normal.size() << endl << endl; 
   
   return  Normal; 
 }
@@ -525,11 +486,7 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
   vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
   vector<float> pointRadiusSquaredDistance;
   float radius = 0.006;
-
-
-  cout << "Normal:\n" << Normal << endl;
-  cout << "size:" << Normal.size() << endl; 
-
+ 
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  //求每个点的领域方向方差
   vector<float> PointVariance;
@@ -559,12 +516,11 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
 
     PointVariance.push_back(variance);
   }
-
-  for(float j = 0; j < PointVariance.size(); j++)
-  {
-    cout << "PointVariance: " << PointVariance[j] << endl;
-  }
-  cout << "size:" << PointVariance.size() << endl; 
+  // for(float j = 0; j < PointVariance.size(); j++)
+  // {
+  //   cout << "PointVariance: " << PointVariance[j] << endl;
+  // }
+  cout << "size:" << PointVariance.size() << endl << endl; 
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   //求每个点的平面变化描述子
@@ -592,6 +548,11 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
 
     PointDescriptor.push_back(variance);
   }
+  // for(float j = 0; j < PointDescriptor.size(); j++)
+  // {
+  //   cout << "PointDescriptor: " << PointDescriptor[j] << endl;
+  // }
+  cout << "size:" << PointDescriptor.size() << endl << endl; 
 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -656,7 +617,7 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
     cout << "cloud_ptr_show->points.size(): "  << cloud_ptr_show->points.size() << endl ;
 
     pcl::toROSMsg(*cloud_ptr_show, pub_pointcloud);
-    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_pointcloud.header.frame_id = "base_link";
     pub_pointcloud.header.stamp = ros::Time::now();
     pointcloud_publisher.publish(pub_pointcloud);
 
@@ -774,7 +735,7 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
     }
 
     pcl::toROSMsg(*cloud_ptr_show, pub_pointcloud);
-    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_pointcloud.header.frame_id = "base_link";
     pub_pointcloud.header.stamp = ros::Time::now();
     pointcloud_publisher.publish(pub_pointcloud);
 

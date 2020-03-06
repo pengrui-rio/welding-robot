@@ -14,6 +14,10 @@
 #include <geometry_msgs/PoseStamped.h>
 #include <geometry_msgs/Pose.h>
 
+#include <tf/transform_listener.h>
+#include <tf/transform_broadcaster.h>
+#include <std_msgs/Bool.h>
+
 // PCL lib
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -78,7 +82,7 @@ void color_Callback(const sensor_msgs::ImageConstPtr& color_msg)
     ROS_ERROR("Could not convert from '%s' to 'bgr8'.", color_msg->encoding.c_str());
   }
   color_pic = color_ptr->image;
-  cv::imshow("color_view", color_pic);
+  // cv::imshow("color_view", color_pic);
   // RGBimage_seam_extration(color_pic);
 
   waitKey(1); 
@@ -123,9 +127,9 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
 }
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void trajectory_planning(ros::Rate naptime, Cloud::Ptr cloud_ptr, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
+void trajectory_planning(ros::Rate naptime, Cloud::Ptr cloud_ptr, pcl::PointXYZ realsense_position, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
 void analyze_realsense_data(PointCloud::Ptr cloud);
-void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud, Cloud::Ptr cloud_ptr);
+void coordinate_transformation(geometry_msgs::Pose Base_End, PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud, Cloud::Ptr cloud_ptr);
 
 
 int main(int argc, char **argv)
@@ -158,34 +162,51 @@ int main(int argc, char **argv)
   PointCloud::Ptr map_pointcloud    (new PointCloud);
   Cloud::Ptr      cloud_ptr         (new Cloud);
 
+  //tf:
+  tf::TransformListener listener;
+  tf::TransformBroadcaster tf_broadcaster;
 
   // trajectory_planning(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
 
   while (ros::ok()) 
   {
-    analyze_realsense_data(camera_pointcloud);
-    coordinate_transformation(camera_pointcloud, map_pointcloud, cloud_ptr);
+    tf::StampedTransform transform;
+    try
+    {
+      listener.lookupTransform("/base_link", "/tool0", ros::Time(0), transform);
+    }
+    catch (tf::TransformException ex)
+    {
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
+    geometry_msgs::Pose Base_End;
+    Base_End.position.x = transform.getOrigin().x();    Base_End.position.y = transform.getOrigin().y();    Base_End.position.z = transform.getOrigin().z();
+    Base_End.orientation.x = transform.getRotation().x(); Base_End.orientation.y = transform.getRotation().y(); Base_End.orientation.z = transform.getRotation().z(); Base_End.orientation.w = transform.getRotation().w();
+    // cout << "Base_End: " << endl << Base_End << endl;
+    pcl::PointXYZ realsense_position = realsense_position_acquisition(Base_End);
+    cout << "realsense_position: " << endl << realsense_position << endl;
+    //////////////////////////////////////////////////////////////////////////////////////
 
+
+    analyze_realsense_data(camera_pointcloud);
     pcl::toROSMsg(*camera_pointcloud, pub_camera_pointcloud);
     pub_camera_pointcloud.header.frame_id = "camera_color_optical_frame";//camera_color_optical_frame
     pub_camera_pointcloud.header.stamp = ros::Time::now();
-    pointcloud_publisher.publish(pub_camera_pointcloud);
+    camera_pointcloud_publisher.publish(pub_camera_pointcloud);
+
+
+    coordinate_transformation(Base_End, camera_pointcloud, map_pointcloud, cloud_ptr);
+    pcl::toROSMsg(*map_pointcloud, pub_map_pointcloud);
+    pub_map_pointcloud.header.frame_id = "base_link";//base_link
+    pub_map_pointcloud.header.stamp = ros::Time::now();
+    map_pointcloud_publisher.publish(pub_map_pointcloud);
 
 
     if(process_flag == 1)
     {
-      cloud_ptr->points.clear();
-      for(float i = 0; i < camera_pointcloud->points.size(); i++)
-      {
-        pcl::PointXYZ p;
-        p.x = camera_pointcloud->points[i].x;
-        p.y = camera_pointcloud->points[i].y;
-        p.z = camera_pointcloud->points[i].z;
-        cloud_ptr->points.push_back( p );    
-      }
-
       cout << "trajectory_planning" << endl;
-      trajectory_planning(naptime, cloud_ptr, path_publisher, pub_pointcloud, pointcloud_publisher);
+      trajectory_planning(naptime, cloud_ptr, realsense_position, path_publisher, pub_pointcloud, pointcloud_publisher);
       break;
     }
 
@@ -236,37 +257,34 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
 
       // 从rgb图像中获取它的颜色
       // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
-      p.b = 200;//color_pic.ptr<uchar>(m)[n*3];
-      p.g = 200;//color_pic.ptr<uchar>(m)[n*3+1];
-      p.r = 200;//color_pic.ptr<uchar>(m)[n*3+2];
+      p.b = color_pic.ptr<uchar>(m)[n*3];
+      p.g = color_pic.ptr<uchar>(m)[n*3+1];
+      p.r = color_pic.ptr<uchar>(m)[n*3+2];
 
 
       cloud->points.push_back( p );        
     }
   }
 }
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud, Cloud::Ptr cloud_ptr)
+void coordinate_transformation(geometry_msgs::Pose Base_End, PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud, Cloud::Ptr cloud_ptr)
 {
   for (float i = 0; i < camera_pointcloud->points.size(); i++)  //480
   {
-    pcl::PointXYZRGB p, p_z, p_x, p_y, p_pushback; 
+    pcl::PointXYZRGB p_pushback; 
     pcl::PointXYZ p_cloud_ptr;
+    pcl::PointXYZ Cam_Object;
 
-    p.x    = camera_pointcloud->points[i].x; 
-    p.y    = camera_pointcloud->points[i].y; 
-    p.z    = camera_pointcloud->points[i].z; 
+    Cam_Object.x    = camera_pointcloud->points[i].x; 
+    Cam_Object.y    = camera_pointcloud->points[i].y; 
+    Cam_Object.z    = camera_pointcloud->points[i].z; 
 
-    rotate_y(p.x,   p.y,   p.z,   current_yaw    , &p_y.x, &p_y.y, &p_y.z);
-    rotate_z(p_y.x, p_y.y, p_y.z, current_roll   , &p_x.x, &p_x.y, &p_x.z); 
-    rotate_x(p_x.x, p_x.y, p_x.z, current_pitch  , &p_z.x, &p_z.y, &p_z.z);
-
-    //bottom_straight:
-    float l = 0.195, w = 0.195, o = 0.0;
+    pcl::PointXYZ p_tranform = camera_to_base_transform(Base_End, Cam_Object);
     
-    p_cloud_ptr.x = p_pushback.x = current_x + p_z.x + 0 + o ;//+ -0.034; 
-    p_cloud_ptr.y = p_pushback.y = current_y + p_z.y + 0 + w;// + 0.1765; 
-    p_cloud_ptr.z = p_pushback.z = current_z + p_z.z + 0 + l  ;//+ 0.225; 
+    p_cloud_ptr.x = p_pushback.x = p_tranform.x; 
+    p_cloud_ptr.y = p_pushback.y = p_tranform.y;  
+    p_cloud_ptr.z = p_pushback.z = p_tranform.z; 
 
     p_pushback.b = camera_pointcloud->points[i].b;
     p_pushback.g = camera_pointcloud->points[i].g;
@@ -277,15 +295,14 @@ void coordinate_transformation(PointCloud::Ptr camera_pointcloud, PointCloud::Pt
     cloud_ptr->points.push_back( p_cloud_ptr );
   }
 }
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 void show_pointcloud_Rviz(int show_Pointcloud_timeMax, PointCloud::Ptr show_Rviz_cloud, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   for(float i = 0; i < show_Pointcloud_timeMax; i++)
   {
     pcl::toROSMsg(*show_Rviz_cloud, pub_pointcloud);
-    pub_pointcloud.header.frame_id = "camera_color_optical_frame";
+    pub_pointcloud.header.frame_id = "base_link";
     pub_pointcloud.header.stamp = ros::Time::now();
     pointcloud_publisher.publish(pub_pointcloud);
   }
@@ -309,7 +326,7 @@ Cloud::Ptr cloud_ptr_origin_copy(Cloud::Ptr cloud_ptr_new)
   return cloud_ptr_origin;
 }
 
-void trajectory_planning(ros::Rate naptime, Cloud::Ptr cloud_ptr0, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
+void trajectory_planning(ros::Rate naptime, Cloud::Ptr cloud_ptr, pcl::PointXYZ realsense_position, ros::Publisher path_publisher, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   clock_t begin = clock();
 
@@ -317,49 +334,56 @@ void trajectory_planning(ros::Rate naptime, Cloud::Ptr cloud_ptr0, ros::Publishe
   float sphere_computation = 0.005;
 
   //Seam Location:    
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "1.读入原始pointcloud" << endl << endl;
+  PointCloud::Ptr cloud_ptr_show (new PointCloud);
+  // Cloud::Ptr cloud_ptr_new    = read_pointcloud(cloud_ptr_show);
+  SurfaceProfile_Reconstruction(cloud_ptr, cloud_ptr_show);
+  Cloud::Ptr cloud_ptr_origin = cloud_ptr_origin_copy(cloud_ptr);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "2.算出所有点的法向量" << endl << endl;
+  Point3f Cam_Position; Cam_Position.x = realsense_position.x; Cam_Position.y = realsense_position.y; Cam_Position.z = realsense_position.z; 
+  vector<Point3f> Normal = PointNormal_Computation(cloud_ptr, cloud_ptr_show, Cam_Position);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // cout << "1.读入原始pointcloud" << endl << endl;
-  // PointCloud::Ptr cloud_ptr_show (new PointCloud);
-  // // Cloud::Ptr cloud_ptr_new    = read_pointcloud(cloud_ptr_show);
-  // SurfaceProfile_Reconstruction(cloud_ptr, cloud_ptr_show);
-  // Cloud::Ptr cloud_ptr_origin = cloud_ptr_origin_copy(cloud_ptr);
-  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // cout << "2.算出所有点的法向量" << endl << endl;
-  // Point3f Cam_Position; Cam_Position.x = 0; Cam_Position.y = 0; Cam_Position.z = 0; 
-  // vector<Point3f> Normal = PointNormal_Computation(cloud_ptr, cloud_ptr_show, Cam_Position);
-  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  // //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // cout << "3.剔除均匀变化的部分" << endl << endl;
-  // Delete_SmoothChange_Plane(cloud_ptr, cloud_ptr_show, Normal, pub_pointcloud, pointcloud_publisher);
-  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // cout << "4.人工筛选出可能的焊接缝" << endl << endl;
-  // int seam_label = 0;
-  // Screen_Candidate_Seam(cloud_ptr, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  cout << "3.剔除均匀变化的部分" << endl << endl;
+  Delete_SmoothChange_Plane(cloud_ptr, cloud_ptr_show, Normal, pub_pointcloud, pointcloud_publisher);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "4.人工筛选出可能的焊接缝" << endl << endl;
+  int seam_label = 0;
+  Screen_Candidate_Seam(cloud_ptr, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);  // geometry_msgs::Pose path_point;
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
   //Trajectory Planning:
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "5.提取焊接缝边界" << endl << endl;
-  PointCloud::Ptr cloud_ptr_show (new PointCloud);
-  Cloud::Ptr cloud_ptr (new Cloud);
-  pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/pointcloud_processing/src/seam_cloud0.pcd", *cloud_ptr);
-  Cloud::Ptr cloud_ptr_origin = cloud_ptr_origin_copy(cloud_ptr);
-
   Cloud::Ptr seam_edge = Extract_Seam_edge(cloud_ptr, cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "6.焊接缝轨迹生成" << endl << endl; 
-  Cloud::Ptr PathPoint_Position = PathPoint_Position_Generation(seam_edge, seam_edge, cloud_ptr_show);
+  Cloud::Ptr PathPoint_Position = PathPoint_Position_Generation(seam_edge, cloud_ptr_origin, cloud_ptr_show);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // cout << "7.焊接缝轨迹点旋转方向" << endl << endl;
-  // PathPoint_Orientation_Generation(PathPoint_Position, cloud_ptr_origin, cloud_ptr, cloud_ptr_show);
-  // show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  cout << "7.焊接缝轨迹点旋转方向" << endl << endl;
+  PathPoint_Orientation_Generation(PathPoint_Position, cloud_ptr_origin, cloud_ptr, cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
 
 
+  geometry_msgs::Pose path_point;
+  for(int i = 0; i < PathPoint_Position->points.size(); i++)
+  {
+    path_point.position.x = PathPoint_Position->points[i].x;//- 0.035;
+    path_point.position.y = PathPoint_Position->points[i].y ;
+    path_point.position.z = PathPoint_Position->points[i].z;//+ 0.036;
+    // path_point.orientation.x = orientation_pathpoints[i];
+
+    path_publisher.publish(path_point);
+
+    naptime.sleep(); // wait for remainder of specified period; 
+  }
+  cout << "3D path is published !!!!!!!!!" << endl;
 
   cout << endl;
   clock_t end = clock();

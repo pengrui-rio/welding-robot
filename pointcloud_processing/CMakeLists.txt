@@ -7,6 +7,8 @@ find_package(PCL 1.6 REQUIRED)
  
 
 find_package(catkin REQUIRED COMPONENTS
+  tf
+  tf2
   geometry_msgs
   roscpp
   rospy

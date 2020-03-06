@@ -1,0 +1,69 @@
+
+
+    <!-- Frame coincident with all-zeros TCP on UR controller -->
+    <!-- I added this on 23 May 2019 -->
+    <!-- Changed to make sure the Planning Marker is at the tip of the torch -->
+    <!-- Changed on 11 June 2019. -->
+    <!-- This is the end effector, the Welding Torch -->
+    <link name="${prefix}tool0" >
+      <visual>
+        <geometry>
+          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+<!--        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0.0 -0.0 -0.0"/> -->
+          <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0.0 0.0 0.0"/>
+      </visual>
+      <collision>
+        <geometry>
+          <mesh filename="package://welding_support/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
+        </geometry>
+<!--        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0.0 -0.0 -0.0"/> -->
+          <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0.0 0.0 0.0"/>
+      </collision>
+    </link>
+
+    <joint name="${prefix}wrist_3_link-tool0_fixed_joint" type="fixed">
+<!--
+      <origin xyz="0 ${wrist_3_length+0.305} -0.05" rpy="${pi/-2.0} 0 0"/>
+-->
+      <origin xyz="0 ${wrist_3_length+0.312} -0.045" rpy="${pi/-2.0} 0 0"/>
+
+<!--
+      <origin xyz="0.05 ${wrist_3_length+0.305} 0" rpy="${pi/-2.0} ${pi/-2.0} 0"/>
+-->
+      <parent link="${prefix}wrist_3_link"/>
+      <child link="${prefix}tool0"/>
+    </joint>
+
+
+    <!-- Victor Wu added this on 13 June 2019 -->
+    <!-- This is the link for the tail cable of the torch -->
+    <link name="${prefix}tail" >
+      <visual>
+         <geometry>
+           <cylinder length="0.1" radius="0.0125"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+      </visual>
+      <collision>
+         <geometry>
+           <cylinder length="0.1" radius="0.0125"/>
+         </geometry>
+         <origin rpy="0 0 0" xyz="0 0 0"/>
+      </collision>
+    </link>
+
+
+    <!-- Victor Wu added this on 13 June 2019 -->
+    <!-- This is a fixed joint connecting the cable to the tail of the torch -->
+    <joint name="${prefix}wrist_3_link-tail_fixed_joint" type="fixed">
+<!--
+       <origin xyz="-0.07 ${wrist_3_length-0.05} 0" rpy="${-pi/2.0} 0 0"/>
+-->
+       <origin xyz="0 ${wrist_3_length-0.065} 0.07" rpy="${-pi/2.0} 0 0"/>
+       <parent link="${prefix}wrist_3_link"/>
+       <child link="${prefix}tail"/>
+    </joint>
+
+
+

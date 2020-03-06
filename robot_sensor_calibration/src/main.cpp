@@ -71,15 +71,25 @@ float current_x = 0  , current_y = 0    , current_z = 0;
 float current_yaw = 0, current_pitch = 0, current_roll = 0;
 float current_orientation_x = 0, current_orientation_y = 0, current_orientation_z = 0, current_orientation_w = 0;  
 
+//receive marker current pose
+float marker_center_x = 0, marker_center_y = 0, marker_center_z = 0;
 
+void marker_info_Callback(const geometry_msgs::Pose& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
+{
+
+  marker_center_x     = msg.position.x;
+  marker_center_y     = msg.position.y; 
+  marker_center_z     = msg.position.z;
+
+  // cout << "_x: " << marker_center_x << " _y: " << marker_center_y << " _z: " << marker_center_z << endl;
+}
 
 void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
 {
-
-  ROS_INFO("I heard the pose from the robot"); 
-  ROS_INFO("the position(x,y,z) is %f , %f, %f", msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
-  ROS_INFO("the orientation(yaw, pitch, roll) is %f , %f, %f ", msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
-  ROS_INFO("the time we get the pose is %f",  msg->header.stamp.sec + 1e-9*msg->header.stamp.nsec);
+  // ROS_INFO("I heard the pose from the robot"); 
+  // ROS_INFO("the position(x,y,z) is %f , %f, %f", msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
+  // ROS_INFO("the orientation(yaw, pitch, roll) is %f , %f, %f ", msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
+  // ROS_INFO("the time we get the pose is %f",  msg->header.stamp.sec + 1e-9*msg->header.stamp.nsec);
 
   current_x     = msg->pose.position.x;
   current_y     = msg->pose.position.y; 
@@ -90,15 +100,13 @@ void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg)
   current_orientation_z  = msg->pose.orientation.z;
   current_orientation_w  = msg->pose.orientation.w;
 
-  cout << endl << endl;
-
-
+  // cout << endl << endl;
 }
  
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
  
 void EyeinHand_compute_TEC(void);
-void EyeinHand_Result_validation(void);
+Point3f EyeinHand_Result_validation(void);
 void EyetoHand_compute_TBC(void);
 
 
@@ -111,10 +119,11 @@ int main(int argc, char **argv)
  
   //subscriber:
   image_transport::ImageTransport it(nh);
-  ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
+  ros::Subscriber robot_currentpose_sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
+  ros::Subscriber marker_info_sub       = nh.subscribe("marker_info"      , 10, marker_info_Callback);
 
   // EyetoHand_compute_TBC();
-  EyeinHand_compute_TEC();
+  // EyeinHand_compute_TEC();
   // EyeinHand_Result_validation();
   cout << " \n" << endl; 
 
@@ -124,31 +133,12 @@ int main(int argc, char **argv)
 
   while (ros::ok()) 
   {
-    // // listen other coordinates
-    tf::StampedTransform transform;
-    try
-    {
-      listener.lookupTransform("/tool0", "/camera_color_optical_frame", ros::Time(0), transform);
-    }
-    catch (tf::TransformException ex)
-    {
-      ROS_ERROR("%s",ex.what());
-      ros::Duration(1.0).sleep();
-    }
-
-    // cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
-    //                                   << transform.getOrigin().y() << " " 
-    //                                   << transform.getOrigin().z()<< endl;
-    // cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
-    //                                     << transform.getRotation().y() << " " 
-    //                                     << transform.getRotation().z() << " " 
-    //                                     << transform.getRotation().w() << endl<< endl;
-
-
-    //broadcast ground truth of AR marker:
-    double px = 0.056;//double px = -0.04;
-    double py = 0.328;
-    double pz = 0.001;
+    // EyeinHand_compute_TEC();
+    Point3f object = EyeinHand_Result_validation();
+    cout << "object position: " << object << endl;
+    double px = object.x;//double px = -0.04;
+    double py = object.y;
+    double pz = object.z + 0.01;
     float T_o_B_q[4];
     euler_to_quaternion(90, 0, 0, T_o_B_q);
     double qx = T_o_B_q[0];
@@ -170,9 +160,50 @@ int main(int argc, char **argv)
 
 
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    // listen other coordinates
+    tf::StampedTransform transform;
+    try
+    {
+      listener.lookupTransform("/tool0", "/camera_color_optical_frame", ros::Time(0), transform);
+    }
+    catch (tf::TransformException ex)
+    {
+      ROS_ERROR("%s",ex.what());
+      ros::Duration(1.0).sleep();
+    }
+
+    cout << "CamToOutput.getOrigin: " << transform.getOrigin().x() << " "
+                                      << transform.getOrigin().y() << " " 
+                                      << transform.getOrigin().z()<< endl;
+    cout << "CamToOutput.getrotation: " << transform.getRotation().x() << " " 
+                                        << transform.getRotation().y() << " " 
+                                        << transform.getRotation().z() << " " 
+                                        << transform.getRotation().w() << endl<< endl;
 
 
+    //broadcast ground truth of AR marker:
+    // double px = 0.056;//double px = -0.04;
+    // double py = 0.328;
+    // double pz = 0.001;
+    // float T_o_B_q[4];
+    // euler_to_quaternion(90, 0, 0, T_o_B_q);
+    // double qx = T_o_B_q[0];
+    // double qy = T_o_B_q[1];
+    // double qz = T_o_B_q[2];
+    // double qw = T_o_B_q[3];
 
+    // tf::Quaternion rotation (qx,qy,qz,qw);
+    // tf::Vector3 origin (px,py,pz);
+    // tf::Transform t (rotation, origin);
+
+    // std::string markerFrame = "GT_ar_marker_";
+    // std::stringstream out;
+    // out << 1;
+    // std::string id_string = out.str();
+    // markerFrame += id_string;
+    // tf::StampedTransform GT_Marker (t, ros::Time::now(), "/base_link", markerFrame.c_str());
+    // tf_broadcaster. sendTransform(GT_Marker);
 
 
 
@@ -275,61 +306,66 @@ void EyeinHand_compute_TEC(void)
 {
   //Base -> End:
   float T_B_E_Q[4];
-  euler_to_quaternion(20, -170, 0, T_B_E_Q);
-  T_B_E_Q[0] = -0.999961879971;
-  T_B_E_Q[1] = -0.00503657323601;
-  T_B_E_Q[2] = -0.00243954619579;
-  T_B_E_Q[3] =  0.00670224956124;
+  // euler_to_quaternion(20, -170, 0, T_B_E_Q);
+  T_B_E_Q[0] = current_orientation_x;
+  T_B_E_Q[1] = current_orientation_y;
+  T_B_E_Q[2] = current_orientation_z;
+  T_B_E_Q[3] = current_orientation_w;
 
   float T_B_E_r[9];
   Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);
   // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
   Matrix4d T_B_E; // Base -> End
-	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], 0.000,
-           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], 0.2506,
-           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], 0.4517,
+	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], current_x,
+           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], current_y,
+           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], current_z,
            0,          0,          0,          1;
-  cout << "T_B_E: " << endl << T_B_E << endl;
-  cout << "purple: " << 180*atan2(T_B_E_r[2], T_B_E_r[8]) / M_PI << endl;
-  cout << "red: "    << 180*atan2(T_B_E_r[3], T_B_E_r[4]) / M_PI << endl;
-  cout << "green: "  << 180*asin(-T_B_E_r[5])             / M_PI << endl;
-  cout << endl;
+  // cout << "T_B_E: " << endl << T_B_E << endl;
+  // cout << "purple: " << 180*atan2(T_B_E_r[2], T_B_E_r[8]) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_B_E_r[3], T_B_E_r[4]) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_B_E_r[5])             / M_PI << endl;
+  // cout << endl;
 
 
   // Camera -> object
 	Matrix4d T_C_o; 
   float T_C_o_Q[4];
-  euler_to_quaternion(-90, -180, 0, T_C_o_Q);
+  euler_to_quaternion(0, 0, 0, T_C_o_Q);
   float T_C_o_r[9];
   Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
   // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
-	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], -0.01479443,
-           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], -0.0157338,
-           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8],  0.423117,
+	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], marker_center_x,
+           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], marker_center_y,
+           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], marker_center_z,
            0,          0,          0,          1;
-  cout << "T_C_o: " << endl << T_C_o << endl;
-  cout << "purple: " << 180*atan2(T_C_o_r[2], T_C_o_r[8]) / M_PI << endl;
-  cout << "red: "    << 180*atan2(T_C_o_r[3], T_C_o_r[4]) / M_PI << endl;
-  cout << "green: "  << 180*asin(-T_C_o_r[5])             / M_PI << endl;
-  cout << endl;
+  // cout << "T_C_o: " << endl << T_C_o << endl;
+  // cout << "purple: " << 180*atan2(T_C_o_r[2], T_C_o_r[8]) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_C_o_r[3], T_C_o_r[4]) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_C_o_r[5])             / M_PI << endl;
+  // cout << endl;
 
 
   // object -> Base
 	Matrix4d T_o_B; 
   float T_o_B_Q[4];
-  euler_to_quaternion(90, 0, 0, T_o_B_Q);
+  // euler_to_quaternion(90, 0, 0, T_o_B_Q);
+  T_o_B_Q[0] = current_orientation_x;
+  T_o_B_Q[1] = current_orientation_y;
+  T_o_B_Q[2] = current_orientation_z;
+  T_o_B_Q[3] = current_orientation_w;
+
   float T_o_B_r[9];
   Quaternion_to_RotationMatrix(T_o_B_Q[0], T_o_B_Q[1], T_o_B_Q[2], T_o_B_Q[3], T_o_B_r);
   // euler_to_RotationMatrix(90, 0, 0, T_o_B_r);
-	T_o_B << T_o_B_r[0], T_o_B_r[1], T_o_B_r[2], -0.04,
-           T_o_B_r[3], T_o_B_r[4], T_o_B_r[5], 0.328,
+	T_o_B << T_o_B_r[0], T_o_B_r[1], T_o_B_r[2], 0,
+           T_o_B_r[3], T_o_B_r[4], T_o_B_r[5], 0.524,
            T_o_B_r[6], T_o_B_r[7], T_o_B_r[8], 0.001,
            0,          0,          0,          1;
-  cout << "T_o_B: " << endl << T_o_B << endl;
-  cout << "purple: " << 180*atan2(T_o_B_r[2], T_o_B_r[8]) / M_PI << endl;
-  cout << "red: "    << 180*atan2(T_o_B_r[3], T_o_B_r[4]) / M_PI << endl;
-  cout << "green: "  << 180*asin(-T_o_B_r[5])             / M_PI << endl;
-  cout << endl;
+  // cout << "T_o_B: " << endl << T_o_B << endl;
+  // cout << "purple: " << 180*atan2(T_o_B_r[2], T_o_B_r[8]) / M_PI << endl;
+  // cout << "red: "    << 180*atan2(T_o_B_r[3], T_o_B_r[4]) / M_PI << endl;
+  // cout << "green: "  << 180*asin(-T_o_B_r[5])             / M_PI << endl;
+  // cout << endl;
 
 
 
@@ -340,61 +376,73 @@ void EyeinHand_compute_TEC(void)
 	cout << "T_E_C: " << endl << T_E_C << endl;
 
   // T_E_C: 
-  //   0.999937  -0.0100401 -0.00494651  -0.0247213
-  //   0.0101056     0.99986   0.0133794  -0.0615432
-  // 0.00481148  -0.0134286    0.999898    0.028287
-  //         -0           0           0           1
+  //            1   2.7798e-18            0   -0.0401405
+  // -5.57321e-19            1  2.71051e-20    -0.116625
+  //   1.0842e-19            0            1    0.0707586
+  //            0            0            0            1
+
 
 
 }
 
-void EyeinHand_Result_validation(void)
+Point3f EyeinHand_Result_validation(void)
 {
   //Base -> End:
   float T_B_E_Q[4];
-  T_B_E_Q[0] = -0.999951264231;
-  T_B_E_Q[1] = -0.00534872895094;
-  T_B_E_Q[2] = -0.00359072703145;
-  T_B_E_Q[3] = 0.0074811055935;
+  T_B_E_Q[0] = current_orientation_x;
+  T_B_E_Q[1] = current_orientation_y;
+  T_B_E_Q[2] = current_orientation_z;
+  T_B_E_Q[3] = current_orientation_w;
+
   float T_B_E_r[9];
   Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);
+  // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
   Matrix4d T_B_E; // Base -> End
-	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], 0.0187,
-           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], 0.2508,
-           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], 0.4520,
+	T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], current_x,
+           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], current_y,
+           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], current_z,
            0,          0,          0,          1;
-  cout << "T_B_E: " << endl << T_B_E << endl;
+  // cout << "T_B_E: " << endl << T_B_E << endl;
 
 
   // End -> Camera
   Matrix4d T_E_C;
-	T_E_C << 0.999917,   -0.0106432, -0.00726122, -0.0256469,
-           0.0107508,   0.999831,   0.0149231,  -0.0600286,
-           0.00710116, -0.0149999,  0.999862,    0.032314,
-           0,           0,          0,           1;
-  cout << "T_E_C: " << endl << T_E_C << endl;
+  T_E_C <<   1,   2.7798e-18,            0,   -0.0401405,
+  -5.57321e-19,            1,  2.71051e-20,    -0.116625,
+    1.0842e-19,            0,            1,    0.0707586,
+             0,            0,            0,            1;
+  // cout << "T_E_C: " << endl << T_E_C << endl;
 
 
   // Base -> Camera
   Matrix4d T_B_C;
   T_B_C = T_B_E * T_E_C;
-  cout << "T_B_C: " << endl << T_B_C << endl;
+  // cout << "T_B_C: " << endl << T_B_C << endl;
 
 
   // Camera -> object  0.0691944 -0.0164191
 	Matrix4d T_C_o; 
-	T_C_o << 1, 0, 0, 0.0691944,
-           0, 1, 0, -0.0164191,
-           0, 0, 1, 0.4194,
-           0, 0, 0, 1;
-  cout << "T_C_o: " << endl << T_C_o << endl;
-  // cout << endl;
-
+  float T_C_o_Q[4];
+  euler_to_quaternion(0, 0, 0, T_C_o_Q);
+  float T_C_o_r[9];
+  Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
+  // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
+	T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], marker_center_x,
+           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], marker_center_y,
+           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], marker_center_z,
+           0,          0,          0,          1;
+  // cout << "T_C_o: " << endl << T_C_o << endl;
 
   // result by calibration:
   Matrix4d T_R;
   T_R = T_B_C * T_C_o;
-  cout << "T_R: " << endl << T_R << endl;
+  // cout << "T_R: " << endl << T_R << endl;
 
+  Point3f object_position_world;
+  object_position_world.x = T_R(0,3);
+  object_position_world.y = T_R(1,3);
+  object_position_world.z = T_R(2,3);
+
+  return  object_position_world;
 }
 

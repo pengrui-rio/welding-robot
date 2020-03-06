@@ -1,5 +1,6 @@
   
 
+#include <iostream>   
 
 #include <std_msgs/Bool.h>
 #include "ar_track_alvar/CvTestbed.h"
@@ -13,6 +14,9 @@
 #include <sensor_msgs/image_encodings.h>
 #include <dynamic_reconfigure/server.h>
 #include <ar_track_alvar/ParamsConfig.h>
+
+#include <geometry_msgs/PoseStamped.h>
+#include <geometry_msgs/Pose.h>
 
 using namespace alvar;
 using namespace std;
@@ -44,6 +48,8 @@ int marker_margin = 2; // default marker margin
 void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg);
 
 
+geometry_msgs::Pose marker_info;
+
 void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 {
     //If we've already gotten the cam info, then go ahead
@@ -55,7 +61,7 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
       try
       {
         tf_listener->waitForTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, ros::Duration(1.0));
-        tf_listener->lookupTransform(output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
+        tf_listener->lookupTransform (output_frame, image_msg->header.frame_id, image_msg->header.stamp, CamToOutput);
         // cout << "CamToOutput.getOrigin: " << CamToOutput.getOrigin().x() << " " << CamToOutput.getOrigin().y() << " " << CamToOutput.getOrigin().z()<< endl;
         // cout << "CamToOutput.getrotation: " << CamToOutput.getRotation().x() << " " << CamToOutput.getRotation().y() << " " << CamToOutput.getRotation().z() << " " << CamToOutput.getRotation().w() << endl<< endl;
       }
@@ -76,6 +82,10 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
       marker_detector.Detect(&ipl_image, cam, true, false, max_new_marker_error, max_track_error, CVSEQ, true);
       arPoseMarkers_.markers.clear ();
 
+      double object_center[3] = {0};
+      double left_center[3] = {0};
+      double right_center[3] = {0};
+      int size = 0, size_left = 0, size_right = 0;
 			for (size_t i=0; i<marker_detector.markers->size(); i++)
 			{
 				//Get the pose relative to the camera
@@ -96,9 +106,10 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
         tf::Transform m (tf::Quaternion::getIdentity (), markerOrigin);
         tf::Transform markerPose = t * m; // marker pose in the camera frame
 
- 
-        cout << "origin: " << px << " " << py << " " << pz << endl; 
-        cout << "rotation: " << qx << " " << qy << " " << qz << " " << qw << endl << endl; 
+
+        // cout << "i-th: " << i+1 << " marker" << endl;
+        // cout << "origin: " << px << " " << py << " " << pz << endl; 
+        // cout << "rotation: " << qx << " " << qy << " " << qz << " " << qw << endl << endl; 
       
 
         tf::Vector3 z_axis_cam = tf::Transform(rotation, tf::Vector3(0,0,0)) * tf::Vector3(0, 0, 1);
@@ -156,8 +167,8 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
 				    rvizMarker_.color.g = 0.5f;
 				    rvizMarker_.color.b = 0.5f;
 				    rvizMarker_.color.a = 1.0;
-				    break;
-				  case 4:
+				    break; 
+				  case 4: 
 				    rvizMarker_.color.r = 0.5f;
 				    rvizMarker_.color.g = 0.5f;
 				    rvizMarker_.color.b = 0.0;
@@ -183,9 +194,56 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
         ar_pose_marker.header.stamp = image_msg->header.stamp;
         ar_pose_marker.id = id;
         arPoseMarkers_.markers.push_back (ar_pose_marker);
+
+
+        //////////////////////////////////////////////////
+        object_center[0] += px;
+        object_center[1] += py;
+        object_center[2] += pz;
+        size++;
+
+        if(id == 0 || id == 1 || id == 2)
+        {
+          left_center[0] += px;
+          left_center[1] += py;
+          left_center[2] += pz;
+          size_left++;
+        }        
+        if(id == 6 || id == 7 || id == 8)
+        {
+          right_center[0] += px;
+          right_center[1] += py;
+          right_center[2] += pz;
+          size_right++;
+        }
 			}
 			arMarkerPub_.publish (arPoseMarkers_);
+
+      /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      object_center[0] = object_center[0] / size;
+      object_center[1] = object_center[1] / size;
+      object_center[2] = object_center[2] / size;
+
+      left_center[0]   = left_center[0]   / size_left;
+      left_center[1]   = left_center[1]   / size_left;
+      left_center[2]   = left_center[2]   / size_left;
+
+      right_center[0]  = right_center[0]  / size_right;
+      right_center[1]  = right_center[1]  / size_right;
+      right_center[2]  = right_center[2]  / size_right;      
+
+      cout << "object_center: " << object_center[0] << " " << object_center[1] << " " << object_center[2] << endl;
+      cout << "left_center: "   << left_center[0] << " " << left_center[1] << " " << left_center[2] << endl;
+      cout << "right_center: "  << right_center[0] << " " << right_center[1] << " " << right_center[2] << endl << endl;
+
+
+
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      marker_info.position.x = object_center[0];
+      marker_info.position.y = object_center[1];
+      marker_info.position.z = object_center[2];
 		}
+
 
     catch (cv_bridge::Exception& e)
     {
@@ -280,6 +338,8 @@ int main(int argc, char *argv[])
 	arMarkerPub_ = n.advertise < ar_track_alvar_msgs::AlvarMarkers > ("ar_pose_marker", 0);
 	rvizMarkerPub_ = n.advertise < visualization_msgs::Marker > ("visualization_marker", 0);
 
+  ros::Publisher marker_info_publisher  = n.advertise<geometry_msgs::Pose>("marker_info", 1);
+
   // Prepare dynamic reconfiguration
   dynamic_reconfigure::Server < ar_track_alvar::ParamsConfig > server;
   dynamic_reconfigure::Server<ar_track_alvar::ParamsConfig>::CallbackType f;
@@ -306,6 +366,8 @@ int main(int argc, char *argv[])
   {
     ros::spinOnce();
     rate.sleep();
+
+    marker_info_publisher.publish(marker_info);
 
     if (std::abs((rate.expectedCycleTime() - ros::Duration(1.0 / max_frequency)).toSec()) > 0.001)
     {

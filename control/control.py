@@ -56,6 +56,8 @@ class MoveGroupPythonInteface(object):
     rospy.init_node('robot_motion', anonymous=True)
 
     rospy.Subscriber("motion_Path", Pose, self.callback_path)
+    rospy.Subscriber("marker_info", Pose, self.callback_marker_info)
+
     pub = rospy.Publisher('robot_currentpose', PoseStamped, queue_size=10)
     rate = rospy.Rate(1000) # 1000hz
 
@@ -95,9 +97,20 @@ class MoveGroupPythonInteface(object):
     self.pub = pub
     self.rate = rate
     self.motion_pathPoint = []
+    self.marker_info = 1
 
 
 
+  def callback_marker_info(self, pose):
+    self.marker_info = geometry_msgs.msg.Pose()
+    self.marker_info.position.x = pose.position.x
+    self.marker_info.position.y = pose.position.y
+    self.marker_info.position.z = pose.position.z
+
+
+    # p.append(pose.orientation.w)
+ 
+    # print self.marker_info
 
 
   def robot_sensor_cali(self):
@@ -126,20 +139,15 @@ class MoveGroupPythonInteface(object):
     #对应哪个颜色的柱子，右手坐标系，转多少度，顺序按yaw->pitch->roll,也有很大可能任意顺序
     #yaw->purple   pitch->red   roll->green
 
-    #bottom straight:
-    x = 0.0
+    x = 0.02
     y = 0.4
     z = 0.55
-
-    # x = 0.0
-    # y = 0.44
-    # z = 0.25            
            
-    yaw   = 0#-1       
+    yaw   = -0.5       
     pitch = 180               
     roll  =  0  
-     
 
+    group = self.group
     pose_goal = geometry_msgs.msg.Pose()
     Q = euler_to_quaternion(yaw , pitch, roll)
     print Q
@@ -176,7 +184,54 @@ class MoveGroupPythonInteface(object):
     self.pub.publish(pub_pose)
     #################################################################
 
+    # motion_interval = 3
+    # waypoints = []
+    # wpose = geometry_msgs.msg.Pose(); 
+    # wpose.orientation.x = 1; wpose.orientation.y = 0; wpose.orientation.z = 0; wpose.orientation.w = 0
+    # wpose.position.x = 0; wpose.position.y = 0; wpose.position.z = 0 
+    # waypoints.append(copy.deepcopy(wpose))
+    # (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
+    # result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.01)
+    # #让机械臂自动对准marker中心
+    # while not rospy.is_shutdown():
 
+    #   x = current_pose.position.x + self.marker_info.position.x
+    #   y = current_pose.position.y - self.marker_info.position.y
+    #   z = 0.55  
+    #   yaw   = 0#-1       
+    #   pitch = 180               
+    #   roll  =  0  
+
+    #   pose_goal = geometry_msgs.msg.Pose()
+    #   Q = euler_to_quaternion(yaw , pitch, roll)
+    #   pose_goal.orientation.x = Q[0]
+    #   pose_goal.orientation.y = Q[1]
+    #   pose_goal.orientation.z = Q[2]
+    #   pose_goal.orientation.w = Q[3]
+    #   pose_goal.position.x = x
+    #   pose_goal.position.y = y
+    #   pose_goal.position.z = z
+    #   group.set_pose_target(pose_goal)
+
+    #   plan = group.go(wait=True)
+    #   group.stop()
+    #   group.clear_pose_targets()
+      # current_pose = self.group.get_current_pose().pose
+      # pub_pose = PoseStamped()
+      # pub_pose.header.stamp       = rospy.Time.now()
+      # pub_pose.header.frame_id    = "robot_currentpose"
+      # pub_pose.pose.position.x    = current_pose.position.x
+      # pub_pose.pose.position.y    = current_pose.position.y
+      # pub_pose.pose.position.z    = current_pose.position.z
+      # pub_pose.pose.orientation.x = current_pose.orientation.x
+      # pub_pose.pose.orientation.y = current_pose.orientation.y
+      # pub_pose.pose.orientation.z = current_pose.orientation.z
+      # pub_pose.pose.orientation.w = current_pose.orientation.w
+      # rospy.loginfo(pub_pose)
+      # self.pub.publish(pub_pose)
+
+
+    #   time.sleep(motion_interval)
 
 
 
@@ -232,39 +287,39 @@ class MoveGroupPythonInteface(object):
     current_pose = self.group.get_current_pose().pose
  
 
-    # print "============ Press `Enter` to capture pointcloud ============"
-    # raw_input()
-    # group = self.group
+    print "============ Press `Enter` to capture pointcloud ============"
+    raw_input()
+    group = self.group
 
     #bottom straight:
-    x = 0.0
+    x = 0.015
     y = 0.4
-    z = 0.55
+    z = 0.35
     yaw   = 0         
     pitch = -180    #capture: -180  move: -135
     roll  = 0         
 
-    # pose_goal = geometry_msgs.msg.Pose()
-    # Q = euler_to_quaternion(yaw , pitch, roll)
-    # pose_goal.orientation.x = Q[0]
-    # pose_goal.orientation.y = Q[1]
-    # pose_goal.orientation.z = Q[2]
-    # pose_goal.orientation.w = Q[3]
-    # pose_goal.position.x = x
-    # pose_goal.position.y = y
-    # pose_goal.position.z = z
-    # group.set_pose_target(pose_goal)
+    pose_goal = geometry_msgs.msg.Pose()
+    Q = euler_to_quaternion(yaw , pitch, roll)
+    pose_goal.orientation.x = Q[0]
+    pose_goal.orientation.y = Q[1]
+    pose_goal.orientation.z = Q[2]
+    pose_goal.orientation.w = Q[3]
+    pose_goal.position.x = x
+    pose_goal.position.y = y
+    pose_goal.position.z = z
+    group.set_pose_target(pose_goal)
 
-    # plan = group.go(wait=True)
-    # group.stop()
-    # plan = group.go(wait=True)
-    # group.stop()
-    # plan = group.go(wait=True)
-    # group.stop()
-    # plan = group.go(wait=True)
-    # group.stop()
-    # plan = group.go(wait=True)
-    # group.stop()
+    plan = group.go(wait=True)
+    group.stop()
+    plan = group.go(wait=True)
+    group.stop()
+    plan = group.go(wait=True)
+    group.stop()
+    plan = group.go(wait=True)
+    group.stop()
+    plan = group.go(wait=True)
+    group.stop()
 
     group = self.group
     group.clear_pose_targets()
@@ -340,7 +395,7 @@ class MoveGroupPythonInteface(object):
       wpose.orientation.w = Q[3]
       wpose.position.x = self.motion_pathPoint[i][0] 
       wpose.position.y = self.motion_pathPoint[i][1]
-      wpose.position.z = self.motion_pathPoint[i][2] 
+      wpose.position.z = self.motion_pathPoint[i][2] + 0.01
       print wpose
       print "\n"
 

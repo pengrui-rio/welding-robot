@@ -2,7 +2,7 @@
 <robot name="weldingtable" xmlns:xacro="http://wiki.ros.org/xacro">
   <xacro:property name="pi" value="3.1415926535897931" />
 
-  <xacro:include filename="$(find ur_description_)/urdf/ur5.urdf.xacro" />
+  <xacro:include filename="$(find ur_description)/urdf/ur5.urdf.xacro" />
   <xacro:ur5_robot prefix="" joint_limited="true"/>
 
   <xacro:include filename="$(find realsense2_description)/urdf/_d415.urdf.xacro" />
