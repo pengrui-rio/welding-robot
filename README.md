@@ -1,5 +1,19 @@
 # welding-robot  
 
+roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
+
+roslaunch robot_moveit robot_planning.launch
+
+rosrun control control.py
+
+roslaunch realsense2_camera rs_camera.launch align_depth:=true
+
+roslaunch ar_track_alvar ar_indiv.launch
+
+rosrun robot_sensor_calibration robot_sensor_calibration_node
+
+rosrun pointcloud_processing pointcloud_processing_node
+
 相机三维坐标转化为机械臂坐标需要标定相机与机械臂之间的位置关系，这个标定就称为手眼标定。
 
 video link: : https://vimeo.com/371773986
