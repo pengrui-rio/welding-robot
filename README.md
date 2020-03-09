@@ -1,6 +1,6 @@
 # welding-robot  
 
-roslaunch ur_robot_driver ur3_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
+roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
 
 roslaunch robot_moveit robot_planning.launch
 
