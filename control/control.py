@@ -234,7 +234,6 @@ class MoveGroupPythonInteface(object):
     #   time.sleep(motion_interval)
 
 
-
   def callback_path(self, pose):
     p = []
     p.append(pose.position.x)
