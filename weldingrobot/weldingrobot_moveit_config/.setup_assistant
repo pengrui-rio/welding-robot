@@ -1,0 +1,11 @@
+moveit_setup_assistant_config:
+  URDF:
+    package: weldingscene_description
+    relative_path: urdf/weldingrobot.urdf.xacro
+    xacro_args: "--inorder "
+  SRDF:
+    relative_path: config/weldingrobot.srdf
+  CONFIG:
+    author_name: dqw
+    author_email: dwq@qq.com
+    generated_timestamp: 1583809896
