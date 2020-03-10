@@ -1,1 +1,0 @@
-rosrun moveit_kinematics create_ikfast_moveit_plugin.py weldingrobot manipulator weldingrobot_ikfast_manipulator_plugin /home/rick/Documents/IFfast/src/weldingrobot_ikfast_manipulator_plugin/src/weldingrobot_manipulator_ikfast_solver.cpp
