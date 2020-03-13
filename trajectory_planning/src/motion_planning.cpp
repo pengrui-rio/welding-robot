@@ -1250,7 +1250,7 @@ Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_
 }
 
 
-void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
 {
     Cloud::Ptr all_cloud_ptr (new Cloud);
     for(float j = 0; j < PathPoint_Position->points.size(); j++)
@@ -1279,7 +1279,7 @@ void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr 
     vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
     vector<float> pointRadiusSquaredDistance;
 
-    vector<Point3f> Normal;
+    vector<Point3f> Normal_Vector;
     for(float i = 0; i < all_cloud_ptr->points.size(); i++)
     {
         if(i < PathPoint_Position->points.size())
@@ -1341,12 +1341,12 @@ void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr 
             normal.x = U(0,2);
             normal.y = U(1,2);
             normal.z = U(2,2);
-            Normal.push_back(normal);
+            Normal_Vector.push_back(normal);
         }
     }
 
-    cout << "Normal:\n" << Normal << endl;
-    cout << "size:" << Normal.size() << endl; 
+    cout << "Normal_Vector:\n" << Normal_Vector << endl;
+    cout << "Normal_Vector.size:" << Normal_Vector.size() << endl; 
 
 
     for(float i = 0; i < all_cloud_ptr->points.size(); i++)
@@ -1383,4 +1383,17 @@ void PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr 
         cloud_ptr_show->points.push_back( p );         
     }
     
+    return Normal_Vector;
 }
+
+
+
+
+
+
+
+
+
+
+
+

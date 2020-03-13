@@ -1,11 +1,6 @@
 #include <seam_location.h>
 
-const double camera_factor = 1000;
-const double camera_cx = 311.2325744628906;
-const double camera_cy = 226.9261474609375;
-const double camera_fx = 619.9661254882812;
-const double camera_fy = 619.856201171875;
-
+ 
 void swap(int array[], int i, int j)
 {
 	int temp = array[i];

@@ -55,7 +55,6 @@ class MoveGroupPythonInteface(object):
     moveit_commander.roscpp_initialize(sys.argv)
     rospy.init_node('robot_motion', anonymous=True)
 
-    rospy.Subscriber("motion_Path", Pose, self.callback_path)
     rospy.Subscriber("marker_info", Pose, self.callback_marker_info)
 
     pub = rospy.Publisher('robot_currentpose', PoseStamped, queue_size=10)
@@ -66,7 +65,7 @@ class MoveGroupPythonInteface(object):
  
     scene = moveit_commander.PlanningSceneInterface()
  
-    group_name = "ur5"
+    group_name = "manipulator"
     group = moveit_commander.MoveGroupCommander(group_name)
  
     display_trajectory_publisher = rospy.Publisher('/move_group/display_planned_path',
@@ -106,30 +105,25 @@ class MoveGroupPythonInteface(object):
     self.marker_info.position.x = pose.position.x
     self.marker_info.position.y = pose.position.y
     self.marker_info.position.z = pose.position.z
-
-
-    # p.append(pose.orientation.w)
  
-    # print self.marker_info
-
 
   def robot_sensor_cali(self):
-    print "============ Press `Enter` to set the initial pose ..."
-    raw_input()
+    # print "============ Press `Enter` to set the initial pose ..."
+    # raw_input()
 
-    group = self.group
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/2
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
+    # group = self.group
+    # joint_goal = group.get_current_joint_values()
+    # joint_goal[0] = 0
+    # joint_goal[1] = -pi/2
+    # joint_goal[2] = 0
+    # joint_goal[3] = -pi/2
+    # joint_goal[4] = 0
+    # joint_goal[5] = 0
  
-    group.go(joint_goal, wait=True)
-    group.stop()
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
+    # group.go(joint_goal, wait=True)
+    # group.stop()
+    # group.clear_pose_targets()
+    # current_pose = self.group.get_current_pose().pose
  
 
     print "============ Press `Enter` to capture pointcloud ============"
@@ -139,9 +133,9 @@ class MoveGroupPythonInteface(object):
     #对应哪个颜色的柱子，右手坐标系，转多少度，顺序按yaw->pitch->roll,也有很大可能任意顺序
     #yaw->purple   pitch->red   roll->green
 
-    x = 0.02
+    x = 0.0
     y = 0.4
-    z = 0.55
+    z = 0.3
            
     yaw   = -0.5       
     pitch = 180               
@@ -160,8 +154,8 @@ class MoveGroupPythonInteface(object):
     pose_goal.position.z = z
     group.set_pose_target(pose_goal)
 
-    plan = group.go(wait=True)
-    group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
     group.clear_pose_targets()
     current_pose = self.group.get_current_pose().pose
     print current_pose.position
@@ -184,265 +178,68 @@ class MoveGroupPythonInteface(object):
     self.pub.publish(pub_pose)
     #################################################################
 
-    # motion_interval = 3
-    # waypoints = []
-    # wpose = geometry_msgs.msg.Pose(); 
-    # wpose.orientation.x = 1; wpose.orientation.y = 0; wpose.orientation.z = 0; wpose.orientation.w = 0
-    # wpose.position.x = 0; wpose.position.y = 0; wpose.position.z = 0 
-    # waypoints.append(copy.deepcopy(wpose))
-    # (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
-    # result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.01)
-    # #让机械臂自动对准marker中心
-    # while not rospy.is_shutdown():
-
-    #   x = current_pose.position.x + self.marker_info.position.x
-    #   y = current_pose.position.y - self.marker_info.position.y
-    #   z = 0.55  
-    #   yaw   = 0#-1       
-    #   pitch = 180               
-    #   roll  =  0  
-
-    #   pose_goal = geometry_msgs.msg.Pose()
-    #   Q = euler_to_quaternion(yaw , pitch, roll)
-    #   pose_goal.orientation.x = Q[0]
-    #   pose_goal.orientation.y = Q[1]
-    #   pose_goal.orientation.z = Q[2]
-    #   pose_goal.orientation.w = Q[3]
-    #   pose_goal.position.x = x
-    #   pose_goal.position.y = y
-    #   pose_goal.position.z = z
-    #   group.set_pose_target(pose_goal)
-
-    #   plan = group.go(wait=True)
-    #   group.stop()
-    #   group.clear_pose_targets()
-      # current_pose = self.group.get_current_pose().pose
-      # pub_pose = PoseStamped()
-      # pub_pose.header.stamp       = rospy.Time.now()
-      # pub_pose.header.frame_id    = "robot_currentpose"
-      # pub_pose.pose.position.x    = current_pose.position.x
-      # pub_pose.pose.position.y    = current_pose.position.y
-      # pub_pose.pose.position.z    = current_pose.position.z
-      # pub_pose.pose.orientation.x = current_pose.orientation.x
-      # pub_pose.pose.orientation.y = current_pose.orientation.y
-      # pub_pose.pose.orientation.z = current_pose.orientation.z
-      # pub_pose.pose.orientation.w = current_pose.orientation.w
-      # rospy.loginfo(pub_pose)
-      # self.pub.publish(pub_pose)
-
-
-    #   time.sleep(motion_interval)
-
-
-
-  def callback_path(self, pose):
-    p = []
-    p.append(pose.position.x)
-    p.append(pose.position.y)
-    p.append(pose.position.z)
-    p.append(pose.orientation.x)
-    p.append(pose.orientation.y)
-    p.append(pose.orientation.z)
-    p.append(pose.orientation.w)
-
-    self.motion_pathPoint.append( p )
-    print p 
-    print len(self.motion_pathPoint)
-    print "\n"
-
-
-  def motion(self):
-    # print "============ Press `Enter` to set the initial pose ..."
-    # raw_input()
-
-    # group = self.group
-    # joint_goal = group.get_current_joint_values()
-    # joint_goal[0] = 0
-    # joint_goal[1] = -pi/4
-    # joint_goal[2] = 0
-    # joint_goal[3] = -pi/2
-    # joint_goal[4] = 0
-    # joint_goal[5] = 0
- 
-    # group.go(joint_goal, wait=True)
-    # group.stop()
-    # group.clear_pose_targets()
-    # current_pose = self.group.get_current_pose().pose
-
-    print "============ Press `Enter` to set the initial pose ..."
-    raw_input()
-
-    group = self.group
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/2
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
- 
-    group.go(joint_goal, wait=True)
-    group.stop()
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
- 
-
-    print "============ Press `Enter` to capture pointcloud ============"
-    raw_input()
-    group = self.group
-
-    #bottom straight:
-    x = 0.015
-    y = 0.4
-    z = 0.35
-    yaw   = 0         
-    pitch = -180    #capture: -180  move: -135
-    roll  = 0         
-
-    pose_goal = geometry_msgs.msg.Pose()
-    Q = euler_to_quaternion(yaw , pitch, roll)
-    pose_goal.orientation.x = Q[0]
-    pose_goal.orientation.y = Q[1]
-    pose_goal.orientation.z = Q[2]
-    pose_goal.orientation.w = Q[3]
-    pose_goal.position.x = x
-    pose_goal.position.y = y
-    pose_goal.position.z = z
-    group.set_pose_target(pose_goal)
-
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-
-    group = self.group
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
-    print current_pose.position
-    print "yaw   : %f" % yaw
-    print "pitch : %f" % pitch
-    print "roll  : %f" % roll
-    print "\n"
-
-    pub_pose = PoseStamped()
-    pub_pose.header.stamp       = rospy.Time.now()
-    pub_pose.header.frame_id    = "robot_currentpose"
-    pub_pose.pose.position.x    = current_pose.position.x
-    pub_pose.pose.position.y    = current_pose.position.y
-    pub_pose.pose.position.z    = current_pose.position.z
-    pub_pose.pose.orientation.x = yaw
-    pub_pose.pose.orientation.y = pitch
-    pub_pose.pose.orientation.z = roll
-    pub_pose.pose.orientation.w = 0
-    rospy.loginfo(pub_pose)
-    self.pub.publish(pub_pose)
-    #################################################################
-
-
-    print "============ Press `Enter` to sent signal for processing the pointcloud ============"
-    raw_input()
-    pub_pose = PoseStamped()
-    pub_pose.header.stamp       = rospy.Time.now()
-    pub_pose.header.frame_id    = "robot_currentpose"
-    pub_pose.pose.position.x    = current_pose.position.x
-    pub_pose.pose.position.y    = current_pose.position.y
-    pub_pose.pose.position.z    = current_pose.position.z
-    pub_pose.pose.orientation.x = yaw
-    pub_pose.pose.orientation.y = pitch
-    pub_pose.pose.orientation.z = roll
-    pub_pose.pose.orientation.w = 1
-    rospy.loginfo(pub_pose)
-    self.pub.publish(pub_pose)
-
-
-    #################################################################
-
-    print "============ Press `Enter` to start execution ============"
-    raw_input()
-
-    yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-    pose_goal = geometry_msgs.msg.Pose(); 
-    pose_goal.orientation.x = Q[0]
-    pose_goal.orientation.y = Q[1]
-    pose_goal.orientation.z = Q[2]
-    pose_goal.orientation.w = Q[3]
-    pose_goal.position.x = self.motion_pathPoint[0][0] 
-    pose_goal.position.y = self.motion_pathPoint[0][1] 
-    pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
-    group.set_pose_target(pose_goal)
-    plan = group.go(joints = pose_goal, wait = True)
-    group.stop()
-    group.clear_pose_targets()
-    print self.group.get_current_pose().pose.position
-    print "yaw   : %f" % yaw
-    print "pitch : %f" % pitch
-    print "roll  : %f" % roll
- 
-
     waypoints = []
-    wpose = geometry_msgs.msg.Pose(); i = 0
-    while i < len(self.motion_pathPoint):
-      yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-      wpose.orientation.x = Q[0]
-      wpose.orientation.y = Q[1]
-      wpose.orientation.z = Q[2]
-      wpose.orientation.w = Q[3]
-      wpose.position.x = self.motion_pathPoint[i][0] 
-      wpose.position.y = self.motion_pathPoint[i][1]
-      wpose.position.z = self.motion_pathPoint[i][2] + 0.01
-      print wpose
-      print "\n"
-
-      waypoints.append(copy.deepcopy(wpose))
-      i = i + 1
-
-    print waypoints
+    wpose = geometry_msgs.msg.Pose(); 
+    wpose.orientation.x = 1; wpose.orientation.y = 0; wpose.orientation.z = 0; wpose.orientation.w = 0
+    wpose.position.x = 0; wpose.position.y = 0; wpose.position.z = 0 
+    waypoints.append(copy.deepcopy(wpose))
     (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
+    result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.1)
+
+    print "============ Press `Enter` to 让机械臂自动对准marker中心 ============"
     raw_input()
+    while not rospy.is_shutdown():
+      motion_interval = 3
 
-    result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.05)
-    group.execute(result_plan, wait=True)
+      x = current_pose.position.x + self.marker_info.position.x
+      y = current_pose.position.y - self.marker_info.position.y
+      z = 0.3  
+      yaw   = -0.5      
+      pitch = 180               
+      roll  =  0  
 
-    #################################################################
-    print "============ Back to initial status ============"
-    result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 1)
-    group = self.group
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/2
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
+      pose_goal = geometry_msgs.msg.Pose()
+      Q = euler_to_quaternion(yaw , pitch, roll)
+      pose_goal.orientation.x = Q[0]
+      pose_goal.orientation.y = Q[1]
+      pose_goal.orientation.z = Q[2]
+      pose_goal.orientation.w = Q[3]
+      pose_goal.position.x = x
+      pose_goal.position.y = y
+      pose_goal.position.z = z
+      group.set_pose_target(pose_goal)
+
+      # plan = group.go(wait=True)
+      # group.stop()
+      group.clear_pose_targets()
+      current_pose = self.group.get_current_pose().pose
+      pub_pose = PoseStamped()
+      pub_pose.header.stamp       = rospy.Time.now()
+      pub_pose.header.frame_id    = "robot_currentpose"
+      pub_pose.pose.position.x    = current_pose.position.x
+      pub_pose.pose.position.y    = current_pose.position.y
+      pub_pose.pose.position.z    = current_pose.position.z
+      pub_pose.pose.orientation.x = current_pose.orientation.x
+      pub_pose.pose.orientation.y = current_pose.orientation.y
+      pub_pose.pose.orientation.z = current_pose.orientation.z
+      pub_pose.pose.orientation.w = current_pose.orientation.w
+      rospy.loginfo(pub_pose)
+      self.pub.publish(pub_pose)
+
+
+      # time.sleep(motion_interval)
+
+
  
-    group.go(joint_goal, wait=True)
-    group.stop()
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
-
-    return all_close(pose_goal, current_pose, 0.01)
-
-
- 
- 
-
-
 #robot_ip = 192.168.0.2
 def main():
   try:
     print "============ Press `Enter` to start configuration ..."
-    ur3 = MoveGroupPythonInteface()
+    manipulator = MoveGroupPythonInteface()
  
-    ur3.robot_sensor_cali()
+    manipulator.robot_sensor_cali()
 
-    # ur3.motion()
- 
+  
 
     
   except rospy.ROSInterruptException:

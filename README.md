@@ -2,7 +2,7 @@
 
 roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
 
-roslaunch weldingrobot_moveit_config weldingrobot_execution.launch
+roslaunch moveit_config execution_real.launch
 
 rosrun control control.py
 

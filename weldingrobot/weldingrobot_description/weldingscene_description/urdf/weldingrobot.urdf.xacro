@@ -21,7 +21,7 @@
   <link name="table">
     <visual>
       <geometry>
-        <box size="1 1 0.02"/>
+        <box size="1.5 1.5 0.02"/>
       </geometry>
       <material name="Wooden">
         <color rgba="1.0 0.831 0.486 1.0"/>
@@ -29,7 +29,7 @@
     </visual>
     <collision>
       <geometry>
-        <box size="1 1 0.02"/>
+        <box size="1.5 1.5 0.02"/>
       </geometry>
     </collision>
 
@@ -38,7 +38,7 @@
   <joint name="base_link_to_table" type="fixed">
     <parent link="base_link"/>
     <child link="table"/>
-    <origin xyz="0 0.22 -0.01" rpy="0 0 0"/>
+    <origin xyz="0 0.4 -0.01" rpy="0 0 0"/>
   </joint>
 
 
@@ -57,7 +57,7 @@
   <joint name="table_to_post" type="fixed">
     <parent link="table"/>
     <child link="post"/>
-    <origin xyz="0 -0.525 0.5" rpy="0 0 0"/>
+    <origin xyz="0 -0.725 0.5" rpy="0 0 0"/>
   </joint>
 
 
@@ -84,7 +84,30 @@
   <sensor_d415 parent="tool0">
     <origin xyz="0.0 -0.102 0.062" rpy="0 ${-pi/2} ${pi/2}"/>   
   </sensor_d415>
- 
+<!--
+   <link name="d415_cable">
+    <visual>
+      <geometry>
+        <box size="1.5 1.5 0.02"/>
+      </geometry>
+      <material name="Wooden">
+        <color rgba="0 0.0 0.1 1.0"/>
+      </material>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="1.5 1.5 0.02"/>
+      </geometry>
+    </collision>
+
+  </link>
+
+  <joint name="tool0_to_d415_cable" type="fixed">
+    <parent link="tool0"/>
+    <child link="d415_cable"/>
+    <origin xyz="0 0.4 -0.01" rpy="0 0 0"/>
+  </joint>
+-->
 
     <!-- <link name="welding_torch">
       <visual>

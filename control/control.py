@@ -56,8 +56,7 @@ class MoveGroupPythonInteface(object):
     rospy.init_node('robot_motion', anonymous=True)
 
     rospy.Subscriber("motion_Path", Pose, self.callback_path)
-    rospy.Subscriber("marker_info", Pose, self.callback_marker_info)
-
+ 
     pub = rospy.Publisher('robot_currentpose', PoseStamped, queue_size=10)
     rate = rospy.Rate(1000) # 1000hz
 
@@ -114,7 +113,7 @@ class MoveGroupPythonInteface(object):
     self.motion_pathPoint.append( p )
     print p 
     print len(self.motion_pathPoint)
-    print "\n"
+    print "\n" 
 
 
   def motion(self):
@@ -158,10 +157,10 @@ class MoveGroupPythonInteface(object):
     group = self.group
 
     x = 0.0
-    y = 0.5#0.51
+    y = 0.6#0.51   
     z = 0.3#0.25
     yaw   = 0         
-    pitch = -180    #capture: -180  move: -135
+    pitch = 180    #capture: -180  move: -135
     roll  = 0   
 
     pose_goal = geometry_msgs.msg.Pose()
@@ -210,84 +209,108 @@ class MoveGroupPythonInteface(object):
     #################################################################
 
 
-    # print "============ Press `Enter` to sent signal for processing the pointcloud ============"
-    # raw_input()
-    # pub_pose = PoseStamped()
-    # pub_pose.header.stamp       = rospy.Time.now()
-    # pub_pose.header.frame_id    = "robot_currentpose"
-    # pub_pose.pose.position.x    = current_pose.position.x
-    # pub_pose.pose.position.y    = current_pose.position.y
-    # pub_pose.pose.position.z    = current_pose.position.z
-    # pub_pose.pose.orientation.x = yaw
-    # pub_pose.pose.orientation.y = pitch
-    # pub_pose.pose.orientation.z = roll
-    # pub_pose.pose.orientation.w = 1
-    # rospy.loginfo(pub_pose)
-    # self.pub.publish(pub_pose)
-
+    print "============ Press `Enter` to sent signal for processing the pointcloud ============"
+    raw_input()
+    pub_pose = PoseStamped()
+    pub_pose.header.stamp       = rospy.Time.now()
+    pub_pose.header.frame_id    = "robot_currentpose"
+    pub_pose.pose.position.x    = current_pose.position.x
+    pub_pose.pose.position.y    = current_pose.position.y
+    pub_pose.pose.position.z    = current_pose.position.z
+    pub_pose.pose.orientation.x = yaw
+    pub_pose.pose.orientation.y = pitch
+    pub_pose.pose.orientation.z = roll
+    pub_pose.pose.orientation.w = 1
+    rospy.loginfo(pub_pose)
+    self.pub.publish(pub_pose)
 
     #################################################################
 
     print "============ Press `Enter` to start execution ============"
     raw_input()
 
-    p = []
-    p.append(-0.4)
-    p.append(0.65)
-    p.append(0.01)
-    self.motion_pathPoint.append( p )
-    p = []
-    p.append(0)
-    p.append(0.65)
-    p.append(0.01)
-    self.motion_pathPoint.append( p )
-    p = []
-    p.append(0.4)
-    p.append(0.65)
-    p.append(0.01)
-    self.motion_pathPoint.append( p )
-    # yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-    # pose_goal = geometry_msgs.msg.Pose(); 
-    # pose_goal.orientation.x = Q[0]
-    # pose_goal.orientation.y = Q[1]
-    # pose_goal.orientation.z = Q[2]
-    # pose_goal.orientation.w = Q[3]
-    # pose_goal.position.x = self.motion_pathPoint[0][0] 
-    # pose_goal.position.y = self.motion_pathPoint[0][1] 
-    # pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
-    # group.set_pose_target(pose_goal)
-    # plan = group.go(joints = pose_goal, wait = True)
-    # group.stop()
-    # group.clear_pose_targets()
-    # print self.group.get_current_pose().pose.position
-    # print "yaw   : %f" % yaw
-    # print "pitch : %f" % pitch
-    # print "roll  : %f" % roll
+    group = self.group
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = 0
+    joint_goal[1] = -pi/2
+    joint_goal[2] = 0
+    joint_goal[3] = -pi/2
+    joint_goal[4] = 0
+    joint_goal[5] = 0
+
+    group.go(joint_goal, wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    current_pose = self.group.get_current_pose().pose
+
+
+    yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+    pose_goal = geometry_msgs.msg.Pose(); 
+    pose_goal.orientation.x = Q[0]
+    pose_goal.orientation.y = Q[1]
+    pose_goal.orientation.z = Q[2]
+    pose_goal.orientation.w = Q[3]
+    pose_goal.position.x = self.motion_pathPoint[0][0] 
+    pose_goal.position.y = self.motion_pathPoint[0][1] 
+    pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
+    group.set_pose_target(pose_goal)
+    plan = group.go(joints = pose_goal, wait = True)
+    group.stop()
+    group.clear_pose_targets()
+    print self.group.get_current_pose().pose.position
+    print "yaw   : %f" % yaw
+    print "pitch : %f" % pitch
+    print "roll  : %f" % roll
  
 
-    waypoints = []
-    wpose = geometry_msgs.msg.Pose(); i = 0
-    while i < len(self.motion_pathPoint):
-      yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-      wpose.orientation.x = Q[0]
-      wpose.orientation.y = Q[1]
-      wpose.orientation.z = Q[2]
-      wpose.orientation.w = Q[3]
-      wpose.position.x = self.motion_pathPoint[i][0] 
-      wpose.position.y = self.motion_pathPoint[i][1]
-      wpose.position.z = self.motion_pathPoint[i][2] #+ 0.01
-      print wpose
-      print "\n"
+    while not rospy.is_shutdown():
+      waypoints = []
+      wpose = geometry_msgs.msg.Pose(); i = 0
+      while i < len(self.motion_pathPoint):
+        yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+        wpose.orientation.x = self.motion_pathPoint[i][3]
+        wpose.orientation.y = self.motion_pathPoint[i][4]
+        wpose.orientation.z = self.motion_pathPoint[i][5]
+        wpose.orientation.w = self.motion_pathPoint[i][6]
+        wpose.position.x = self.motion_pathPoint[i][0] 
+        wpose.position.y = self.motion_pathPoint[i][1]
+        wpose.position.z = self.motion_pathPoint[i][2]
+        print wpose
+        print "\n"
 
-      waypoints.append(copy.deepcopy(wpose))
-      i = i + 1
+        waypoints.append(copy.deepcopy(wpose))
+        i = i + 1
 
-    print waypoints
-    (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
-    raw_input()
+      print waypoints
+      (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
+      # raw_input()
 
-    result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.05)
-    group.execute(result_plan, wait=True)
+      result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.01)
+      group.execute(result_plan, wait=True)
+      # ///////////////////////////////////////////////////////
+      waypoints = []
+      wpose = geometry_msgs.msg.Pose(); i = 0
+      while i < len(self.motion_pathPoint):
+        yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+        wpose.orientation.x = Q[0]
+        wpose.orientation.y = Q[1]
+        wpose.orientation.z = Q[2]
+        wpose.orientation.w = Q[3]
+        wpose.position.x = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][0] 
+        wpose.position.y = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][1]
+        wpose.position.z = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][2]
+        print wpose
+        print "\n"
+
+        waypoints.append(copy.deepcopy(wpose))
+        i = i + 1
+
+      print waypoints
+      (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
+      # raw_input()
+
+      result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.01)
+      group.execute(result_plan, wait=True)
 
     # #################################################################
     # print "============ Back to initial status ============"
@@ -319,8 +342,7 @@ def main():
     print "============ Press `Enter` to start configuration ..."
     manipulator = MoveGroupPythonInteface()
  
-    # manipulator.robot_sensor_cali()
-
+ 
     manipulator.motion()
  
 
