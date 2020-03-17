@@ -1,4 +1,9 @@
+
+
+
+#include <ros/ros.h>
 #include <math.h>
+#include <iostream>   
 #include <vector>
 #include <Eigen/Dense>
 
@@ -53,10 +58,15 @@ void coordinate_transformation(tf::StampedTransform transform, PointCloud::Ptr c
 
 Cloud::Ptr cloud_ptr_origin_copy(Cloud::Ptr cloud_ptr_new);
 
-Cloud::Ptr input_pointcloud_filter(int process_count, int process_count_limit, Cloud::Ptr cloud_ptr, Cloud::Ptr cloud_ptr_filter);
+void input_pointcloud_filter(int process_count, int process_count_limit, Cloud::Ptr cloud_ptr, Cloud::Ptr cloud_ptr_filter);
+
+
+vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr PathPoint_Position, vector<Point3f> Torch_Normal_Vector);
 
 // Eigen::Quaterniond Transform_AngleAxisd_Quatenion(vector<Point3f> Normal_Vector);
-void Transform_AngleAxisd_Quatenion(Cloud::Ptr PathPoint_Position);
+// void Transform_AngleAxisd_Quatenion(Cloud::Ptr PathPoint_Position);
+tf::Transform Waypoint_markerTransform_creation(int i, geometry_msgs::Pose P);
+std::string Waypoint_markerName_creation( int i );
 
 
 void rotate_z(float x, float y, float z, float angle, float* x_output, float* y_output, float* z_output) ;
@@ -64,3 +74,5 @@ void rotate_x(float x, float y, float z, float angle, float* x_output, float* y_
 void rotate_y(float x, float y, float z, float angle, float* x_output, float* y_output, float* z_output)   ;
 
 void euler_to_quaternion(float Yaw, float Pitch, float Roll, float Q[4]);
+
+Eigen::Quaterniond rotation_Quaternionslerp(Eigen::Quaterniond starting, Eigen::Quaterniond ending, float t );

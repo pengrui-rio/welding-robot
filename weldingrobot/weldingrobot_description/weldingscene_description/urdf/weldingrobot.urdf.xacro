@@ -137,7 +137,7 @@
         <geometry>
           <mesh filename="package://weldingscene_description/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
         </geometry>
-        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 0 0"/>
+        <origin rpy="${pi/2} 0 ${-pi/2}" xyz="0 0 0"/>
       <material name="torch1">
         <color rgba="0.1 0.1 0.5 1.0"/>
       </material>
@@ -146,13 +146,13 @@
         <geometry>
           <mesh filename="package://weldingscene_description/meshes/collision/torch.stl" scale="0.001 0.001 0.001"/>
         </geometry>
-        <origin rpy="${pi/2} -0.84997 ${-pi/2}" xyz="0 0 0"/>
+        <origin rpy="${pi/2} 0 ${-pi/2}" xyz="0 0 0"/>
       </collision>
     </link>
     <joint name="torch_to_tool0" type="fixed">
       <parent link="tool0"/>
       <child link="welding_torch"/>
-      <origin xyz="0 0.048 0.227" rpy="0 0 0"/>
+      <origin xyz="0 0.048 0.227" rpy="-0.84997 0 0"/>
     </joint> 
 
  

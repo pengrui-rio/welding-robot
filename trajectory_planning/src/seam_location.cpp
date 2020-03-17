@@ -165,7 +165,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/pointcloud_processing/src/run_export.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/trajectory_planning/src/input_cloud.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl;

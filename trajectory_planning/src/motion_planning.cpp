@@ -1184,6 +1184,58 @@ void push_point_showCloud(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show)
 
 
 
+vector<Point3f> OriginWaypoint_torchDir_Unify(Cloud::Ptr PathPoint_Position, vector<Point3f> Normal_Vector, Point3f Cam_Position)
+{
+  //求标准向量：点到相机坐标系
+  vector<Point3f> Vector_point_to_camPosi;
+  for(float i = 0; i < PathPoint_Position->points.size(); i++)
+  {
+    Point3f standard_vector;
+    standard_vector.x = Cam_Position.x - PathPoint_Position->points[i].x;
+    standard_vector.y = Cam_Position.y - PathPoint_Position->points[i].y;
+    standard_vector.z = Cam_Position.z - PathPoint_Position->points[i].z;
+    Vector_point_to_camPosi.push_back(standard_vector);
+  }
+
+  //求法向量与标准向量的夹角
+  vector<float> Theta;
+  for(float i = 0; i < Normal_Vector.size(); i++)
+  {
+    float a_b = Normal_Vector[ i ].x * Vector_point_to_camPosi[ i ].x +
+                Normal_Vector[ i ].y * Vector_point_to_camPosi[ i ].y +
+                Normal_Vector[ i ].z * Vector_point_to_camPosi[ i ].z ;  
+
+    float a2 = sqrt(pow(Normal_Vector[ i ].x, 2) +
+                    pow(Normal_Vector[ i ].y, 2) +
+                    pow(Normal_Vector[ i ].z, 2));  
+
+    float b2 = sqrt(pow(Vector_point_to_camPosi[ i ].x, 2) +
+                    pow(Vector_point_to_camPosi[ i ].y, 2) +
+                    pow(Vector_point_to_camPosi[ i ].z, 2)); 
+
+    float COS_ab = a_b / (a2 * b2) ;
+
+    // float theta = acos( COS_ab ) * 180.0 / M_PI ;
+
+    // cout << "theta: " << theta << endl;
+    Theta.push_back(COS_ab);
+  }
+
+  //大于90度的需要反过来
+  for(float i = 0; i < Normal_Vector.size(); i++)
+  {
+    if(Theta[i] <= 0)
+    {
+      Normal_Vector[i] = Normal_Vector[i] * (-1);
+    }
+  }
+
+  // cout << "Normal:\n" << Normal << endl;
+  cout << "size:" << Normal_Vector.size() << endl << endl; 
+  
+  return  Normal_Vector; 
+}
+
 
 
 
@@ -1226,7 +1278,7 @@ Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //消除噪声点，下采样
-    float radius = 0.001 ;
+    float radius = 0.003 ;
     DownSample_DeleteNoisePoint(Path_Cloud, radius);
     cout << "Path_Cloud->points.size(): " << Path_Cloud->points.size() << endl;
 
@@ -1250,7 +1302,7 @@ Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_
 }
 
 
-vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position)
 {
     Cloud::Ptr all_cloud_ptr (new Cloud);
     for(float j = 0; j < PathPoint_Position->points.size(); j++)
@@ -1345,8 +1397,9 @@ vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, 
         }
     }
 
-    cout << "Normal_Vector:\n" << Normal_Vector << endl;
-    cout << "Normal_Vector.size:" << Normal_Vector.size() << endl; 
+    vector<Point3f> Torch_Normal_Vector = OriginWaypoint_torchDir_Unify(PathPoint_Position, Normal_Vector, Cam_Position);
+    cout << "Torch_Normal_Vector:\n" << Torch_Normal_Vector << endl;
+    cout << "Torch_Normal_Vector.size:" << Torch_Normal_Vector.size() << endl; 
 
 
     for(float i = 0; i < all_cloud_ptr->points.size(); i++)
@@ -1383,7 +1436,7 @@ vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, 
         cloud_ptr_show->points.push_back( p );         
     }
     
-    return Normal_Vector;
+    return Torch_Normal_Vector;
 }
 
 

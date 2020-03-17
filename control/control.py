@@ -134,65 +134,67 @@ class MoveGroupPythonInteface(object):
     # group.clear_pose_targets()
     # current_pose = self.group.get_current_pose().pose
 
-    print "============ Press `Enter` to set the initial pose ..."
-    raw_input()
+    # print "============ Press `Enter` to set the initial pose ..."
+    # raw_input()
 
-    group = self.group
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/2
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
+    # group = self.group
+    # joint_goal = group.get_current_joint_values()
+    # joint_goal[0] = 0
+    # joint_goal[1] = -pi/2
+    # joint_goal[2] = 0
+    # joint_goal[3] = -pi/2
+    # joint_goal[4] = 0
+    # joint_goal[5] = 0
  
-    group.go(joint_goal, wait=True)
-    group.stop()
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
+    # group.go(joint_goal, wait=True)
+    # group.stop()
+    # group.clear_pose_targets()
+    # current_pose = self.group.get_current_pose().pose
  
 
-    print "============ Press `Enter` to capture pointcloud ============"
-    raw_input()
-    group = self.group
+    # print "============ Press `Enter` to capture pointcloud ============"
+    # raw_input()
+    # group = self.group
 
-    x = 0.0
-    y = 0.6#0.51   
-    z = 0.3#0.25
+    # x = 0.0
+    # y = 0.57#0.51   
+    # z = 0.3#0.25
+
+    roll  = 135  #右手坐标系 静态欧拉角旋转方向： R-X-red -> P-Y-green -> Y-Z-purple 以base_link为基准旋转
+    pitch = 0     
     yaw   = 0         
-    pitch = 180    #capture: -180  move: -135
-    roll  = 0   
+ 
 
-    pose_goal = geometry_msgs.msg.Pose()
-    Q = euler_to_quaternion(yaw , pitch, roll)
-    pose_goal.orientation.x = Q[0]
-    pose_goal.orientation.y = Q[1]
-    pose_goal.orientation.z = Q[2]
-    pose_goal.orientation.w = Q[3]
-    pose_goal.position.x = x
-    pose_goal.position.y = y
-    pose_goal.position.z = z
-    group.set_pose_target(pose_goal)
+    # pose_goal = geometry_msgs.msg.Pose()
+    # Q = euler_to_quaternion(yaw , roll, pitch)
+    # pose_goal.orientation.x = Q[0]
+    # pose_goal.orientation.y = Q[1]
+    # pose_goal.orientation.z = Q[2]
+    # pose_goal.orientation.w = Q[3]
+    # pose_goal.position.x = x
+    # pose_goal.position.y = y
+    # pose_goal.position.z = z
+    # group.set_pose_target(pose_goal)
 
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
-    plan = group.go(wait=True)
-    group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
+    # plan = group.go(wait=True)
+    # group.stop()
 
     group = self.group
     group.clear_pose_targets()
     current_pose = self.group.get_current_pose().pose
     print current_pose.position
-    print "yaw   : %f" % yaw
-    print "pitch : %f" % pitch
-    print "roll  : %f" % roll
-    print "\n"
+    # print "yaw   : %f" % yaw
+    # print "pitch : %f" % pitch
+    # print "roll  : %f" % roll
+    # print "\n"
 
     pub_pose = PoseStamped()
     pub_pose.header.stamp       = rospy.Time.now()
@@ -244,15 +246,15 @@ class MoveGroupPythonInteface(object):
     current_pose = self.group.get_current_pose().pose
 
 
-    yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
     pose_goal = geometry_msgs.msg.Pose(); 
-    pose_goal.orientation.x = Q[0]
-    pose_goal.orientation.y = Q[1]
-    pose_goal.orientation.z = Q[2]
-    pose_goal.orientation.w = Q[3]
-    pose_goal.position.x = self.motion_pathPoint[0][0] 
-    pose_goal.position.y = self.motion_pathPoint[0][1] 
-    pose_goal.position.z = self.motion_pathPoint[0][2] + 0.1
+    pose_goal.position.x     = self.motion_pathPoint[0][0] 
+    pose_goal.position.y     = self.motion_pathPoint[0][1] 
+    pose_goal.position.z     = self.motion_pathPoint[0][2] + 0.1
+    pose_goal.orientation.x  = self.motion_pathPoint[0][3]
+    pose_goal.orientation.y  = self.motion_pathPoint[0][4]
+    pose_goal.orientation.z  = self.motion_pathPoint[0][5]
+    pose_goal.orientation.w  = self.motion_pathPoint[0][6]
+
     group.set_pose_target(pose_goal)
     plan = group.go(joints = pose_goal, wait = True)
     group.stop()
@@ -267,14 +269,13 @@ class MoveGroupPythonInteface(object):
       waypoints = []
       wpose = geometry_msgs.msg.Pose(); i = 0
       while i < len(self.motion_pathPoint):
-        yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
+        wpose.position.x    = self.motion_pathPoint[i][0] 
+        wpose.position.y    = self.motion_pathPoint[i][1]
+        wpose.position.z    = self.motion_pathPoint[i][2]
         wpose.orientation.x = self.motion_pathPoint[i][3]
         wpose.orientation.y = self.motion_pathPoint[i][4]
         wpose.orientation.z = self.motion_pathPoint[i][5]
         wpose.orientation.w = self.motion_pathPoint[i][6]
-        wpose.position.x = self.motion_pathPoint[i][0] 
-        wpose.position.y = self.motion_pathPoint[i][1]
-        wpose.position.z = self.motion_pathPoint[i][2]
         print wpose
         print "\n"
 
@@ -285,20 +286,19 @@ class MoveGroupPythonInteface(object):
       (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
       # raw_input()
 
-      result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.01)
+      result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.1)
       group.execute(result_plan, wait=True)
       # ///////////////////////////////////////////////////////
       waypoints = []
       wpose = geometry_msgs.msg.Pose(); i = 0
       while i < len(self.motion_pathPoint):
-        yaw = 0; pitch = -135; roll = 0; Q = euler_to_quaternion(yaw, pitch, roll)
-        wpose.orientation.x = Q[0]
-        wpose.orientation.y = Q[1]
-        wpose.orientation.z = Q[2]
-        wpose.orientation.w = Q[3]
-        wpose.position.x = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][0] 
-        wpose.position.y = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][1]
-        wpose.position.z = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][2]
+        wpose.position.x    = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][0] 
+        wpose.position.y    = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][1]
+        wpose.position.z    = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][2]
+        wpose.orientation.x = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][3]
+        wpose.orientation.y = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][4]
+        wpose.orientation.z = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][5]
+        wpose.orientation.w = self.motion_pathPoint[len(self.motion_pathPoint) - 1 - i][6]
         print wpose
         print "\n"
 
@@ -309,7 +309,7 @@ class MoveGroupPythonInteface(object):
       (plan, fraction) = group.compute_cartesian_path(waypoints, 0.01, 0)   
       # raw_input()
 
-      result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.01)
+      result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.1)
       group.execute(result_plan, wait=True)
 
     # #################################################################

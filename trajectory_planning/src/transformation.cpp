@@ -1,7 +1,8 @@
 // #include <iostream>
 #include <transformation.h>
 // PCL lib
- 
+
+
 
 //右手坐标系
 void rotate_z(float x, float y, float z, float angle, float* x_output, float* y_output, float* z_output) 
@@ -309,7 +310,7 @@ Cloud::Ptr cloud_ptr_origin_copy(Cloud::Ptr cloud_ptr_new)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-Cloud::Ptr input_pointcloud_filter(int process_count, int process_count_limit, Cloud::Ptr cloud_ptr, Cloud::Ptr cloud_ptr_filter)
+void input_pointcloud_filter(int process_count, int process_count_limit, Cloud::Ptr cloud_ptr, Cloud::Ptr cloud_ptr_filter)
 {
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
@@ -319,6 +320,7 @@ Cloud::Ptr input_pointcloud_filter(int process_count, int process_count_limit, C
     p.z = cloud_ptr->points[i].z;
     cloud_ptr_filter->points.push_back( p );    
   }
+  cout << "process_count: " << process_count << " cloud_ptr_filter->points.size(): " << cloud_ptr_filter->points.size() << endl; 
 
   ////start filter
   Cloud::Ptr Cloud_filtered (new Cloud);
@@ -332,11 +334,48 @@ Cloud::Ptr input_pointcloud_filter(int process_count, int process_count_limit, C
     voxel.filter( *Cloud_filtered );
 
     cout << "input pointcloud filtering done!!!" << endl;
+
+    ////////////////////////////////////////////////////////////////
+    cloud_ptr_filter->points.clear();
+    for(float i = 0; i < Cloud_filtered->points.size(); i++)
+    {
+      pcl::PointXYZ p;
+      p.x = Cloud_filtered->points[i].x;
+      p.y = Cloud_filtered->points[i].y;
+      p.z = Cloud_filtered->points[i].z;
+      cloud_ptr_filter->points.push_back( p );    
+    }
   }
-  return Cloud_filtered;
 }
 
-// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+tf::Transform Waypoint_markerTransform_creation(int i, geometry_msgs::Pose P)
+{
+  tf::Quaternion rotation (P.orientation.x,
+                           P.orientation.y, 
+                           P.orientation.z,
+                           P.orientation.w);
+
+  tf::Vector3 origin      (P.position.x, 
+                           P.position.y,
+                           P.position.z);
+
+  tf::Transform t (rotation, origin);
+
+  return t;
+}
+
+std::string Waypoint_markerName_creation( int i )
+{
+  std::string markerFrame = "waypoint_marker_";
+  std::stringstream out;
+  out << i;
+  std::string id_string = out.str();
+  markerFrame += id_string;
+
+  return markerFrame;
+}
+
 
 // // Eigen::Quaterniond Transform_AngleAxisd_Quatenion(vector<Point3f> Normal_Vector)
 // void Transform_AngleAxisd_Quatenion(Cloud::Ptr PathPoint_Position)
@@ -468,6 +507,273 @@ Cloud::Ptr input_pointcloud_filter(int process_count, int process_count_limit, C
 
 //   return q;
 // }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+Eigen::Quaterniond rotation_Quaternionslerp(Eigen::Quaterniond starting, Eigen::Quaterniond ending, float t )
+{
+    float cosa = starting.x()*ending.x() + starting.y()*ending.y() + starting.z()*ending.z() + starting.w()*ending.w();
+    
+    // If the dot product is negative, the quaternions have opposite handed-ness and slerp won't take
+    // the shorter path. Fix by reversing one quaternion.
+    if ( cosa < 0.0f ) 
+    {
+        ending.x() = -ending.x();
+        ending.y() = -ending.y();
+        ending.z() = -ending.z();
+        ending.w() = -ending.z();
+        cosa = -cosa;
+    }
+    
+    float k0 = 0, k1 = 0;
+    
+    // If the inputs are too close for comfort, linearly interpolate
+    if ( cosa > 0.9995f ) 
+    {
+        k0 = 1.0f - t;
+        k1 = t;
+    }
+    else 
+    {
+        float sina = sqrt( 1.0f - cosa*cosa );
+        float a = atan2( sina, cosa );
+        k0 = sin((1.0f - t)*a)  / sina;
+        k1 = sin(t*a) / sina;
+    }
 
+    Eigen::Quaterniond result;
+    result.x() = starting.x()*k0 + ending.x()*k1;
+    result.y() = starting.y()*k0 + ending.y()*k1;
+    result.z() = starting.z()*k0 + ending.z()*k1;
+    result.w() = starting.w()*k0 + ending.w()*k1;
+
+    return result;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr PathPoint_Position, vector<Point3f> Torch_Normal_Vector)
+{
+  Cloud::Ptr PathPoint_Position_final  (new Cloud);   
+  vector<Point3f> Torch_Normal_Vector_final;
+
+  float points_cut_count = 0;
+  for(float i = points_cut_count; i < PathPoint_Position->points.size() - points_cut_count; i++)
+  {
+    pcl::PointXYZ p;
+    p.x = PathPoint_Position->points[i].x;
+    p.y = PathPoint_Position->points[i].y;
+    p.z = PathPoint_Position->points[i].z;
+    PathPoint_Position_final->points.push_back( p );    
+  }
+  for(float i = points_cut_count; i < Torch_Normal_Vector.size() - points_cut_count; i++)
+  {
+    Point3f  vector;
+    vector.x = Torch_Normal_Vector[i].x;
+    vector.y = Torch_Normal_Vector[i].y;
+    vector.z = Torch_Normal_Vector[i].z;
+    Torch_Normal_Vector_final.push_back(vector);
+  }
+  cout << "PathPoint_Position_final->points.size(): " << PathPoint_Position_final->points.size()  << endl;
+  cout << "Torch_Normal_Vector_final.size(): "        << Torch_Normal_Vector_final.size()         << endl << endl;
+
+  // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  vector<Point3f> X_Normal_Vector;
+  for(float i = 0; i < PathPoint_Position_final->points.size()-1; i++)
+  {
+    Point3f temp_vector;
+
+    temp_vector.x = PathPoint_Position_final->points[i+1].x - PathPoint_Position_final->points[i].x;
+    temp_vector.y = PathPoint_Position_final->points[i+1].y - PathPoint_Position_final->points[i].y;
+    temp_vector.z = PathPoint_Position_final->points[i+1].z - PathPoint_Position_final->points[i].z;
+
+    Vector3d v(                  temp_vector.x,                   temp_vector.y,                   temp_vector.z);
+    Vector3d w(-Torch_Normal_Vector_final[i].x, -Torch_Normal_Vector_final[i].y, -Torch_Normal_Vector_final[i].z);
+    Vector3d u = v.cross(w);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    Point3f x_normal_vector;
+    x_normal_vector.x = u[0] / n;
+    x_normal_vector.y = u[1] / n;
+    x_normal_vector.z = u[2] / n; 
+    
+    X_Normal_Vector.push_back(x_normal_vector);
+  }
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  vector<Point3f> Y_Normal_Vector;
+  vector<Point3f> Z_Normal_Vector;
+  for(float i = 0; i < X_Normal_Vector.size(); i++)
+  {
+    Vector3d v(-Torch_Normal_Vector_final[i].x, -Torch_Normal_Vector_final[i].y, -Torch_Normal_Vector_final[i].z);
+    Vector3d w(           X_Normal_Vector[i].x,            X_Normal_Vector[i].y,            X_Normal_Vector[i].z);
+    Vector3d u = v.cross(w);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    Point3f y_normal_vector;
+    y_normal_vector.x = u[0] / n;
+    y_normal_vector.y = u[1] / n;
+    y_normal_vector.z = u[2] / n; 
+    
+    Y_Normal_Vector.push_back(y_normal_vector);
+
+    Point3f z_normal_vector;
+    z_normal_vector.x = -Torch_Normal_Vector_final[i].x;
+    z_normal_vector.y = -Torch_Normal_Vector_final[i].y;
+    z_normal_vector.z = -Torch_Normal_Vector_final[i].z;
+    
+    Z_Normal_Vector.push_back(z_normal_vector);
+  }
+
+  float trajectory_point_size = X_Normal_Vector.size();
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  X_Normal_Vector.clear();
+  for(float i = 0; i < Y_Normal_Vector.size(); i++)
+  {
+    Vector3d k(-PathPoint_Position->points[i + points_cut_count].x,
+               -PathPoint_Position->points[i + points_cut_count].y,
+               -PathPoint_Position->points[i + points_cut_count].z);
+
+    Vector3d h(Y_Normal_Vector[i].x,
+               Y_Normal_Vector[i].y,
+               Y_Normal_Vector[i].z);
+
+    if(k.dot(h) < 0)
+    {
+      Y_Normal_Vector[i].x = -Y_Normal_Vector[i].x;
+      Y_Normal_Vector[i].y = -Y_Normal_Vector[i].y;
+      Y_Normal_Vector[i].z = -Y_Normal_Vector[i].z;
+    }
+
+    Vector3d v(Y_Normal_Vector[i].x, Y_Normal_Vector[i].y, Y_Normal_Vector[i].z);
+    Vector3d w(Z_Normal_Vector[i].x, Z_Normal_Vector[i].y, Z_Normal_Vector[i].z);
+    Vector3d u = v.cross(w);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    Point3f x_normal_vector;
+    x_normal_vector.x = u[0] / n;
+    x_normal_vector.y = u[1] / n;
+    x_normal_vector.z = u[2] / n; 
+    
+    X_Normal_Vector.push_back(x_normal_vector);
+
+  }
+
+  // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  vector< Eigen::Quaterniond > rotation_originWaypoint;
+  vector< Point3f > Pathpoint_Temp;
+  for(float i = 0; i < trajectory_point_size; i++)
+  {
+    // 旋转矩阵转换为欧拉角
+    Eigen::Matrix3d origin_base;
+    origin_base << 1, 0, 0,
+                   0, 1, 0, 
+                   0, 0, 1;
+    
+    Eigen::Matrix3d transformed_base;
+    transformed_base << X_Normal_Vector[i].x, Y_Normal_Vector[i].x, Z_Normal_Vector[i].x,
+                        X_Normal_Vector[i].y, Y_Normal_Vector[i].y, Z_Normal_Vector[i].y, 
+                        X_Normal_Vector[i].z, Y_Normal_Vector[i].z, Z_Normal_Vector[i].z;
+
+    Eigen::Matrix3d rotation_matrix;
+    rotation_matrix = origin_base * transformed_base;
+    
+    //ZYX顺序，即先绕x轴roll,再绕y轴pitch,最后绕z轴yaw,0表示X轴,1表示Y轴,2表示Z轴
+    // Eigen::Vector3d euler_angles = rotation_matrix.eulerAngles(2, 1, 0) * 180 / M_PI; 
+    // float q[4] = {0};
+    // euler_to_quaternion(euler_angles[0], euler_angles[2], euler_angles[1], q);
+    // cout << "euler_to_quaternion: " << q[0] << q[1] << q[2] << q[3]  << endl;
+    Eigen::Quaterniond rotation(rotation_matrix);
+    rotation_originWaypoint.push_back(rotation);
+    // cout << "rotation_matrix_quaternion: " << rotation.x() << rotation.y() << rotation.z() << rotation.w() << endl;
+
+    Point3f pathpoint_temp;
+    pathpoint_temp.x    = PathPoint_Position->points[i + points_cut_count].x;
+    pathpoint_temp.y    = PathPoint_Position->points[i + points_cut_count].y;
+    pathpoint_temp.z    = PathPoint_Position->points[i + points_cut_count].z;
+    Pathpoint_Temp.push_back(pathpoint_temp);
+
+  }
+  cout << "rotation_originWaypoint.size(): "     << rotation_originWaypoint.size() << endl;
+  cout << "Pathpoint_Temp.size(): "   << Pathpoint_Temp.size() << endl;
+  int origin_pathpoint_size = Pathpoint_Temp.size();
+
+  // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  vector< geometry_msgs::Pose > Trajectory_Point_Pose;
+  float dis_finalPoints = 0.0001;
+  for(float i = 0; i < origin_pathpoint_size - 1; i++)
+  {
+    // float dis_originPoints = sqrt( pow(Pathpoint_Temp[i].x - Pathpoint_Temp[i+1].x, 2) + 
+    //                                pow(Pathpoint_Temp[i].y - Pathpoint_Temp[i+1].y, 2) +
+    //                                pow(Pathpoint_Temp[i].z - Pathpoint_Temp[i+1].z, 2));
+    
+    // int points_size = dis_originPoints / dis_finalPoints;
+    // cout << "points_size: " << points_size << endl;
+
+    // Point3f pair_vector;
+    // pair_vector.x = Pathpoint_Temp[i+1].x - Pathpoint_Temp[i].x;
+    // pair_vector.y = Pathpoint_Temp[i+1].y - Pathpoint_Temp[i].y;
+    // pair_vector.z = Pathpoint_Temp[i+1].z - Pathpoint_Temp[i].z;
+
+    // float n = sqrt( pair_vector.x*pair_vector.x + pair_vector.y*pair_vector.y + pair_vector.z*pair_vector.z );
+    
+    // Point3f pair_vector_scaled;
+    // pair_vector_scaled.x = dis_finalPoints * pair_vector.x / n;
+    // pair_vector_scaled.y = dis_finalPoints * pair_vector.y / n;
+    // pair_vector_scaled.z = dis_finalPoints * pair_vector.z / n;
+
+    // for(float j = 0; j < points_size; j++)
+    // {
+    //   Eigen::Quaterniond rotation = rotation_Quaternionslerp(rotation_originWaypoint[i], rotation_originWaypoint[i+1], j * 1.0 / points_size);
+
+    //   geometry_msgs::Pose pose;
+    //   pose.position.x    = j * pair_vector_scaled.x + Pathpoint_Temp[i].x;
+    //   pose.position.y    = j * pair_vector_scaled.y + Pathpoint_Temp[i].y;
+    //   pose.position.z    = j * pair_vector_scaled.z + Pathpoint_Temp[i].z;
+    //   pose.orientation.x = rotation.x();
+    //   pose.orientation.y = rotation.y();
+    //   pose.orientation.z = rotation.z();
+    //   pose.orientation.w = rotation.w();
+
+    //   Trajectory_Point_Pose.push_back(pose);
+    // }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    geometry_msgs::Pose pose;
+    pose.position.x    =          Pathpoint_Temp[i].x;
+    pose.position.y    =          Pathpoint_Temp[i].y;
+    pose.position.z    =          Pathpoint_Temp[i].z;
+    pose.orientation.x = rotation_originWaypoint[i].x();
+    pose.orientation.y = rotation_originWaypoint[i].y();
+    pose.orientation.z = rotation_originWaypoint[i].z();
+    pose.orientation.w = rotation_originWaypoint[i].w();
+    Trajectory_Point_Pose.push_back(pose);
+
+    if(i == origin_pathpoint_size - 2)
+    {
+      geometry_msgs::Pose pose;
+      pose.position.x    =          Pathpoint_Temp[i+1].x;
+      pose.position.y    =          Pathpoint_Temp[i+1].y;
+      pose.position.z    =          Pathpoint_Temp[i+1].z;
+      pose.orientation.x = rotation_originWaypoint[i+1].x();
+      pose.orientation.y = rotation_originWaypoint[i+1].y();
+      pose.orientation.z = rotation_originWaypoint[i+1].z();
+      pose.orientation.w = rotation_originWaypoint[i+1].w();
+
+      Trajectory_Point_Pose.push_back(pose);
+    }
+ 
+
+
+  }
+  for(float i = 0; i < Trajectory_Point_Pose.size(); i++)
+  {
+    cout <<  Trajectory_Point_Pose[i] << endl;
+  }
+
+  cout << "Trajectory_Point_Pose.size(): " << Trajectory_Point_Pose.size() << endl;
+
+  return Trajectory_Point_Pose;
+}
 
 

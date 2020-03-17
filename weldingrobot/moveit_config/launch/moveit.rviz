@@ -5,13 +5,11 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /PointCloud21
-        - /PointCloud22
-        - /TF1
         - /TF1/Frames1
         - /Marker1
         - /Marker1/Namespaces1
       Splitter Ratio: 0.742560029
-    Tree Height: 809
+    Tree Height: 837
   - Class: rviz/Help
     Name: Help
   - Class: rviz/Views
@@ -197,7 +195,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -214,7 +212,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -307,7 +305,7 @@ Visualization Manager:
         upper_arm_link:
           Value: false
         welding_torch:
-          Value: false
+          Value: true
         world:
           Value: false
         wrist_1_link:
@@ -316,7 +314,7 @@ Visualization Manager:
           Value: false
         wrist_3_link:
           Value: false
-      Marker Scale: 0.5
+      Marker Scale: 0.100000001
       Name: TF
       Show Arrows: false
       Show Axes: true
@@ -394,37 +392,37 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.42100251
+      Distance: 1.20165038
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.00652789697
-        Y: 0.382064819
-        Z: -1.19208721e-07
+        X: 0.185412943
+        Y: 0.638496578
+        Z: -3.35275558e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.129793897
+      Pitch: 0.359797627
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.72680473
+      Yaw: 2.97682977
     Saved: ~
 Window Geometry:
   Displays:
     collapsed: false
-  Height: 1028
+  Height: 1056
   Help:
     collapsed: false
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003befc0200000007fb000000100044006900730070006c0061007900730100000028000003be000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000000005b4000003be00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  QMainWindow State: 000000ff00000000fd00000001000000000000016a000003dafc0200000007fb000000100044006900730070006c0061007900730100000028000003da000000dd00fffffffb0000000800480065006c00700000000342000000bb0000007600fffffffb0000000a0056006900650077007300000003b0000000b0000000b000fffffffb0000000c00430061006d00650072006100000002ff000001610000000000000000fb0000001e004d006f00740069006f006e00200050006c0061006e006e0069006e00670100000374000001890000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e006701000002580000018e0000000000000000000005cf000003da00000001000000020000000100000002fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Views:
     collapsed: false
-  Width: 1828
-  X: 92
+  Width: 1855
+  X: 65
   Y: 24
