@@ -514,12 +514,13 @@ Eigen::Quaterniond rotation_Quaternionslerp(Eigen::Quaterniond starting, Eigen::
     
     // If the dot product is negative, the quaternions have opposite handed-ness and slerp won't take
     // the shorter path. Fix by reversing one quaternion.
+    Eigen::Quaterniond ending_copy;
     if ( cosa < 0.0f ) 
     {
-        ending.x() = -ending.x();
-        ending.y() = -ending.y();
-        ending.z() = -ending.z();
-        ending.w() = -ending.z();
+        ending_copy.x() = -ending.x();
+        ending_copy.y() = -ending.y();
+        ending_copy.z() = -ending.z();
+        ending_copy.w() = -ending.z();
         cosa = -cosa;
     }
     
@@ -540,10 +541,10 @@ Eigen::Quaterniond rotation_Quaternionslerp(Eigen::Quaterniond starting, Eigen::
     }
 
     Eigen::Quaterniond result;
-    result.x() = starting.x()*k0 + ending.x()*k1;
-    result.y() = starting.y()*k0 + ending.y()*k1;
-    result.z() = starting.z()*k0 + ending.z()*k1;
-    result.w() = starting.w()*k0 + ending.w()*k1;
+    result.x() = starting.x()*k0 + ending_copy.x()*k1;
+    result.y() = starting.y()*k0 + ending_copy.y()*k1;
+    result.z() = starting.z()*k0 + ending_copy.z()*k1;
+    result.w() = starting.w()*k0 + ending_copy.w()*k1;
 
     return result;
 }
@@ -555,7 +556,7 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr Path
   Cloud::Ptr PathPoint_Position_final  (new Cloud);   
   vector<Point3f> Torch_Normal_Vector_final;
 
-  float points_cut_count = 0;
+  float points_cut_count = 1;
   for(float i = points_cut_count; i < PathPoint_Position->points.size() - points_cut_count; i++)
   {
     pcl::PointXYZ p;
@@ -677,14 +678,9 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr Path
     Eigen::Matrix3d rotation_matrix;
     rotation_matrix = origin_base * transformed_base;
     
-    //ZYX顺序，即先绕x轴roll,再绕y轴pitch,最后绕z轴yaw,0表示X轴,1表示Y轴,2表示Z轴
-    // Eigen::Vector3d euler_angles = rotation_matrix.eulerAngles(2, 1, 0) * 180 / M_PI; 
-    // float q[4] = {0};
-    // euler_to_quaternion(euler_angles[0], euler_angles[2], euler_angles[1], q);
-    // cout << "euler_to_quaternion: " << q[0] << q[1] << q[2] << q[3]  << endl;
     Eigen::Quaterniond rotation(rotation_matrix);
     rotation_originWaypoint.push_back(rotation);
-    // cout << "rotation_matrix_quaternion: " << rotation.x() << rotation.y() << rotation.z() << rotation.w() << endl;
+    cout << "rotation_matrix_quaternion: " << rotation.x() << rotation.y() << rotation.z() << rotation.w() << endl;
 
     Point3f pathpoint_temp;
     pathpoint_temp.x    = PathPoint_Position->points[i + points_cut_count].x;
@@ -693,8 +689,33 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr Path
     Pathpoint_Temp.push_back(pathpoint_temp);
 
   }
-  cout << "rotation_originWaypoint.size(): "     << rotation_originWaypoint.size() << endl;
-  cout << "Pathpoint_Temp.size(): "   << Pathpoint_Temp.size() << endl;
+
+  // for(float i = 0; i < rotation_originWaypoint.size() - 1; i++)
+  // {
+  //   // float cosa = rotation_originWaypoint[i].x()*rotation_originWaypoint[i+1].x() + 
+  //   //              rotation_originWaypoint[i].y()*rotation_originWaypoint[i+1].y() + 
+  //   //              rotation_originWaypoint[i].z()*rotation_originWaypoint[i+1].z() + 
+  //   //              rotation_originWaypoint[i].w()*rotation_originWaypoint[i+1].w();
+  //   // if ( cosa < 0.0f ) 
+  //   // {
+  //   //     rotation_originWaypoint[i+1].x() = -rotation_originWaypoint[i+1].x();
+  //   //     rotation_originWaypoint[i+1].y() = -rotation_originWaypoint[i+1].y();
+  //   //     rotation_originWaypoint[i+1].z() = -rotation_originWaypoint[i+1].z();
+  //   //     rotation_originWaypoint[i+1].w() = -rotation_originWaypoint[i+1].z();
+  //   // }
+  //   rotation_originWaypoint[i].x() = -rotation_originWaypoint[i].x();
+  //   rotation_originWaypoint[i].y() = -rotation_originWaypoint[i].y();
+  //   rotation_originWaypoint[i].z() = -rotation_originWaypoint[i].z();
+  //   rotation_originWaypoint[i].w() = -rotation_originWaypoint[i].z();
+
+  // }
+  // for(float i = 0; i < rotation_originWaypoint.size() - 1; i++)
+  // {
+  //   cout << "rotation_originWaypoint: " << rotation_originWaypoint[i].x() << rotation_originWaypoint[i].y() << rotation_originWaypoint[i].z() << rotation_originWaypoint[i].w() << endl;
+  // }
+
+  cout << "rotation_originWaypoint.size(): "  << rotation_originWaypoint.size() << endl;
+  cout << "Pathpoint_Temp.size(): "           << Pathpoint_Temp.size() << endl;
   int origin_pathpoint_size = Pathpoint_Temp.size();
 
   // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -702,52 +723,52 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr Path
   float dis_finalPoints = 0.0001;
   for(float i = 0; i < origin_pathpoint_size - 1; i++)
   {
-    // float dis_originPoints = sqrt( pow(Pathpoint_Temp[i].x - Pathpoint_Temp[i+1].x, 2) + 
-    //                                pow(Pathpoint_Temp[i].y - Pathpoint_Temp[i+1].y, 2) +
-    //                                pow(Pathpoint_Temp[i].z - Pathpoint_Temp[i+1].z, 2));
+    float dis_originPoints = sqrt( pow(Pathpoint_Temp[i].x - Pathpoint_Temp[i+1].x, 2) + 
+                                   pow(Pathpoint_Temp[i].y - Pathpoint_Temp[i+1].y, 2) +
+                                   pow(Pathpoint_Temp[i].z - Pathpoint_Temp[i+1].z, 2));
     
-    // int points_size = dis_originPoints / dis_finalPoints;
-    // cout << "points_size: " << points_size << endl;
+    int points_size = dis_originPoints / dis_finalPoints;
+    cout << "points_size: " << points_size << endl;
 
-    // Point3f pair_vector;
-    // pair_vector.x = Pathpoint_Temp[i+1].x - Pathpoint_Temp[i].x;
-    // pair_vector.y = Pathpoint_Temp[i+1].y - Pathpoint_Temp[i].y;
-    // pair_vector.z = Pathpoint_Temp[i+1].z - Pathpoint_Temp[i].z;
+    Point3f pair_vector;
+    pair_vector.x = Pathpoint_Temp[i+1].x - Pathpoint_Temp[i].x;
+    pair_vector.y = Pathpoint_Temp[i+1].y - Pathpoint_Temp[i].y;
+    pair_vector.z = Pathpoint_Temp[i+1].z - Pathpoint_Temp[i].z;
 
-    // float n = sqrt( pair_vector.x*pair_vector.x + pair_vector.y*pair_vector.y + pair_vector.z*pair_vector.z );
+    float n = sqrt( pair_vector.x*pair_vector.x + pair_vector.y*pair_vector.y + pair_vector.z*pair_vector.z );
     
-    // Point3f pair_vector_scaled;
-    // pair_vector_scaled.x = dis_finalPoints * pair_vector.x / n;
-    // pair_vector_scaled.y = dis_finalPoints * pair_vector.y / n;
-    // pair_vector_scaled.z = dis_finalPoints * pair_vector.z / n;
+    Point3f pair_vector_scaled;
+    pair_vector_scaled.x = dis_finalPoints * pair_vector.x / n;
+    pair_vector_scaled.y = dis_finalPoints * pair_vector.y / n;
+    pair_vector_scaled.z = dis_finalPoints * pair_vector.z / n;
 
-    // for(float j = 0; j < points_size; j++)
-    // {
-    //   Eigen::Quaterniond rotation = rotation_Quaternionslerp(rotation_originWaypoint[i], rotation_originWaypoint[i+1], j * 1.0 / points_size);
+    for(float j = 0; j < points_size; j++)
+    {
+      // Eigen::Quaterniond rotation = rotation_Quaternionslerp(rotation_originWaypoint[i], rotation_originWaypoint[i+1], j * 1.0 / points_size);
+      Eigen::Quaterniond rotation = rotation_originWaypoint[i];
+      geometry_msgs::Pose pose;
+      pose.position.x    = j * pair_vector_scaled.x + Pathpoint_Temp[i].x;
+      pose.position.y    = j * pair_vector_scaled.y + Pathpoint_Temp[i].y;
+      pose.position.z    = j * pair_vector_scaled.z + Pathpoint_Temp[i].z;
+      pose.orientation.x = rotation.x();
+      pose.orientation.y = rotation.y();
+      pose.orientation.z = rotation.z();
+      pose.orientation.w = rotation.w();
 
-    //   geometry_msgs::Pose pose;
-    //   pose.position.x    = j * pair_vector_scaled.x + Pathpoint_Temp[i].x;
-    //   pose.position.y    = j * pair_vector_scaled.y + Pathpoint_Temp[i].y;
-    //   pose.position.z    = j * pair_vector_scaled.z + Pathpoint_Temp[i].z;
-    //   pose.orientation.x = rotation.x();
-    //   pose.orientation.y = rotation.y();
-    //   pose.orientation.z = rotation.z();
-    //   pose.orientation.w = rotation.w();
-
-    //   Trajectory_Point_Pose.push_back(pose);
-    // }
+      Trajectory_Point_Pose.push_back(pose);
+    }
 
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    geometry_msgs::Pose pose;
-    pose.position.x    =          Pathpoint_Temp[i].x;
-    pose.position.y    =          Pathpoint_Temp[i].y;
-    pose.position.z    =          Pathpoint_Temp[i].z;
-    pose.orientation.x = rotation_originWaypoint[i].x();
-    pose.orientation.y = rotation_originWaypoint[i].y();
-    pose.orientation.z = rotation_originWaypoint[i].z();
-    pose.orientation.w = rotation_originWaypoint[i].w();
-    Trajectory_Point_Pose.push_back(pose);
+    // geometry_msgs::Pose pose;
+    // pose.position.x    =          Pathpoint_Temp[i].x;
+    // pose.position.y    =          Pathpoint_Temp[i].y;
+    // pose.position.z    =          Pathpoint_Temp[i].z;
+    // pose.orientation.x = rotation_originWaypoint[i].x();
+    // pose.orientation.y = rotation_originWaypoint[i].y();
+    // pose.orientation.z = rotation_originWaypoint[i].z();
+    // pose.orientation.w = rotation_originWaypoint[i].w();
+    // Trajectory_Point_Pose.push_back(pose);
 
     if(i == origin_pathpoint_size - 2)
     {
@@ -766,10 +787,10 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr Path
 
 
   }
-  for(float i = 0; i < Trajectory_Point_Pose.size(); i++)
-  {
-    cout <<  Trajectory_Point_Pose[i] << endl;
-  }
+  // for(float i = 0; i < Trajectory_Point_Pose.size(); i++)
+  // {
+  //   cout <<  Trajectory_Point_Pose[i] << endl;
+  // }
 
   cout << "Trajectory_Point_Pose.size(): " << Trajectory_Point_Pose.size() << endl;
 

@@ -251,14 +251,14 @@ int main(int argc, char **argv)
     for(int i = 0; i < trajectory_6DOF.size(); i++)
     {
       int display_pointsize = 20;
-      // if( (trajectory_6DOF.size() / display_pointsize) != 0 && i%(trajectory_6DOF.size() / display_pointsize) == 0 )
-      // {
+      if( (trajectory_6DOF.size() / display_pointsize) != 0 && i%(trajectory_6DOF.size() / display_pointsize) == 0 )
+      {
         std::string   markerFrame       = Waypoint_markerName_creation(i);
         tf::Transform waypoint_tranform = Waypoint_markerTransform_creation(i, trajectory_6DOF[i]);
 
         tf::StampedTransform waypoint_Marker (waypoint_tranform, ros::Time::now(), "/base_link", markerFrame.c_str());
         tf_broadcaster.sendTransform(waypoint_Marker);
-      // }
+      }
     }
     //////////////////////////////////////////////////////////////////////////////////////
 
