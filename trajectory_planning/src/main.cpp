@@ -268,8 +268,8 @@ int main(int argc, char **argv)
         tf_broadcaster.sendTransform(waypoint_Marker);
       }
     }
-    //////////////////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////////////////
 
     Rviz_TrajectoryPose = trajectory_6DOF_generation( trajectoryPlanning_flag, 
                                                       process_count, 
@@ -281,8 +281,8 @@ int main(int argc, char **argv)
                                                       pub_pointcloud, 
                                                       pointcloud_publisher, 
                                                       Welding_Trajectory_publisher);
-    //////////////////////////////////////////////////////////////////////////////////////
 
+    //////////////////////////////////////////////////////////////////////////////////////
     
     camera_pointcloud->points.clear();
     cam_pc_transform->points.clear();

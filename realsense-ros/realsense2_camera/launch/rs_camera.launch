@@ -1,5 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
-
 <launch>
   <arg name="serial_no"           default=""/>
   <arg name="usb_port_id"         default=""/>
@@ -36,7 +34,7 @@
   <arg name="enable_gyro"         default="true"/>
   <arg name="enable_accel"        default="true"/>
 
-  <arg name="enable_pointcloud"         default="true"/>
+  <arg name="enable_pointcloud"         default="false"/>
   <arg name="pointcloud_texture_stream" default="RS2_STREAM_COLOR"/>
   <arg name="pointcloud_texture_index"  default="0"/>
 

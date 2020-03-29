@@ -604,6 +604,11 @@ Cloud::Ptr X_Normal_Vector_Temp(Cloud::Ptr PathPoint_Position_final, Cloud::Ptr 
     x_normal_vector.z = u[2] / n; 
     
     X_Normal_Vector->points.push_back(x_normal_vector);
+
+    if(i == PathPoint_Position_final->points.size()-1-1)
+    {
+      X_Normal_Vector->points.push_back(x_normal_vector);
+    }
   }
 
   cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl << endl;
@@ -733,11 +738,8 @@ void URx_Pose_generation( float trajectory_point_size,
                           Cloud::Ptr Y_Normal_Vector, 
                           Cloud::Ptr Z_Normal_Vector, 
                           Cloud::Ptr PathPoint_Position_final,
-                          Cloud::Ptr Pathpoint_rotationVector_URx,
-                          Cloud::Ptr Pathpoint_Temp_URx)
+                          vector< geometry_msgs::Pose > &Welding_Trajectory)
 {
- 
-
   for(float i = 0; i < trajectory_point_size; i++)
   {
     cout << "count: " << i+1 << endl;
@@ -780,22 +782,19 @@ void URx_Pose_generation( float trajectory_point_size,
     Eigen::AngleAxisd End_rotation_vector_URx(End_rotation_matrix_URx);
     // cout << "End_rotation_vector_URx "  << "angle is: " << End_rotation_vector_URx.angle() * (180 / M_PI) 
     //                                     << " axis is: " << End_rotation_vector_URx.axis().transpose() << endl;
-    pcl::PointXYZ rotationVector_URx;
-    rotationVector_URx.x = End_rotation_vector_URx.angle() * End_rotation_vector_URx.axis().x();
-    rotationVector_URx.y = End_rotation_vector_URx.angle() * End_rotation_vector_URx.axis().y();
-    rotationVector_URx.z = End_rotation_vector_URx.angle() * End_rotation_vector_URx.axis().z();
-    Pathpoint_rotationVector_URx->points.push_back(rotationVector_URx);
-    
-    pcl::PointXYZ pathpoint_temp_URx;
-    pathpoint_temp_URx.x    = T_Base2End(0,3);
-    pathpoint_temp_URx.y    = T_Base2End(1,3);
-    pathpoint_temp_URx.z    = T_Base2End(2,3);
 
-    cout << "pathpoint_temp_URx: " << pathpoint_temp_URx << endl << endl;
-    Pathpoint_Temp_URx->points.push_back(pathpoint_temp_URx);
-
+    ////////////////////////////////////////////////////////////////////////////
+    geometry_msgs::Pose pose;
+    pose.position.x    = T_Base2End(0,3);
+    pose.position.y    = T_Base2End(1,3);
+    pose.position.z    = T_Base2End(2,3);
+    pose.orientation.x = End_rotation_vector_URx.angle() * End_rotation_vector_URx.axis().x(); 
+    pose.orientation.y = End_rotation_vector_URx.angle() * End_rotation_vector_URx.axis().y(); 
+    pose.orientation.z = End_rotation_vector_URx.angle() * End_rotation_vector_URx.axis().z(); 
+    pose.orientation.w = 0;
+    cout << "welding_trajectory_pose" << pose << endl;
+    Welding_Trajectory.push_back(pose);
   }
-
 }
 
 
@@ -978,31 +977,15 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
                                                                                     rotation_originWaypoint, 
                                                                                     Pathpoint_Temp);
 
-
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  Cloud::Ptr Pathpoint_Temp_URx (new Cloud); 
-  Cloud::Ptr Pathpoint_rotationVector_URx (new Cloud); 
+
   URx_Pose_generation(  trajectory_point_size, 
                         X_Normal_Vector, 
                         Y_Normal_Vector, 
                         Z_Normal_Vector, 
-                        PathPoint_Position_final,
-                        Pathpoint_rotationVector_URx,
-                        Pathpoint_Temp_URx);
+                        PathPoint_Position_final,                   
+                        Welding_Trajectory);
 
-  for(float i = 0; i < Pathpoint_Temp_URx->points.size(); i++)
-  {
-    geometry_msgs::Pose pose;
-    pose.position.x    =           Pathpoint_Temp_URx->points[i].x;
-    pose.position.y    =           Pathpoint_Temp_URx->points[i].y;
-    pose.position.z    =           Pathpoint_Temp_URx->points[i].z;
-    pose.orientation.x = Pathpoint_rotationVector_URx->points[i].x;
-    pose.orientation.y = Pathpoint_rotationVector_URx->points[i].y;
-    pose.orientation.z = Pathpoint_rotationVector_URx->points[i].z;
-    pose.orientation.w = 0;
-
-    Welding_Trajectory.push_back(pose);
-  }
   cout << "Welding_Trajectory.size(): "  << Welding_Trajectory.size() << endl;
 
   return Rviz_TrajectoryPose;
@@ -1036,7 +1019,7 @@ void model_3D_reconstruction(int &capture_flag, PointCloud::Ptr cam_pc_transform
 
     cout << "map_pointcloud->points.size()" << map_pointcloud->points.size() << endl;
     pcl::PCDWriter writer;
-    writer.write("/home/rick/Documents/a_system/src/trajectory_planning/src/curve_seam_cloud.pcd", *map_pointcloud, false) ;
+    writer.write("/home/rick/Documents/a_system/src/trajectory_planning/src/model_3D.pcd", *map_pointcloud, false) ;
 
   }
 }

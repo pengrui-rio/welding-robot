@@ -54,7 +54,7 @@ inline std::string getMin<std::string>()
 template <typename T>
 inline T getMax()
 {
-  return std::numeric_limits<T>::min();
+  return std::numeric_limits<T>::max();
 }
 
 template <>

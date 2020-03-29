@@ -118,22 +118,22 @@ class MoveGroupPythonInteface(object):
 
   def motion(self):
 
-    # print "============ Press `Enter` to set the initial pose ..."
-    # raw_input()
+    print "============ Press `Enter` to set the initial pose ..."
+    raw_input()
 
-    # group = self.group
-    # joint_goal = group.get_current_joint_values()
-    # joint_goal[0] = 0
-    # joint_goal[1] = -pi/2
-    # joint_goal[2] = 0
-    # joint_goal[3] = -pi/2
-    # joint_goal[4] = 0
-    # joint_goal[5] = 0
+    group = self.group
+    joint_goal = group.get_current_joint_values()
+    joint_goal[0] = 0
+    joint_goal[1] = -pi/2
+    joint_goal[2] = 0
+    joint_goal[3] = -pi/2
+    joint_goal[4] = 0
+    joint_goal[5] = 0
  
-    # group.go(joint_goal, wait=True)
-    # group.stop()
-    # group.clear_pose_targets()
-    # current_pose = self.group.get_current_pose().pose
+    group.go(joint_goal, wait=True)
+    group.stop()
+    group.clear_pose_targets()
+    current_pose = self.group.get_current_pose().pose
  
 
     print "============ Press `Enter` to capture pointcloud ============"
@@ -215,22 +215,22 @@ class MoveGroupPythonInteface(object):
 
 
 
-    print "============ Press `Enter` to start execution ============"
-    raw_input()
+    # print "============ Press `Enter` to start execution ============"
+    # raw_input()
 
-    group = self.group
-    joint_goal = group.get_current_joint_values()
-    joint_goal[0] = 0
-    joint_goal[1] = -pi/2
-    joint_goal[2] = 0
-    joint_goal[3] = -pi/2
-    joint_goal[4] = 0
-    joint_goal[5] = 0
+    # group = self.group
+    # joint_goal = group.get_current_joint_values()
+    # joint_goal[0] = 0
+    # joint_goal[1] = -pi/2
+    # joint_goal[2] = 0
+    # joint_goal[3] = -pi/2
+    # joint_goal[4] = 0
+    # joint_goal[5] = 0
 
-    group.go(joint_goal, wait=True)
-    group.stop()
-    group.clear_pose_targets()
-    current_pose = self.group.get_current_pose().pose
+    # group.go(joint_goal, wait=True)
+    # group.stop()
+    # group.clear_pose_targets()
+    # current_pose = self.group.get_current_pose().pose
 
 
     # group = self.group 
@@ -248,41 +248,41 @@ class MoveGroupPythonInteface(object):
     # group.stop()
 
  
-    move_dir_flag = 1
-    i = 0
-    while not rospy.is_shutdown():
-      if move_dir_flag == 1:
-        group = self.group 
+    # move_dir_flag = 1
+    # i = 0
+    # while not rospy.is_shutdown():
+    #   if move_dir_flag == 1:
+    #     group = self.group 
 
-        pose_goal = geometry_msgs.msg.Pose()
-        pose_goal.position.x    = self.motion_pathPoint[i][0] 
-        pose_goal.position.y    = self.motion_pathPoint[i][1]
-        pose_goal.position.z    = self.motion_pathPoint[i][2]
-        pose_goal.orientation.x = self.motion_pathPoint[i][3]
-        pose_goal.orientation.y = self.motion_pathPoint[i][4]
-        pose_goal.orientation.z = self.motion_pathPoint[i][5]
-        pose_goal.orientation.w = self.motion_pathPoint[i][6]
-        group.set_pose_target(pose_goal)
-        group.go(wait=True)
-        group.stop()
-        print i
+    #     pose_goal = geometry_msgs.msg.Pose()
+    #     pose_goal.position.x    = self.motion_pathPoint[i][0] 
+    #     pose_goal.position.y    = self.motion_pathPoint[i][1]
+    #     pose_goal.position.z    = self.motion_pathPoint[i][2]
+    #     pose_goal.orientation.x = self.motion_pathPoint[i][3]
+    #     pose_goal.orientation.y = self.motion_pathPoint[i][4]
+    #     pose_goal.orientation.z = self.motion_pathPoint[i][5]
+    #     pose_goal.orientation.w = self.motion_pathPoint[i][6]
+    #     group.set_pose_target(pose_goal)
+    #     group.go(wait=True)
+    #     group.stop()
+    #     print i
 
-        pub_pose = PoseStamped()
-        pub_pose.header.stamp       = rospy.Time.now()
-        pub_pose.header.frame_id    = "robot_currentpose"
-        pub_pose.pose.position.x    = 0
-        pub_pose.pose.position.y    = 0
-        pub_pose.pose.position.z    = 0
-        pub_pose.pose.orientation.x = 0
-        pub_pose.pose.orientation.y = 0
-        pub_pose.pose.orientation.z = 0
-        pub_pose.pose.orientation.w = 3
-        rospy.loginfo(pub_pose)
-        self.pub.publish(pub_pose)
+    #     pub_pose = PoseStamped()
+    #     pub_pose.header.stamp       = rospy.Time.now()
+    #     pub_pose.header.frame_id    = "robot_currentpose"
+    #     pub_pose.pose.position.x    = 0
+    #     pub_pose.pose.position.y    = 0
+    #     pub_pose.pose.position.z    = 0
+    #     pub_pose.pose.orientation.x = 0
+    #     pub_pose.pose.orientation.y = 0
+    #     pub_pose.pose.orientation.z = 0
+    #     pub_pose.pose.orientation.w = 3
+    #     rospy.loginfo(pub_pose)
+    #     self.pub.publish(pub_pose)
 
-        i = i + 1
-        if i == len(self.motion_pathPoint) - 1 + 1:
-          move_dir_flag = -1
+    #     i = i + 1
+    #     if i == len(self.motion_pathPoint) - 1 + 1:
+    #       move_dir_flag = -1
 
     #   elif move_dir_flag == -1:
     #     group = self.group 

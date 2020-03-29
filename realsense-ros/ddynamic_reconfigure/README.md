@@ -1,4 +1,4 @@
-#ddynamic_reconfigure
+# ddynamic_reconfigure
 
 The ddynamic_reconfigure package is a C++ extension of [dynamic_reconfigure](https://github.com/ros/dynamic_reconfigure) that allows modifying parameters of a ROS node using the dynamic_reconfigure framework without having to write cfg files.
 
@@ -73,6 +73,53 @@ int main(int argc, char **argv) {
     return 0;
  }
 ```
+
+Registering variables in a private namespace "ddynamic_tutorials/other_namespace/int_param":
+
+```cpp
+
+#include <ros/ros.h>
+#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
+
+int main(int argc, char **argv) {
+    // ROS init stage
+    ros::init(argc, argv, "ddynamic_tutorials");
+    ros::NodeHandle nh("~/other_namespace");
+    ddynamic_reconfigure::DDynamicReconfigure ddr(nh);
+
+    int int_param = 0;
+    ddr.registerVariable<int>("int_param", &int_param, "param description");
+    ddr.publishServicesTopics();
+    
+    ros::spin();
+    return 0;
+}
+```
+
+
+Same scenario, but with the NodeHandle created after the ddr instantiation:
+
+```cpp
+
+#include <ros/ros.h>
+#include <ddynamic_reconfigure/ddynamic_reconfigure.h>
+
+std::unique_ptr<ddynamic_reconfigure::DDynamicReconfigure> ddr;
+int main(int argc, char **argv) {
+    // ROS init stage
+    ros::init(argc, argv, "ddynamic_tutorials");
+    ros::NodeHandle nh("~/other_namespace");
+
+    ddr.reset(new ddynamic_reconfigure::DDynamicReconfigure(nh));
+    int int_param = 0;
+    ddr->registerVariable<int>("int_param", &int_param, "param description");
+    ddr->publishServicesTopics();
+    
+    ros::spin();
+    return 0;
+}
+```
+
 
 ## Issues
 ### Undefined reference to registerVariable or registerEnumVariable
