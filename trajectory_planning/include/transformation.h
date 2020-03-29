@@ -56,17 +56,34 @@ void analyze_realsense_data(PointCloud::Ptr cloud);
 
 void coordinate_transformation(tf::StampedTransform transform, PointCloud::Ptr camera_pointcloud, PointCloud::Ptr map_pointcloud, Cloud::Ptr cloud_ptr);
 
+geometry_msgs::Pose Torch_to_End_transform(tf::StampedTransform transform_tool02torch);
+
+void Base_to_End_transform(int &receive_pose_flag, tf::StampedTransform transform);
+
+
+
 Cloud::Ptr cloud_ptr_origin_copy(Cloud::Ptr cloud_ptr_new);
 
 void input_pointcloud_filter(int process_count, int process_count_limit, Cloud::Ptr cloud_ptr, Cloud::Ptr cloud_ptr_filter);
 
+vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometry_msgs::Pose > &Welding_Trajectory, 
+                                                                 Cloud::Ptr PathPoint_Position, 
+                                                                 vector<Point3f> Torch_Normal_Vector);
 
-vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(Cloud::Ptr PathPoint_Position, vector<Point3f> Torch_Normal_Vector);
 
+                                                                 
 // Eigen::Quaterniond Transform_AngleAxisd_Quatenion(vector<Point3f> Normal_Vector);
 // void Transform_AngleAxisd_Quatenion(Cloud::Ptr PathPoint_Position);
 tf::Transform Waypoint_markerTransform_creation(int i, geometry_msgs::Pose P);
 std::string Waypoint_markerName_creation( int i );
+
+
+void model_3D_reconstruction(int &capture_flag, PointCloud::Ptr cam_pc_transform, PointCloud::Ptr map_pointcloud);
+
+
+
+
+
 
 
 void rotate_z(float x, float y, float z, float angle, float* x_output, float* y_output, float* z_output) ;

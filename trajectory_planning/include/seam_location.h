@@ -61,16 +61,16 @@ using namespace Eigen;
 void RGBimage_seam_extration(Mat color_pic, Mat depth_pic);
 
 
-Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show);
+Cloud::Ptr read_pointcloud (float radius, PointCloud::Ptr cloud_ptr_show);
 
-void SurfaceProfile_Reconstruction(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
+void SurfaceProfile_Reconstruction(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show);
 
-vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position);
+vector<Point3f> PointNormal_Computation(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position);
 
-void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
+void Delete_SmoothChange_Plane(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
+
 
 void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher);
-
 
 
 vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, Point3f Cam_Position);

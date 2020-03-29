@@ -195,7 +195,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -205,14 +205,14 @@ Visualization Manager:
       Position Transformer: XYZ
       Queue Size: 10
       Selectable: true
-      Size (Pixels): 3
+      Size (Pixels): 4
       Size (m): 0.00999999978
       Style: Points
-      Topic: /map_pointcloud
+      Topic: /camera_pointcloud_transform
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -304,6 +304,88 @@ Visualization Manager:
           Value: false
         upper_arm_link:
           Value: false
+        waypoint_marker_0:
+          Value: true
+        waypoint_marker_1000:
+          Value: true
+        waypoint_marker_1106:
+          Value: true
+        waypoint_marker_1200:
+          Value: true
+        waypoint_marker_1264:
+          Value: true
+        waypoint_marker_1400:
+          Value: true
+        waypoint_marker_1422:
+          Value: true
+        waypoint_marker_158:
+          Value: true
+        waypoint_marker_1580:
+          Value: true
+        waypoint_marker_1600:
+          Value: true
+        waypoint_marker_1738:
+          Value: true
+        waypoint_marker_1800:
+          Value: true
+        waypoint_marker_1896:
+          Value: true
+        waypoint_marker_200:
+          Value: true
+        waypoint_marker_2000:
+          Value: true
+        waypoint_marker_2054:
+          Value: true
+        waypoint_marker_2200:
+          Value: true
+        waypoint_marker_2212:
+          Value: true
+        waypoint_marker_2370:
+          Value: true
+        waypoint_marker_2400:
+          Value: true
+        waypoint_marker_2528:
+          Value: true
+        waypoint_marker_2600:
+          Value: true
+        waypoint_marker_2686:
+          Value: true
+        waypoint_marker_2800:
+          Value: true
+        waypoint_marker_2844:
+          Value: true
+        waypoint_marker_3000:
+          Value: true
+        waypoint_marker_3002:
+          Value: true
+        waypoint_marker_316:
+          Value: true
+        waypoint_marker_3160:
+          Value: true
+        waypoint_marker_3200:
+          Value: true
+        waypoint_marker_3400:
+          Value: true
+        waypoint_marker_3600:
+          Value: true
+        waypoint_marker_3800:
+          Value: true
+        waypoint_marker_400:
+          Value: true
+        waypoint_marker_4000:
+          Value: true
+        waypoint_marker_474:
+          Value: true
+        waypoint_marker_600:
+          Value: true
+        waypoint_marker_632:
+          Value: true
+        waypoint_marker_790:
+          Value: true
+        waypoint_marker_800:
+          Value: true
+        waypoint_marker_948:
+          Value: true
         welding_torch:
           Value: true
         world:
@@ -366,6 +448,88 @@ Visualization Manager:
               post:
                 bar:
                   {}
+            waypoint_marker_0:
+              {}
+            waypoint_marker_1000:
+              {}
+            waypoint_marker_1106:
+              {}
+            waypoint_marker_1200:
+              {}
+            waypoint_marker_1264:
+              {}
+            waypoint_marker_1400:
+              {}
+            waypoint_marker_1422:
+              {}
+            waypoint_marker_158:
+              {}
+            waypoint_marker_1580:
+              {}
+            waypoint_marker_1600:
+              {}
+            waypoint_marker_1738:
+              {}
+            waypoint_marker_1800:
+              {}
+            waypoint_marker_1896:
+              {}
+            waypoint_marker_200:
+              {}
+            waypoint_marker_2000:
+              {}
+            waypoint_marker_2054:
+              {}
+            waypoint_marker_2200:
+              {}
+            waypoint_marker_2212:
+              {}
+            waypoint_marker_2370:
+              {}
+            waypoint_marker_2400:
+              {}
+            waypoint_marker_2528:
+              {}
+            waypoint_marker_2600:
+              {}
+            waypoint_marker_2686:
+              {}
+            waypoint_marker_2800:
+              {}
+            waypoint_marker_2844:
+              {}
+            waypoint_marker_3000:
+              {}
+            waypoint_marker_3002:
+              {}
+            waypoint_marker_316:
+              {}
+            waypoint_marker_3160:
+              {}
+            waypoint_marker_3200:
+              {}
+            waypoint_marker_3400:
+              {}
+            waypoint_marker_3600:
+              {}
+            waypoint_marker_3800:
+              {}
+            waypoint_marker_400:
+              {}
+            waypoint_marker_4000:
+              {}
+            waypoint_marker_474:
+              {}
+            waypoint_marker_600:
+              {}
+            waypoint_marker_632:
+              {}
+            waypoint_marker_790:
+              {}
+            waypoint_marker_800:
+              {}
+            waypoint_marker_948:
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
@@ -392,25 +556,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.20165038
+      Distance: 0.266857266
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.185412943
-        Y: 0.638496578
-        Z: -3.35275558e-07
+        X: -0.0130234323
+        Y: 0.478378713
+        Z: -3.64257573e-07
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.359797627
+      Pitch: 0.469796717
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.97682977
+      Yaw: 3.04682016
     Saved: ~
 Window Geometry:
   Displays:

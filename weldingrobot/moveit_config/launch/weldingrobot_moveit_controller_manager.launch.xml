@@ -1,5 +1,4 @@
- 
-   <launch>
+    <launch>
     <rosparam file="$(find moveit_config)/config/controllers.yaml"/>
     <param name="use_controller_manager" value="false"/>
     <param name="trajectory_execution/execution_duration_monitoring" value="false"/>

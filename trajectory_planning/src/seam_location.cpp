@@ -158,14 +158,14 @@ void BubbleSort1(int array[], int n)
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
+Cloud::Ptr read_pointcloud (float radius, PointCloud::Ptr cloud_ptr_show)
 {
   //seam detection
   Cloud::Ptr cloud_ptr (new Cloud);
 
   // PCD reader
   pcl::PCDReader reader;
-  reader.read("/home/rick/Documents/a_system/src/trajectory_planning/src/input_cloud.pcd", *cloud_ptr);
+  reader.read("/home/rick/Documents/a_system/src/trajectory_planning/src/driver_test_cloud.pcd", *cloud_ptr);
   
   cout << "PointCLoud size() " << cloud_ptr->width * cloud_ptr->height
        << " data points " << pcl::getFieldsList (*cloud_ptr) << "." << endl;
@@ -177,7 +177,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   mls.setInputCloud (cloud_ptr);
   mls.setPolynomialOrder (2);
   mls.setSearchMethod (tree);
-  mls.setSearchRadius (0.01);
+  mls.setSearchRadius (radius);
   mls.process (mls_points);
   cout << "smooth size(): " <<  mls_points.size() << endl << endl;
 
@@ -196,7 +196,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
   {
     pcl::PointXYZRGB p;
     p.x = smooth_cloud->points[i].x;
-    p.y = smooth_cloud->points[i].y;
+    p.y = smooth_cloud->points[i].y + 0.1;
     p.z = smooth_cloud->points[i].z;
     p.b = 200; 
     p.g = 200;
@@ -236,7 +236,7 @@ Cloud::Ptr read_pointcloud (PointCloud::Ptr cloud_ptr_show)
 }
 
 
-void SurfaceProfile_Reconstruction(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+void SurfaceProfile_Reconstruction(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
 {
   pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
   pcl::PointCloud<pcl::PointNormal> mls_points;
@@ -245,7 +245,7 @@ void SurfaceProfile_Reconstruction(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_p
   mls.setInputCloud (cloud_ptr);
   mls.setPolynomialOrder (2);
   mls.setSearchMethod (tree);
-  mls.setSearchRadius (0.01);
+  mls.setSearchRadius (radius);
   mls.process (mls_points);
   cout << "smooth size(): " <<  mls_points.size() << endl << endl;
 
@@ -287,11 +287,18 @@ void SurfaceProfile_Reconstruction(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_p
 
   cout << "cloud_ptr_show->points.size()" << cloud_ptr->points.size() << endl << endl;
 
+  // cloud_ptr->width = 1;
+  // cloud_ptr->height = cloud_ptr->points.size();
+
+  // cout << "cloud_ptr->points.size()" << cloud_ptr->points.size() << endl;
+  // pcl::PCDWriter writer;
+  // writer.write("/home/rick/Documents/a_system/src/trajectory_planning/src/driver_test_cloud.pcd", *cloud_ptr, false) ;
+
 }
 
 
 vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, Point3f Cam_Position);
-vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position)
+vector<Point3f> PointNormal_Computation(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position)
 {
   for(float i = 0; i < cloud_ptr->points.size(); i++)
   {
@@ -308,7 +315,7 @@ vector<Point3f> PointNormal_Computation(Cloud::Ptr cloud_ptr, PointCloud::Ptr cl
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // define kdtree
-  float radius = 0.005;
+  // float radius = 0.005;
   pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
   kdtree.setInputCloud (cloud_ptr);  // 将前面创建的随机点云作为 KdTree 输入
   vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
@@ -459,7 +466,7 @@ vector<Point3f> Pointnormal_Direction_Unify(Cloud::Ptr cloud_ptr, PointCloud::Pt
 }
 
 
-void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
+void Delete_SmoothChange_Plane(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, vector<Point3f> Normal, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
   // for(float i = 0; i < cloud_ptr->points.size(); i++)
   // {
@@ -480,7 +487,7 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
   kdtree.setInputCloud (cloud_ptr);  // 将前面创建的随机点云作为 KdTree 输入
   vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
   vector<float> pointRadiusSquaredDistance;
-  float radius = 0.006;
+  // float radius = 0.006;
  
  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
  //求每个点的领域方向方差
@@ -574,10 +581,43 @@ void Delete_SmoothChange_Plane(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_s
   cout << "PointDescriptor_max: "    << PointDescriptor_max << endl;
   cout << "PointDescriptor_min: "    << PointDescriptor_min << endl;
 
-  // for(float j = 0; j < PointDescriptor.size(); j++)
-  // { 
-  //   PointDescriptor[j] = PointDescriptor[j] / (PointDescriptor_max - PointDescriptor_min);
+  // float interval_descriptor = (PointDescriptor_max - PointDescriptor_min) / 255.0;
+  // // for(float j = 0; j < PointDescriptor.size(); j++)
+  // // { 
+  // //   PointDescriptor[j] = (PointDescriptor[j] - PointDescriptor_min) / (PointDescriptor_max - PointDescriptor_min);
+  // // }
+  // for(float i = 0; i < cloud_ptr->points.size(); i++)
+  // {
+  //   pcl::PointXYZRGB p;
+  //   p.x = cloud_ptr->points[i].x ; 
+  //   p.y = cloud_ptr->points[i].y ;
+  //   p.z = cloud_ptr->points[i].z ;//- 0.457; // 0.125
+  //   // float shereld = 0;
+  //   // for(int j = 0; j < 255 - 1; j++)
+  //   // {
+  //   if( PointDescriptor[i] >= PointDescriptor_min + interval_descriptor*(0) && PointDescriptor[i] < PointDescriptor_min + interval_descriptor*(0+1) )
+  //   {
+  //     // shereld = j;
+  //     // cout << "shereld: " << shereld << endl;
+  //     // break;
+  //     p.b = 255; 
+  //     p.g = 255;
+  //     p.r = 255;
+  //   }
+  //   // }
+  //   else
+  //   {
+  //     p.b = 255; 
+  //     p.g = 0;
+  //     p.r = 0;
+  //   }
+    
+
+  //   cloud_ptr_show->points.push_back( p );    
   // }
+
+  // cout << "cloud_ptr->points.size(): "  << cloud_ptr->points.size() << endl ;
+  // cout << "cloud_ptr_show->points.size(): "  << cloud_ptr_show->points.size() << endl ;
 
   // //打印PointDescriptor
   // for(float j = 0; j < PointDescriptor.size(); j++)
@@ -665,7 +705,7 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
   std::vector<pcl::PointIndices> cluster_indices;
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
 
-  EC.setClusterTolerance (0.002); //设置近邻搜索的搜索半径为2cm
+  EC.setClusterTolerance (0.0015); //设置近邻搜索的搜索半径为2cm
   EC.setMinClusterSize (500);//设置一个聚类需要的最少点数目为100
   EC.setMaxClusterSize (10000000); //设置一个聚类需要的最大点数目为25000
   EC.setSearchMethod (ec_tree);//设置点云的搜索机制
