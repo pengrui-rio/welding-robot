@@ -839,7 +839,7 @@ pcl::PointXYZ Compute_Single_PathPoint(Cloud::Ptr seam_edge, vector<int> pointId
 void DownSample_DeleteNoisePoint(Cloud::Ptr Path_Cloud, float radius)
 {
     Cloud::Ptr Path_Point_Cloud (new Cloud);
-    int loop_count = 0, loop_max = 20;
+    int loop_count = 0, loop_max = 50;
     while(ros::ok())
     {
         loop_count++;

@@ -166,7 +166,7 @@ int main(int argc, char **argv)
   //initial configuration
   ros::init(argc, argv, "trajectory_planning");
   ros::NodeHandle nh;
-  ros::Rate naptime(10000); // use to regulate loop rate 
+  ros::Rate naptime(100); // use to regulate loop rate 
 
   //subscriber:
   image_transport::ImageTransport it(nh);
@@ -258,15 +258,15 @@ int main(int argc, char **argv)
     //在Rviz里面显示每display_pointsize个点的pose
     for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
     {
-      int display_pointsize = 20;
-      if( (Rviz_TrajectoryPose.size() / display_pointsize) != 0 && i%(Rviz_TrajectoryPose.size() / display_pointsize) == 0 )
-      {
-        std::string   markerFrame       = Waypoint_markerName_creation(i);
-        tf::Transform waypoint_tranform = Waypoint_markerTransform_creation(i, Rviz_TrajectoryPose[i]);
+      // int display_pointsize = 20;
+      // if( (Rviz_TrajectoryPose.size() / display_pointsize) != 0 && i%(Rviz_TrajectoryPose.size() / display_pointsize) == 0 )
+      // {
+      std::string   markerFrame       = Waypoint_markerName_creation(i);
+      tf::Transform waypoint_tranform = Waypoint_markerTransform_creation(i, Rviz_TrajectoryPose[i]);
 
-        tf::StampedTransform waypoint_Marker (waypoint_tranform, ros::Time::now(), "/base_link", markerFrame.c_str());
-        tf_broadcaster.sendTransform(waypoint_Marker);
-      }
+      tf::StampedTransform waypoint_Marker (waypoint_tranform, ros::Time::now(), "/base_link", markerFrame.c_str());
+      tf_broadcaster.sendTransform(waypoint_Marker);
+      // }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -341,7 +341,7 @@ vector< geometry_msgs::Pose > trajectory_6DOF_generation(int &trajectoryPlanning
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 vector< geometry_msgs::Pose > trajectory_planning(vector< geometry_msgs::Pose > &Welding_Trajectory,
-                                                  Cloud::Ptr cloud_ptr1, 
+                                                  Cloud::Ptr cloud_ptr, 
                                                   pcl::PointXYZ realsense_position, 
                                                   sensor_msgs::PointCloud2 pub_pointcloud, 
                                                   ros::Publisher pointcloud_publisher)
@@ -355,7 +355,7 @@ vector< geometry_msgs::Pose > trajectory_planning(vector< geometry_msgs::Pose > 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "1.读入原始pointcloud" << endl << endl;
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
-  Cloud::Ptr cloud_ptr    = read_pointcloud(seam_detection_radius, cloud_ptr_show);
+  // Cloud::Ptr cloud_ptr    = read_pointcloud(seam_detection_radius, cloud_ptr_show);
   SurfaceProfile_Reconstruction(seam_detection_radius, cloud_ptr, cloud_ptr_show);
   Cloud::Ptr cloud_ptr_origin = cloud_ptr_origin_copy(cloud_ptr);
   show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);

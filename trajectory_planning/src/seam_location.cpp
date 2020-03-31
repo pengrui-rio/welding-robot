@@ -750,8 +750,8 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
   int seam_label = 0;
   while(ros::ok())
   {
-    cout << "PLease input index of seam cluster: 0-max";
-    cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl;
+    cout << "PLease input index of seam cluster: 0-max" << endl;
+    cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl ;
 
     float index_seam_cluster = 0;
     cin >> index_seam_cluster;
@@ -774,7 +774,7 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
     pub_pointcloud.header.stamp = ros::Time::now();
     pointcloud_publisher.publish(pub_pointcloud);
 
-    cout << endl << "Keep the pointcloud or not? yes or xxxx ";
+    cout << endl << "Keep the pointcloud or not? yes or xxxx " << endl;
     string keep_flag;
     cin >> keep_flag;
     if(keep_flag == "yes")

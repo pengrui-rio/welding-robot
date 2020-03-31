@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<launch>
+	<arg name="marker_size" default="4.5" />
+	<arg name="max_new_marker_error" default="0.00008" />
+	<arg name="max_track_error" default="0.0002" />
+	<arg name="cam_image_topic" default="/camera/color/image_raw" />
+	<arg name="cam_info_topic" default="/camera/color/camera_info" />	
+	<arg name="output_frame" default="/camera_color_optical_frame" />
+
+	<node name="ar_track_alvar" pkg="ar_track_alvar" type="realsense" respawn="false" output="screen"
+	 args="$(arg marker_size) $(arg max_new_marker_error) $(arg max_track_error) $(arg cam_image_topic) $(arg cam_info_topic) $(arg output_frame)" />
+</launch>

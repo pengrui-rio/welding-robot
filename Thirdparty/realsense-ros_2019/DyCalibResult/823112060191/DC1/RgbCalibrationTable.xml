@@ -1,0 +1,91 @@
+<?xml version="1.0"?>
+<Config>
+    <param name = "ResolutionLeftRight">
+        <value>792</value>
+        <value>0</value>
+    </param>
+    <param name = "FocalLengthLeft">
+        <value>0</value>
+        <value>3.89573e-316</value>
+    </param>
+    <param name = "PrincipalPointLeft">
+        <value>-nan</value>
+        <value>7.90505e-323</value>
+    </param>
+    <param name = "DistortionLeft">
+        <value>6.94558e-310</value>
+        <value>0</value>
+        <value>-nan</value>
+        <value>6.95312e-310</value>
+        <value>1.4822e-323</value>
+    </param>
+    <param name = "FocalLengthRight">
+        <value>1.58101e-322</value>
+        <value>1.58101e-322</value>
+    </param>
+    <param name = "PrincipalPointRight">
+        <value>0</value>
+        <value>6.94558e-310</value>
+    </param>
+    <param name = "DistortionRight">
+        <value>0.0192766</value>
+        <value>6.94558e-310</value>
+        <value>0</value>
+        <value>6.94558e-310</value>
+        <value>6.94558e-310</value>
+    </param>
+    <param name = "RotationLeftRight">
+        <value>0</value>
+        <value>6.95312e-310</value>
+        <value>6.95312e-310</value>
+        <value>6.95312e-310</value>
+        <value>6.95312e-310</value>
+        <value>6.94558e-310</value>
+        <value>1.21361e-312</value>
+        <value>6.94558e-310</value>
+        <value>6.95312e-310</value>
+    </param>
+    <param name = "TranslationLeftRight">
+        <value>6.95312e-310</value>
+        <value>1.46672e-313</value>
+        <value>6.94558e-310</value>
+    </param>
+    <param name = "HasRGB">
+        <value>0</value>
+    </param>
+    <param name = "ResolutionRGB">
+        <value>-1</value>
+        <value>0</value>
+    </param>
+    <param name = "FocalLengthRGB">
+        <value>3.84822e-316</value>
+        <value>1.58101e-322</value>
+    </param>
+    <param name = "PrincipalPointRGB">
+        <value>2.2233e-322</value>
+        <value>0</value>
+    </param>
+    <param name = "DistortionRGB">
+        <value>6.94558e-310</value>
+        <value>6.94558e-310</value>
+        <value>6.94558e-310</value>
+        <value>6.95312e-310</value>
+        <value>6.94558e-310</value>
+    </param>
+    <param name = "RotationLeftRGB">
+        <value>7.26276e-322</value>
+        <value>6.94558e-310</value>
+        <value>6.94558e-310</value>
+        <value>0</value>
+        <value>6.95312e-310</value>
+        <value>6.95312e-310</value>
+        <value>6.95312e-310</value>
+        <value>6.94558e-310</value>
+        <value>6.95312e-310</value>
+    </param>
+    <param name = "TranslationLeftRGB">
+        <value>6.94558e-310</value>
+        <value>6.94558e-310</value>
+        <value>6.95312e-310</value>
+    </param>
+</Config>

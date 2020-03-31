@@ -3,7 +3,13 @@
 
 
 
+#"/home/rick/.local/lib/python2.7/site-packages/urx/robot.py"
 
+import sys  
+sys.path.append('../urx/')  
+import urx
+
+######################################
 
 import cv2
 import numpy as np
@@ -11,12 +17,14 @@ import time
 import sys
 import copy
 import rospy
+import geometry_msgs.msg
 from geometry_msgs.msg import PoseStamped, Pose
 import logging
 from math import pi
 import numpy as np
-import urx
 import math3d as m3d
+import math
+
 
 
 def euler_to_quaternion(Yaw, Pitch, Roll):
@@ -76,6 +84,45 @@ def publish_message(rospy, pub):
 
 
 
+visuoguding_Pose = geometry_msgs.msg.Pose()
+
+def callback_VisuoGuding_Pose(pose):
+    global visuoguding_Pose
+
+    visuoguding_Pose.position.x = pose.position.x
+    visuoguding_Pose.position.y = pose.position.y
+    visuoguding_Pose.position.z = pose.position.z
+    visuoguding_Pose.orientation.x = pose.orientation.x
+    visuoguding_Pose.orientation.y = pose.orientation.y
+    visuoguding_Pose.orientation.z = pose.orientation.z
+
+    # print visuoguding_Pose 
+    # print "\n" 
+
+def VisuoGuding_Control(robot, visuoguding_Pose):
+    print "\n============ Press `Enter` to go VisuoGuding_Control ============"
+    raw_input()
+
+    while not rospy.is_shutdown():
+        if math.isnan(visuoguding_Pose.position.x):
+            robot.stop()
+            print "nan! stop!"
+        
+        else:
+            print visuoguding_Pose 
+            print "\n" 
+
+            pose = []
+            pose.append(visuoguding_Pose.position.x)              #px
+            pose.append(visuoguding_Pose.position.y)              #py
+            pose.append(visuoguding_Pose.position.z)              #pz
+            pose.append(visuoguding_Pose.orientation.x) #rx
+            pose.append(visuoguding_Pose.orientation.y) #ry
+            pose.append(visuoguding_Pose.orientation.z) #rz
+            robot.movel(pose, acc=0.01, vel=0.02, wait=True)
+    
+
+
 motion_pathPoint = []
 
 def callback_path(pose):
@@ -121,8 +168,8 @@ def move_to_singleXYZRPY(robot, x, y, z, roll, pitch, yaw):
     rotation = euler_to_rotationVector(yaw, roll, pitch) # yaw->roll->pitch
     pose = []
     pose.append(x)              #px
-    pose.append(y)           #py
-    pose.append(z)           #pz
+    pose.append(y)              #py
+    pose.append(z)              #pz
     pose.append(rotation[0][0]) #rx
     pose.append(rotation[1][0]) #ry
     pose.append(rotation[2][0]) #rz
@@ -140,6 +187,8 @@ def move_to_singlePose(robot, pose):
 
 def trajectory_execution(robot, pose_list):
     print "\n============ Press `Enter` to execute welding trajectory ============"
+    raw_input()
+
     move_to_singlePose(robot, pose_list[0])
 
     robot.movels(pose_list, acc=0.01, vel=0.01, wait=False)
@@ -154,6 +203,8 @@ if __name__ == "__main__":
 
         rospy.init_node('robot_motion', anonymous=True)
         rospy.Subscriber("Welding_Trajectory", Pose, callback_path)
+        rospy.Subscriber("VisuoGuding_Pose", Pose, callback_VisuoGuding_Pose)
+
         pub = rospy.Publisher('robot_currentpose', PoseStamped, queue_size=10)
         rate = rospy.Rate(1000) # 1000hz
 
@@ -168,7 +219,14 @@ if __name__ == "__main__":
 
         # ##########################################################################################################
     
-        move_to_singleXYZRPY(robot, 0, -0.4, 0.6, 90, 180, 0)
+        # move_to_singleXYZRPY(robot, 0, -0.35, 0.65, 45, 180, 0) #x, y, z, roll, pitch, yaw
+
+        # move_to_singleXYZRPY(robot, 0, -0.6, 0.52, 90, 180, 0)  #x, y, z, roll, pitch, yaw
+        # move_to_singleXYZRPY(robot, 0, -0.4, 0.52, 0, 180, 0)  #x, y, z, roll, pitch, yaw
+
+        ##########################################################################################################
+
+        VisuoGuding_Control(robot, visuoguding_Pose)
 
         ##########################################################################################################
 
