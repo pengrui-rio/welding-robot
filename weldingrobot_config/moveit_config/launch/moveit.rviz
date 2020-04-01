@@ -291,7 +291,7 @@ Visualization Manager:
         kinect2_link:
           Value: false
         kinect2_rgb_optical_frame:
-          Value: true
+          Value: false
         post:
           Value: false
         shoulder_link:
@@ -402,10 +402,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.309796482
+      Pitch: 0.729796648
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 3.16182113
+      Yaw: 2.62682033
     Saved: ~
 Window Geometry:
   Displays:

@@ -87,7 +87,7 @@ int main(int argc, char **argv)
   //initial configuration
   ros::init(argc, argv, "robot_visuoguiding");
   ros::NodeHandle nh;
-  ros::Rate naptime(1); // use to regulate loop rate 
+  ros::Rate naptime(1000); // use to regulate loop rate 
  
   //subscriber:
   image_transport::ImageTransport it(nh);

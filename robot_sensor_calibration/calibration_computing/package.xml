@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robot_visuoguiding</name>
+  <name>calibration_computing</name>
   <version>0.0.0</version>
-  <description>The robot_visuoguiding package</description>
+  <description>The calibration_computing package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

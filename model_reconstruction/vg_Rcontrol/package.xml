@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>control</name>
+  <name>vg_Rcontrol</name>
   <version>0.0.0</version>
-  <description>The control package</description>
+  <description>The vg_Rcontrol package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

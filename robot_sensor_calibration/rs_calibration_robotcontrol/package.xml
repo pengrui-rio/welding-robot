@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>robot_sensor_calibration</name>
+  <name>rs_calibration_robotcontrol</name>
   <version>0.0.0</version>
-  <description>The robot_sensor_calibration package</description>
+  <description>The rs_calibration_robotcontrol package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag -->
   <!-- Example:  -->

@@ -232,7 +232,7 @@ void getCapCallback (const sensor_msgs::ImageConstPtr & image_msg)
       right_center[1]  = right_center[1]  / size_right;
       right_center[2]  = right_center[2]  / size_right;      
 
-      cout << "object_center: " << object_center[0] << " " << object_center[1] << " " << object_center[2] << endl;
+      // cout << "object_center: " << object_center[0] << " " << object_center[1] << " " << object_center[2] << endl;
       // cout << "left_center: "   << left_center[0] << " " << left_center[1] << " " << left_center[2] << endl;
       // cout << "right_center: "  << right_center[0] << " " << right_center[1] << " " << right_center[2] << endl << endl;
 
