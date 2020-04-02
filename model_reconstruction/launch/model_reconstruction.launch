@@ -34,10 +34,17 @@
   <!--  start visuoguiding_robotcontrol  -->
   <node pkg="vg_Rcontrol" type="control_URx.py" name="vg_Rcontrol" respawn="true" output="screen">
   </node>  
+
+
+  <!--  start realsense  -->
+  <arg name="align_depth" default="true"/>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+      <arg name="align_depth"              value="$(arg align_depth)"/>
+  </include>
   
-  <!--  start model reconstruction  -->
+  <!--  start model reconstruction -->
   <node pkg="reconstruction" type="reconstruction_node" name="reconstruction" respawn="true" output="screen">
-  </node>  
+  </node>   
   
   <!--  start send_capture_command   -->
   <node pkg="reconstruction" type="send_capture_command.py" name="send_capture_command" respawn="true" output="screen">

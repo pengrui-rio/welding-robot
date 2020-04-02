@@ -236,7 +236,9 @@ Cloud::Ptr read_pointcloud (float radius, PointCloud::Ptr cloud_ptr_show)
 }
 
 
-void SurfaceProfile_Reconstruction(float radius, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show)
+void SurfaceProfile_Reconstruction(float radius, 
+                                   Cloud::Ptr cloud_ptr, 
+                                   PointCloud::Ptr cloud_ptr_show)
 {
   pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
   pcl::PointCloud<pcl::PointNormal> mls_points;

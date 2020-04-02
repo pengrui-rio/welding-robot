@@ -4,7 +4,8 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /PointCloud21
+        - /PointCloud22
+        - /PointCloud23
         - /TF1
         - /TF1/Frames1
         - /Marker1
@@ -196,8 +197,8 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0.660053968
+        Min Value: 0.0257343519
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -218,7 +219,7 @@ Visualization Manager:
       Size (Pixels): 4
       Size (m): 0.00999999978
       Style: Points
-      Topic: /camera_pointcloud_transform
+      Topic: /cam_pc_transform_pointcloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -226,8 +227,38 @@ Visualization Manager:
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
-        Max Value: 10
-        Min Value: -10
+        Max Value: 0.630043328
+        Min Value: -0.00964482035
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /processing_pointcloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 0.630043328
+        Min Value: -0.00964482035
         Value: true
       Axis: Z
       Channel Name: intensity
@@ -248,7 +279,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.00999999978
       Style: Points
-      Topic: /processing_pointcloud
+      Topic: /model_pointcloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -301,11 +332,21 @@ Visualization Manager:
         tool0:
           Value: false
         tool0_controller:
-          Value: false
+          Value: true
         torchSupport:
           Value: false
         upper_arm_link:
           Value: false
+        waypoint_marker_0:
+          Value: true
+        waypoint_marker_1:
+          Value: true
+        waypoint_marker_2:
+          Value: true
+        waypoint_marker_3:
+          Value: true
+        waypoint_marker_4:
+          Value: true
         welding_torch:
           Value: true
         world:
@@ -316,7 +357,7 @@ Visualization Manager:
           Value: false
         wrist_3_link:
           Value: false
-      Marker Scale: 1
+      Marker Scale: 0.200000003
       Name: TF
       Show Arrows: false
       Show Axes: true
@@ -358,6 +399,16 @@ Visualization Manager:
               post:
                 bar:
                   {}
+            waypoint_marker_0:
+              {}
+            waypoint_marker_1:
+              {}
+            waypoint_marker_2:
+              {}
+            waypoint_marker_3:
+              {}
+            waypoint_marker_4:
+              {}
           kinect2_link:
             kinect2_rgb_optical_frame:
               {}
@@ -387,25 +438,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 2.46994472
+      Distance: 1.81036162
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0130234323
-        Y: 0.478378713
-        Z: -3.64257573e-07
+        X: 0.107832626
+        Y: 0.801789701
+        Z: -2.01011426e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.729796648
+      Pitch: 0.204796851
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.62682033
+      Yaw: 3.81186032
     Saved: ~
 Window Geometry:
   Displays:

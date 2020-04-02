@@ -25,9 +25,13 @@ catkin_package(
  
 )
 
+include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+
+
 include_directories(
- include
   ${catkin_INCLUDE_DIRS}
+ include
+
 )
 
 
@@ -40,8 +44,7 @@ add_executable(
 reconstruction_node 
 
 src/main.cpp
- 
-src/transformation.cpp
+src/reconstruction_transformation.cpp
  
 )
 

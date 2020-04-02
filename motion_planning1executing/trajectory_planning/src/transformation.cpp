@@ -1008,34 +1008,125 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void model_3D_reconstruction(int &capture_flag, PointCloud::Ptr cam_pc_transform, PointCloud::Ptr map_pointcloud)
+int count_pointcloud_frameNum(string dataset_folder_path)
 {
-  if(capture_flag == 2)
-  {
-    for (float i = 0; i < cam_pc_transform->points.size(); i++)  
-    {
-      pcl::PointXYZRGB p; 
+  DIR *dp;
+	struct dirent *dirp;
 
-      p.x = cam_pc_transform->points[i].x; 
-      p.y = cam_pc_transform->points[i].y; 
-      p.z = cam_pc_transform->points[i].z; 
+	if((dp = opendir(dataset_folder_path.c_str())) == NULL)
+		cout << "Can't open " << dataset_folder_path << endl;
 
-      p.b = cam_pc_transform->points[i].b;
-      p.g = cam_pc_transform->points[i].g;
-      p.r = cam_pc_transform->points[i].r;
+  int count = 0;
+	while((dirp = readdir(dp)) != NULL)
+    count++;
+		// cout << dirp->d_name << endl;
 
-      map_pointcloud->points.push_back( p );    
-    }
-    capture_flag = 0;
-    cout << "add one frame to model! " << endl;
+	closedir(dp);
 
-    map_pointcloud->width = 1;
-    map_pointcloud->height = map_pointcloud->points.size();
+  cout << "pointcloud_frameNum: " << (count-2)/2 <<endl;
 
-    cout << "map_pointcloud->points.size()" << map_pointcloud->points.size() << endl;
-    pcl::PCDWriter writer;
-    writer.write("/home/rick/Documents/a_system/src/trajectory_planning/src/model_3D.pcd", *map_pointcloud, false) ;
-
-  }
+  return (count-2)/2;
 }
+
+
+pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
+                                              int receive_capture_count,
+                                              int &process_frame_count,
+                                              bool &trajectoryPlanning_flag,
+                                              Cloud::Ptr cloud_ptr)
+{
+  pcl::PointXYZ realsense_position;
+  
+  ostringstream stream;
+  stream << receive_capture_count;
+  string ith_frame = stream.str();
+
+  string file_realsense_position;
+  file_realsense_position = dataset_folder_path + "/" + ith_frame + "_frame.txt";
+
+  ifstream fin(file_realsense_position.c_str());
+  if(fin && process_frame_count+1 == receive_capture_count)
+  {
+    string s;
+    getline(fin,s);
+
+    int _1_T = s.find("\t", 0); //从哪个位置开始搜索x
+    int _2_T = s.find("\t", _1_T+1);   
+
+    string cam_x = s.substr(0, _1_T);
+    stringstream ss_cam_x;
+    ss_cam_x<<cam_x;
+    ss_cam_x>>realsense_position.x;
+
+    string cam_y   = s.substr(_1_T+1, _2_T-_1_T-1);
+    stringstream ss_cam_y;
+    ss_cam_y<<cam_y;
+    ss_cam_y>>realsense_position.y;
+
+    string cam_z   = s.substr(_2_T+1, s.length()-_2_T-1);
+    stringstream ss_cam_z;
+    ss_cam_z << cam_z;
+    ss_cam_z >> realsense_position.z;
+
+    process_frame_count++;
+    cout << "read " << process_frame_count << "th pointcloud frame" << endl;
+    cout << "realsense_position" << realsense_position << endl;
+
+    trajectoryPlanning_flag = true;
+  }
+  
+  string file_pointcloud_frame;
+  file_pointcloud_frame = dataset_folder_path + "/" + ith_frame + "_frame.pcd";
+
+  pcl::PCDReader reader;
+  reader.read(file_pointcloud_frame, *cloud_ptr);
+
+  return realsense_position;
+}
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void build_model_pointcloud(string dataset_folder_path, 
+                            int pointcloud_frameNum,
+                            PointCloud::Ptr model_pointcloud)
+{
+  for (int receive_capture_count = 1; receive_capture_count <= pointcloud_frameNum; receive_capture_count++)
+  {
+    ostringstream stream;
+    stream << receive_capture_count;
+    string ith_frame = stream.str();
+
+    string file_pointcloud_frame;
+    file_pointcloud_frame = dataset_folder_path + "/" + ith_frame + "_frame.pcd";
+
+    Cloud::Ptr cloud_ptr (new Cloud);   
+    pcl::PCDReader reader;
+    reader.read(file_pointcloud_frame, *cloud_ptr);
+
+    for(float i = 0; i < cloud_ptr->points.size(); i++)
+    {
+      pcl::PointXYZRGB p;
+      p.x = cloud_ptr->points[i].x; 
+      p.y = cloud_ptr->points[i].y;
+      p.z = cloud_ptr->points[i].z;
+      p.r = 222; 
+      p.g = 222;
+      p.b = 222;
+      model_pointcloud->points.push_back( p );    
+    }
+  }
+  cout << "model_pointcloud->points.size(): "  << model_pointcloud->points.size() << endl ;
+
+}
+
+
+
+
+
+
+
+
+
+
+

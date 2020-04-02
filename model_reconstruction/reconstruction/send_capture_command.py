@@ -17,8 +17,9 @@ from std_msgs.msg import String
 
 def talker():
     rospy.init_node('send_capture_command', anonymous=True)
-    pub = rospy.Publisher('send_capture_command', String, queue_size=10)
+    pub = rospy.Publisher('send_capture_command', String, queue_size=1)
     rate = rospy.Rate(1000)    #hz
+    time.sleep(5)
 
     while not rospy.is_shutdown():
         print "\n============ Press `Enter` to send_capture_command ============"

@@ -5,6 +5,8 @@
 #include <seam_location.h>
 #include <motion_planning.h>
 #include <transformation.h>
+#include "std_msgs/String.h"
+#include <dirent.h>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -65,7 +67,8 @@ cv_bridge::CvImagePtr color_ptr, depth_ptr;
 cv::Mat color_pic, depth_pic;
 
 //receive robot current pose flag
-int receive_pose_flag = 0, trajectoryPlanning_flag = 0, process_count = 0, process_count_limit = 1;
+bool trajectoryPlanning_flag = false;
+int receive_pose_flag = 0, process_count = 0, process_count_limit = 1;
 float current_x = 0  , current_y = 0    , current_z = 0;
 float current_yaw = 0, current_pitch = 0, current_roll = 0;
 
@@ -110,29 +113,37 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
 
   waitKey(1);
 }
-void robot_currentpose_Callback(const geometry_msgs::PoseStamped::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
+
+string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/Thu_Apr_2_10_14_30";
+int receive_capture_count  = 1;
+int process_frame_count    = 0;
+void pointcloud_storageFolder_Callback(const std_msgs::String::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
 {
+  ROS_INFO("I heard the pointcloud_storageFolder"); 
+  dataset_folder_path = msg->data.c_str();
+  cout << "dataset_folder_path: " << dataset_folder_path << endl;
 
-  ROS_INFO("I heard the pose from the robot"); 
-  // ROS_INFO("the position(x,y,z) is %f , %f, %f", msg->pose.position.x, msg->pose.position.y, msg->pose.position.z);
-  // ROS_INFO("the orientation(yaw, pitch, roll) is %f , %f, %f ", msg->pose.orientation.x, msg->pose.orientation.y, msg->pose.orientation.z);
-  // ROS_INFO("the time we get the pose is %f",  msg->header.stamp.sec + 1e-9*msg->header.stamp.nsec);
-
-  current_x     = msg->pose.position.x;
-  current_y     = msg->pose.position.y; 
-  current_z     = msg->pose.position.z;
-
-  current_yaw   = msg->pose.orientation.x;
-  current_pitch = msg->pose.orientation.y;
-  current_roll  = msg->pose.orientation.z;
-
-  trajectoryPlanning_flag  = msg->pose.orientation.w;
-  receive_pose_flag = msg->pose.orientation.w;
-  
-  cout << " \n" << endl; //add two more blank row so that we can see the message more clearly
+  receive_capture_count++;
 }
  
+ 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void show_pointcloud_Rviz(int show_Pointcloud_timeMax, 
+                          PointCloud::Ptr show_Rviz_cloud, 
+                          sensor_msgs::PointCloud2 pub_pointcloud, 
+                          ros::Publisher pointcloud_publisher);
+
+void publish_pointcloud_Rviz( string coordinate, 
+                              PointCloud::Ptr pointloud, 
+                              sensor_msgs::PointCloud2 pub_pointcloud, 
+                              ros::Publisher pointcloud_publisher);
+
+bool processing_frame_ornot(Cloud::Ptr cloud_ptr, 
+                            int show_Pointcloud_timeMax, 
+                            PointCloud::Ptr cloud_ptr_show, 
+                            sensor_msgs::PointCloud2 pub_pointcloud, 
+                            ros::Publisher pointcloud_publisher);
 
 vector< geometry_msgs::Pose > trajectory_planning(vector< geometry_msgs::Pose > &Welding_Trajectory,
                                                   Cloud::Ptr cloud_ptr1, 
@@ -140,17 +151,8 @@ vector< geometry_msgs::Pose > trajectory_planning(vector< geometry_msgs::Pose > 
                                                   sensor_msgs::PointCloud2 pub_pointcloud, 
                                                   ros::Publisher pointcloud_publisher);
 
-void show_pointcloud_Rviz(int show_Pointcloud_timeMax, 
-                          PointCloud::Ptr show_Rviz_cloud, 
-                          sensor_msgs::PointCloud2 pub_pointcloud, 
-                          ros::Publisher pointcloud_publisher);
-
-void publish_pointcloud_Rviz(string coordinate, 
-                        PointCloud::Ptr pointloud, 
-                        sensor_msgs::PointCloud2 pub_pointcloud, 
-                        ros::Publisher pointcloud_publisher);
-
-vector< geometry_msgs::Pose > trajectory_6DOF_generation(int &trajectoryPlanning_flag, 
+vector< geometry_msgs::Pose > trajectory_6DOF_generation(bool &trajectoryPlanning_flag, 
+                                                         int &receive_capture_count,
                                                          int &process_count, 
                                                          int process_count_limit, 
                                                          Cloud::Ptr cloud_ptr, 
@@ -166,11 +168,11 @@ int main(int argc, char **argv)
   //initial configuration
   ros::init(argc, argv, "trajectory_planning");
   ros::NodeHandle nh;
-  ros::Rate naptime(100); // use to regulate loop rate 
+  ros::Rate naptime(1000); // use to regulate loop rate 
 
   //subscriber:
   image_transport::ImageTransport it(nh);
-  ros::Subscriber sub = nh.subscribe("robot_currentpose", 10, robot_currentpose_Callback);
+  ros::Subscriber sub = nh.subscribe("pointcloud_storageFolder", 1, pointcloud_storageFolder_Callback); //接收到到少次进一次回调
   image_transport::Subscriber color_sub = it.subscribe("/camera/color/image_raw", 1, color_Callback);
   image_transport::Subscriber depth_sub = it.subscribe("/camera/aligned_depth_to_color/image_raw", 1, depth_Callback);///camera/depth/image_rect_raw
  
@@ -178,31 +180,30 @@ int main(int argc, char **argv)
   ros::Publisher Moveit_path_publisher        = nh.advertise<geometry_msgs::Pose>("Moveit_motion_Path", 1);
   ros::Publisher Welding_Trajectory_publisher = nh.advertise<geometry_msgs::Pose>("Welding_Trajectory", 1);
   ros::Publisher pointcloud_publisher         = nh.advertise<sensor_msgs::PointCloud2>("processing_pointcloud", 1);
-  ros::Publisher camera_pointcloud_publisher  = nh.advertise<sensor_msgs::PointCloud2>("camera_pointcloud", 1);
-  ros::Publisher cam_pc_transform_publisher   = nh.advertise<sensor_msgs::PointCloud2>("camera_pointcloud_transform", 1);
-  ros::Publisher map_pointcloud_publisher     = nh.advertise<sensor_msgs::PointCloud2>("map_pointcloud", 1);
+  ros::Publisher model_pointcloud_publisher   = nh.advertise<sensor_msgs::PointCloud2>("model_pointcloud", 1);
   ros::Publisher vis_pub                      = nh.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
 
   //pointcloud msgs: 
-  sensor_msgs::PointCloud2 pub_camera_pointcloud;
-  sensor_msgs::PointCloud2 pub_cam_pc_transform;
-  sensor_msgs::PointCloud2 pub_map_pointcloud;
+
+  sensor_msgs::PointCloud2 pub_model_pointcloud;
   sensor_msgs::PointCloud2 pub_path;
   sensor_msgs::PointCloud2 pub_pointcloud;
  
   //pointcloud:
   PointCloud::Ptr camera_pointcloud (new PointCloud);
   PointCloud::Ptr cam_pc_transform  (new PointCloud);
-  PointCloud::Ptr map_pointcloud    (new PointCloud);
+  PointCloud::Ptr model_pointcloud  (new PointCloud);
   Cloud::Ptr      cloud_ptr         (new Cloud);   
   Cloud::Ptr      cloud_ptr_filter  (new Cloud); 
-  Cloud::Ptr      cloud_ptr_input   (new Cloud);
 
   //tf:
   tf::TransformListener listener;
   tf::TransformBroadcaster tf_broadcaster;
 
-
+  int pointcloud_frameNum = count_pointcloud_frameNum(dataset_folder_path);
+  build_model_pointcloud(dataset_folder_path, 
+                         pointcloud_frameNum,
+                         model_pointcloud);
 
   ///////////////////////////////////////////////////////////////////////////////
   while (ros::ok()) 
@@ -220,41 +221,43 @@ int main(int argc, char **argv)
       ROS_ERROR("%s",ex.what());
       ros::Duration(1.0).sleep();
     }
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    Base_to_End_transform(receive_pose_flag, transform_baselink2tool0);
-
-    geometry_msgs::Pose End_Torch = Torch_to_End_transform(transform_tool02torch);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-
-    analyze_realsense_data(camera_pointcloud);
-    publish_pointcloud_Rviz("camera_color_optical_frame",
-                             camera_pointcloud, 
-                             pub_camera_pointcloud, 
-                             camera_pointcloud_publisher);
-                             
-    //////////////////////////////////////////////////////////////////////////////////////
-
-    coordinate_transformation(transform_baselink2tool0, 
-                              camera_pointcloud, 
-                              cam_pc_transform, 
-                              cloud_ptr);
+  
     publish_pointcloud_Rviz("base_link", 
-                             cam_pc_transform, 
-                             pub_cam_pc_transform, 
-                             cam_pc_transform_publisher);
+                      model_pointcloud, 
+                      pub_model_pointcloud, 
+                      model_pointcloud_publisher);
+
+
+    pcl::PointXYZ realsense_position = read_realtime_pointcloud_frame(dataset_folder_path,
+                                                                      receive_capture_count,
+                                                                      process_frame_count,
+                                                                      trajectoryPlanning_flag,
+                                                                      cloud_ptr);
 
     //////////////////////////////////////////////////////////////////////////////////////
 
-    model_3D_reconstruction(receive_pose_flag, cam_pc_transform, map_pointcloud);
-    publish_pointcloud_Rviz("base_link", 
-                             map_pointcloud, 
-                             pub_map_pointcloud, 
-                             map_pointcloud_publisher);
+
+    Rviz_TrajectoryPose = trajectory_6DOF_generation( trajectoryPlanning_flag, 
+                                                      receive_capture_count,
+                                                      process_count, 
+                                                      process_count_limit, 
+                                                      cloud_ptr, 
+                                                      cloud_ptr_filter, 
+                                                      realsense_position, 
+                                                      naptime, 
+                                                      pub_pointcloud, 
+                                                      pointcloud_publisher, 
+                                                      Welding_Trajectory_publisher);
+
+
+
+
+
+
+
 
     //////////////////////////////////////////////////////////////////////////////////////
-
+    
     //在Rviz里面显示每display_pointsize个点的pose
     for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
     {
@@ -271,22 +274,10 @@ int main(int argc, char **argv)
 
     //////////////////////////////////////////////////////////////////////////////////////
 
-    Rviz_TrajectoryPose = trajectory_6DOF_generation( trajectoryPlanning_flag, 
-                                                      process_count, 
-                                                      process_count_limit, 
-                                                      cloud_ptr, 
-                                                      cloud_ptr_filter, 
-                                                      realsense_position_acquisition(transform_baselink2tool0), 
-                                                      naptime, 
-                                                      pub_pointcloud, 
-                                                      pointcloud_publisher, 
-                                                      Welding_Trajectory_publisher);
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    
     camera_pointcloud->points.clear();
     cam_pc_transform->points.clear();
     cloud_ptr->points.clear();
+    cloud_ptr_filter->points.clear();
 
     ros::spinOnce(); //allow data update from callback; 
     // naptime.sleep(); // wait for remainder of specified period; 
@@ -299,7 +290,8 @@ int main(int argc, char **argv)
 }
 
 
-vector< geometry_msgs::Pose > trajectory_6DOF_generation(int &trajectoryPlanning_flag, 
+vector< geometry_msgs::Pose > trajectory_6DOF_generation(bool &trajectoryPlanning_flag, 
+                                                         int &receive_capture_count,
                                                          int &process_count, 
                                                          int process_count_limit, 
                                                          Cloud::Ptr cloud_ptr, 
@@ -310,27 +302,33 @@ vector< geometry_msgs::Pose > trajectory_6DOF_generation(int &trajectoryPlanning
                                                          ros::Publisher pointcloud_publisher, 
                                                          ros::Publisher Welding_Trajectory_publisher)
 {
-  if(trajectoryPlanning_flag == 1)
+  if(trajectoryPlanning_flag == true)
   {
     process_count++;
     input_pointcloud_filter(process_count, process_count_limit, cloud_ptr, cloud_ptr_filter);
 
     if(process_count >= process_count_limit)
     {
-      trajectoryPlanning_flag = 0; process_count = 0;
+      trajectoryPlanning_flag = false; 
+      process_count = 0;
+
       cout << "cloud_ptr_filter->points.size(): " << cloud_ptr_filter->points.size() << endl; 
       cout << "trajectory_planning" << endl;
 
       vector< geometry_msgs::Pose > Welding_Trajectory ;
       Rviz_TrajectoryPose = trajectory_planning(Welding_Trajectory, cloud_ptr_filter, realsense_position, pub_pointcloud, pointcloud_publisher);
 
-      for(int i = 0; i < Welding_Trajectory.size(); i++)
+      if(Welding_Trajectory.size() > 0)
       {
-        Welding_Trajectory_publisher.publish(Welding_Trajectory[i]);
-        naptime.sleep();
+        for(int i = 0; i < Welding_Trajectory.size(); i++)
+        {
+          Welding_Trajectory_publisher.publish(Welding_Trajectory[i]);
+          naptime.sleep();
+        }
+        cout << "3D path is published !!!!!!!!!" << endl;
       }
-      cout << "3D path is published !!!!!!!!!" << endl;
     }
+    receive_capture_count++;
   }
  
   return Rviz_TrajectoryPose;
@@ -351,42 +349,100 @@ vector< geometry_msgs::Pose > trajectory_planning(vector< geometry_msgs::Pose > 
 
   int show_Pointcloud_timeMax = 100;
  
+
+   PointCloud::Ptr cloud_ptr_show (new PointCloud);
+
+  cout << "要不要处理这帧点云"  << endl;
+  bool process_flag = processing_frame_ornot( cloud_ptr, 
+                                              show_Pointcloud_timeMax, 
+                                              cloud_ptr_show, 
+                                              pub_pointcloud, 
+                                              pointcloud_publisher);
+  if(!process_flag)
+  {
+    vector< geometry_msgs::Pose > no;
+    return no;
+  }
+
   //Seam Location:    
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  cout << "1.读入原始pointcloud" << endl << endl;
-  PointCloud::Ptr cloud_ptr_show (new PointCloud);
+  cout << endl << "1.读入原始pointcloud" << endl << endl;
   // Cloud::Ptr cloud_ptr    = read_pointcloud(seam_detection_radius, cloud_ptr_show);
-  SurfaceProfile_Reconstruction(seam_detection_radius, cloud_ptr, cloud_ptr_show);
+  SurfaceProfile_Reconstruction(seam_detection_radius, 
+                                cloud_ptr, 
+                                cloud_ptr_show);
   Cloud::Ptr cloud_ptr_origin = cloud_ptr_origin_copy(cloud_ptr);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                        cloud_ptr_show, 
+                        pub_pointcloud, 
+                        pointcloud_publisher);
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "2.算出所有点的法向量" << endl << endl;
-  Point3f Cam_Position; Cam_Position.x = realsense_position.x; Cam_Position.y = realsense_position.y; Cam_Position.z = realsense_position.z; 
-  vector<Point3f> Normal = PointNormal_Computation(seam_detection_radius, cloud_ptr, cloud_ptr_show, Cam_Position);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  Point3f Cam_Position; 
+  Cam_Position.x = realsense_position.x; 
+  Cam_Position.y = realsense_position.y; 
+  Cam_Position.z = realsense_position.z; 
+  vector<Point3f> Normal = PointNormal_Computation(seam_detection_radius, 
+                                                   cloud_ptr, 
+                                                   cloud_ptr_show, 
+                                                   Cam_Position);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                       cloud_ptr_show, 
+                       pub_pointcloud, 
+                       pointcloud_publisher);
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "3.分割出所有可能的焊接缝" << endl << endl;
-  Delete_SmoothChange_Plane(seam_detection_radius, cloud_ptr, cloud_ptr_show, Normal, pub_pointcloud, pointcloud_publisher);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  Delete_SmoothChange_Plane(seam_detection_radius, 
+                            cloud_ptr, 
+                            cloud_ptr_show, 
+                            Normal, 
+                            pub_pointcloud, 
+                            pointcloud_publisher);
+
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                       cloud_ptr_show, 
+                       pub_pointcloud, 
+                       pointcloud_publisher);
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "4.人工筛选出目标焊接缝" << endl << endl;
-  Screen_Candidate_Seam(cloud_ptr, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);  // geometry_msgs::Pose path_point;
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
+  Screen_Candidate_Seam(cloud_ptr, 
+                        cloud_ptr_show, 
+                        pub_pointcloud, 
+                        pointcloud_publisher);  // geometry_msgs::Pose path_point;
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                       cloud_ptr_show, 
+                       pub_pointcloud, 
+                       pointcloud_publisher);
+    
   //Trajectory Planning:
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "5.提取焊接缝边界" << endl << endl;
   Cloud::Ptr seam_edge = Extract_Seam_edge(cloud_ptr, cloud_ptr_show);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                       cloud_ptr_show, 
+                       pub_pointcloud, 
+                       pointcloud_publisher);  
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "6.焊接缝三维轨迹点" << endl << endl; 
-  Cloud::Ptr PathPoint_Position = PathPoint_Position_Generation(seam_edge, cloud_ptr_origin, cloud_ptr_show);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+  Cloud::Ptr PathPoint_Position = PathPoint_Position_Generation(seam_edge, 
+                                                                cloud_ptr_origin, 
+                                                                cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                       cloud_ptr_show, 
+                       pub_pointcloud, 
+                       pointcloud_publisher);  
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "7.焊接缝轨迹点的焊枪方向" << endl << endl;
-  vector<Point3f> Torch_Normal_Vector = PathPoint_Orientation_Generation(PathPoint_Position, cloud_ptr_origin, cloud_ptr, cloud_ptr_show, Cam_Position);
-  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
-
+  vector<Point3f> Torch_Normal_Vector = PathPoint_Orientation_Generation(PathPoint_Position, 
+                                                                         cloud_ptr_origin, 
+                                                                         cloud_ptr, 
+                                                                         cloud_ptr_show, 
+                                                                         Cam_Position);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, 
+                       cloud_ptr_show, 
+                       pub_pointcloud, 
+                       pointcloud_publisher);
   //Trajectory Generation and Publishing:
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "8.生成最终6DOF轨迹" << endl << endl;
@@ -432,4 +488,41 @@ void publish_pointcloud_Rviz(string coordinate,
     pub_pointcloud.header.frame_id = coordinate;// 
     pub_pointcloud.header.stamp = ros::Time::now();
     pointcloud_publisher.publish(pub_pointcloud);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+bool processing_frame_ornot(Cloud::Ptr cloud_ptr, 
+                            int show_Pointcloud_timeMax, 
+                            PointCloud::Ptr cloud_ptr_show, 
+                            sensor_msgs::PointCloud2 pub_pointcloud, 
+                            ros::Publisher pointcloud_publisher)
+{
+  cloud_ptr_show->clear();
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_ptr->points[i].x;
+    p.y = cloud_ptr->points[i].y;
+    p.z = cloud_ptr->points[i].z;
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
+  show_pointcloud_Rviz(show_Pointcloud_timeMax, cloud_ptr_show, pub_pointcloud, pointcloud_publisher);
+
+
+  cout << endl << "process the pointcloud or not? yes or xxxx ";
+  string flag;
+  cin >> flag;
+  bool process_flag = false;
+  if(flag == "yes")
+  {
+    process_flag = true;
+  }
+  cloud_ptr_show->clear();
+  cout << endl;
+  
+  return process_flag;
 }

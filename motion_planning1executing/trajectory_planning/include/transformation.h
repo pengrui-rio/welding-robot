@@ -6,6 +6,8 @@
 #include <iostream>   
 #include <vector>
 #include <Eigen/Dense>
+#include <string>
+#include <dirent.h>
 
 #include <tf/transform_listener.h>
 #include <tf/transform_broadcaster.h>
@@ -78,11 +80,18 @@ tf::Transform Waypoint_markerTransform_creation(int i, geometry_msgs::Pose P);
 std::string Waypoint_markerName_creation( int i );
 
 
-void model_3D_reconstruction(int &capture_flag, PointCloud::Ptr cam_pc_transform, PointCloud::Ptr map_pointcloud);
+int count_pointcloud_frameNum(string dataset_folder_path);
 
 
+pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
+                                              int receive_capture_count,
+                                              int &process_frame_count,
+                                              bool &trajectoryPlanning_flag,
+                                              Cloud::Ptr cloud_ptr);
 
-
+void build_model_pointcloud(string dataset_folder_path, 
+                            int pointcloud_frameNum,
+                            PointCloud::Ptr model_pointcloud);
 
 
 
