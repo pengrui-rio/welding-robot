@@ -6,7 +6,6 @@ Panels:
       Expanded:
         - /PointCloud22
         - /PointCloud23
-        - /TF1
         - /TF1/Frames1
         - /Marker1
         - /Marker1/Namespaces1
@@ -264,7 +263,7 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: RGB8
+      Color Transformer: FlatColor
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -289,12 +288,18 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        ar_marker_6:
+          Value: true
         bar:
           Value: false
         base:
           Value: false
         base_link:
           Value: true
+        camera_aligned_depth_to_color_frame:
+          Value: false
+        camera_aligned_depth_to_infra1_frame:
+          Value: false
         camera_bottom_screw_frame:
           Value: false
         camera_color_frame:
@@ -304,6 +309,14 @@ Visualization Manager:
         camera_depth_frame:
           Value: false
         camera_depth_optical_frame:
+          Value: false
+        camera_infra1_frame:
+          Value: false
+        camera_infra1_optical_frame:
+          Value: false
+        camera_infra2_frame:
+          Value: false
+        camera_infra2_optical_frame:
           Value: false
         camera_left_ir_frame:
           Value: false
@@ -337,16 +350,6 @@ Visualization Manager:
           Value: false
         upper_arm_link:
           Value: false
-        waypoint_marker_0:
-          Value: true
-        waypoint_marker_1:
-          Value: true
-        waypoint_marker_2:
-          Value: true
-        waypoint_marker_3:
-          Value: true
-        waypoint_marker_4:
-          Value: true
         welding_torch:
           Value: true
         world:
@@ -379,6 +382,11 @@ Visualization Manager:
                         tool0:
                           camera_bottom_screw_frame:
                             camera_link:
+                              camera_aligned_depth_to_color_frame:
+                                {}
+                              camera_aligned_depth_to_infra1_frame:
+                                camera_infra1_optical_frame:
+                                  {}
                               camera_depth_frame:
                                 camera_color_frame:
                                   camera_color_optical_frame:
@@ -391,6 +399,11 @@ Visualization Manager:
                                 camera_right_ir_frame:
                                   camera_right_ir_optical_frame:
                                     {}
+                              camera_infra1_frame:
+                                {}
+                              camera_infra2_frame:
+                                camera_infra2_optical_frame:
+                                  {}
                           torchSupport:
                             {}
                           welding_torch:
@@ -399,19 +412,10 @@ Visualization Manager:
               post:
                 bar:
                   {}
-            waypoint_marker_0:
-              {}
-            waypoint_marker_1:
-              {}
-            waypoint_marker_2:
-              {}
-            waypoint_marker_3:
-              {}
-            waypoint_marker_4:
-              {}
           kinect2_link:
             kinect2_rgb_optical_frame:
-              {}
+              ar_marker_6:
+                {}
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
@@ -419,7 +423,7 @@ Visualization Manager:
       Marker Topic: visualization_marker
       Name: Marker
       Namespaces:
-        {}
+        basic_shapes: true
       Queue Size: 100
       Value: true
   Enabled: true
@@ -438,25 +442,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.81036162
+      Distance: 0.923113763
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.107832626
-        Y: 0.801789701
-        Z: -2.01011426e-06
+        X: -0.0294363797
+        Y: 0.651863754
+        Z: -1.5332771e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.204796851
+      Pitch: 1.364797
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 3.81186032
+      Yaw: 4.89688778
     Saved: ~
 Window Geometry:
   Displays:

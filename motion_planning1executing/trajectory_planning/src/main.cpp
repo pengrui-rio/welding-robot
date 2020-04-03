@@ -72,7 +72,7 @@ int receive_pose_flag = 0, process_count = 0, process_count_limit = 1;
 float current_x = 0  , current_y = 0    , current_z = 0;
 float current_yaw = 0, current_pitch = 0, current_roll = 0;
 
-//pose of trajectory:
+//All the Rviz_TrajectoryPoses
 vector< geometry_msgs::Pose > Rviz_TrajectoryPose;
 
 //marker:
@@ -114,7 +114,7 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   waitKey(1);
 }
 
-string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/Thu_Apr_2_10_14_30";
+string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/Thu_Apr_2_19_07_56";
 int receive_capture_count  = 1;
 int process_frame_count    = 0;
 void pointcloud_storageFolder_Callback(const std_msgs::String::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
@@ -223,18 +223,12 @@ int main(int argc, char **argv)
     }
   
     publish_pointcloud_Rviz("base_link", 
-                      model_pointcloud, 
-                      pub_model_pointcloud, 
-                      model_pointcloud_publisher);
+                            model_pointcloud, 
+                            pub_model_pointcloud, 
+                            model_pointcloud_publisher);
 
-
-    pcl::PointXYZ realsense_position = read_realtime_pointcloud_frame(dataset_folder_path,
-                                                                      receive_capture_count,
-                                                                      process_frame_count,
-                                                                      trajectoryPlanning_flag,
-                                                                      cloud_ptr);
-
-    //////////////////////////////////////////////////////////////////////////////////////
+ 
+    // //////////////////////////////////////////////////////////////////////////////////////
 
 
     Rviz_TrajectoryPose = trajectory_6DOF_generation( trajectoryPlanning_flag, 
@@ -243,13 +237,18 @@ int main(int argc, char **argv)
                                                       process_count_limit, 
                                                       cloud_ptr, 
                                                       cloud_ptr_filter, 
-                                                      realsense_position, 
+
+                                                      read_realtime_pointcloud_frame(dataset_folder_path,
+                                                                      pointcloud_frameNum,
+                                                                      receive_capture_count,
+                                                                      process_frame_count,
+                                                                      trajectoryPlanning_flag,
+                                                                      cloud_ptr), 
+
                                                       naptime, 
                                                       pub_pointcloud, 
                                                       pointcloud_publisher, 
                                                       Welding_Trajectory_publisher);
-
-
 
 
 
@@ -307,16 +306,18 @@ vector< geometry_msgs::Pose > trajectory_6DOF_generation(bool &trajectoryPlannin
     process_count++;
     input_pointcloud_filter(process_count, process_count_limit, cloud_ptr, cloud_ptr_filter);
 
+    vector< geometry_msgs::Pose > singleFrame_Rviz_TrajectoryPose;
+
     if(process_count >= process_count_limit)
     {
       trajectoryPlanning_flag = false; 
       process_count = 0;
 
       cout << "cloud_ptr_filter->points.size(): " << cloud_ptr_filter->points.size() << endl; 
-      cout << "trajectory_planning" << endl;
+      cout << "trajectory_planning" << endl << endl;
 
       vector< geometry_msgs::Pose > Welding_Trajectory ;
-      Rviz_TrajectoryPose = trajectory_planning(Welding_Trajectory, cloud_ptr_filter, realsense_position, pub_pointcloud, pointcloud_publisher);
+      singleFrame_Rviz_TrajectoryPose = trajectory_planning(Welding_Trajectory, cloud_ptr_filter, realsense_position, pub_pointcloud, pointcloud_publisher);
 
       if(Welding_Trajectory.size() > 0)
       {
@@ -328,9 +329,17 @@ vector< geometry_msgs::Pose > trajectory_6DOF_generation(bool &trajectoryPlannin
         cout << "3D path is published !!!!!!!!!" << endl;
       }
     }
+
+    for(float i = 0; i < singleFrame_Rviz_TrajectoryPose.size(); i++)
+    {
+      Rviz_TrajectoryPose.push_back(singleFrame_Rviz_TrajectoryPose[i]);
+    }
+
     receive_capture_count++;
   }
- 
+
+
+
   return Rviz_TrajectoryPose;
 }
 

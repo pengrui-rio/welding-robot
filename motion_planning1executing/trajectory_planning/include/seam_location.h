@@ -13,6 +13,8 @@
 #include <vector>
 #include <ctime>
 #include <Eigen/Dense>
+#include <boost/thread/thread.hpp>
+#include <transformation.h>
 
 #include <image_transport/image_transport.h>
 #include <opencv2/highgui/highgui.hpp>
@@ -24,15 +26,12 @@
 // PCL lib
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl_conversions/pcl_conversions.h>
-#include <transformation.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>//点云文件pcd 读写
 #include <pcl/visualization/cloud_viewer.h>//点云可视化
 #include <pcl/visualization/pcl_visualizer.h>// 高级可视化点云类
 #include <pcl/features/normal_3d.h>//法线特征
 #include <pcl/kdtree/kdtree_flann.h>//搜索方法
-#include <boost/thread/thread.hpp>
-
 #include <pcl/ModelCoefficients.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>

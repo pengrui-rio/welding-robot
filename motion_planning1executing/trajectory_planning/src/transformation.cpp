@@ -1007,7 +1007,14 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
   return Rviz_TrajectoryPose;
 }
 
+
+
+
+
+
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 int count_pointcloud_frameNum(string dataset_folder_path)
 {
   DIR *dp;
@@ -1028,13 +1035,111 @@ int count_pointcloud_frameNum(string dataset_folder_path)
   return (count-2)/2;
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void build_model_pointcloud(string dataset_folder_path, 
+                            int pointcloud_frameNum,
+                            PointCloud::Ptr model_pointcloud)
+{
+  Cloud::Ptr cloud_ptr_all (new Cloud);
+
+  for (int receive_capture_count = 1; receive_capture_count <= pointcloud_frameNum; receive_capture_count++)
+  {
+    ostringstream stream;
+    stream << receive_capture_count;
+    string ith_frame = stream.str();
+
+    string file_pointcloud_frame;
+    file_pointcloud_frame = dataset_folder_path + "/" + ith_frame + "_frame.pcd";
+
+    Cloud::Ptr cloud_ptr (new Cloud);   
+    pcl::PCDReader reader;
+    reader.read(file_pointcloud_frame, *cloud_ptr);
+
+    for(float i = 0; i < cloud_ptr->points.size(); i++)
+    {
+      pcl::PointXYZ p;
+      p.x = cloud_ptr->points[i].x; 
+      p.y = cloud_ptr->points[i].y;
+      p.z = cloud_ptr->points[i].z;
+      cloud_ptr_all->points.push_back( p );    
+    }
+  }
+
+  /////////////////////////////////////////////////////////////////
+  Cloud::Ptr Cloud_filtered (new Cloud);
+
+  float radius = 0.005;
+
+  pcl::VoxelGrid<pcl::PointXYZ> voxel;
+  voxel.setLeafSize( radius, radius, radius );
+  voxel.setInputCloud( cloud_ptr_all );
+  voxel.filter( *Cloud_filtered );
+
+  cout << "input pointcloud filtering done!!!" << endl;
+
+  ////////////////////////////////////////////////////////////////
+
+  pcl::search::KdTree<pcl::PointXYZ>::Ptr ec_tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  ec_tree->setInputCloud (Cloud_filtered);//创建点云索引向量，用于存储实际的点云信息
+
+  std::vector<pcl::PointIndices> cluster_indices;
+  pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
+
+  EC.setClusterTolerance (radius*2); //设置近邻搜索的搜索半径为2cm
+  EC.setMinClusterSize (100);//设置一个聚类需要的最少点数目为100
+  EC.setMaxClusterSize (10000000); //设置一个聚类需要的最大点数目为25000
+  EC.setSearchMethod (ec_tree);//设置点云的搜索机制
+  EC.setInputCloud (Cloud_filtered);// input cloud
+  EC.extract (cluster_indices);//从点云中提取聚类，并将点云索引保存在cluster_indices中
+  
+  cout << "ec_tree_cloud->points.size(): "  << Cloud_filtered->points.size() << endl ;
+  cout << "cluster_indices.size(): " << cluster_indices.size() << endl;
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // put largest cluster into final seam cloud
+  Cloud::Ptr cloud_cluster (new Cloud);
+  for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
+  {
+    for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
+    {
+      cloud_cluster->points.push_back (Cloud_filtered->points[*pit]);  
+    }
+    break;
+  }
+ 
+//////////////////////////////////////////////////////////////////////
+
+  for(float i = 0; i < cloud_cluster->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_cluster->points[i].x;
+    p.y = cloud_cluster->points[i].y;
+    p.z = cloud_cluster->points[i].z;
+    p.b = 200;
+    p.g = 200;
+    p.r = 200;
+    model_pointcloud->points.push_back( p );    
+  }
+  
+  cout << "model_pointcloud->points.size(): "  << model_pointcloud->points.size() << endl << endl ;
+
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
+                                              int pointcloud_frameNum,
                                               int receive_capture_count,
                                               int &process_frame_count,
                                               bool &trajectoryPlanning_flag,
                                               Cloud::Ptr cloud_ptr)
 {
+  pcl::PointXYZ no;
+  if(receive_capture_count == pointcloud_frameNum + 1)
+  {
+    cout << "no more pointcloud data!" << endl;
+    return no;
+  }
+
   pcl::PointXYZ realsense_position;
   
   ostringstream stream;
@@ -1070,7 +1175,7 @@ pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
 
     process_frame_count++;
     cout << "read " << process_frame_count << "th pointcloud frame" << endl;
-    cout << "realsense_position" << realsense_position << endl;
+    cout << "realsense_position" << realsense_position << endl << endl;
 
     trajectoryPlanning_flag = true;
   }
@@ -1085,42 +1190,7 @@ pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
 }
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void build_model_pointcloud(string dataset_folder_path, 
-                            int pointcloud_frameNum,
-                            PointCloud::Ptr model_pointcloud)
-{
-  for (int receive_capture_count = 1; receive_capture_count <= pointcloud_frameNum; receive_capture_count++)
-  {
-    ostringstream stream;
-    stream << receive_capture_count;
-    string ith_frame = stream.str();
-
-    string file_pointcloud_frame;
-    file_pointcloud_frame = dataset_folder_path + "/" + ith_frame + "_frame.pcd";
-
-    Cloud::Ptr cloud_ptr (new Cloud);   
-    pcl::PCDReader reader;
-    reader.read(file_pointcloud_frame, *cloud_ptr);
-
-    for(float i = 0; i < cloud_ptr->points.size(); i++)
-    {
-      pcl::PointXYZRGB p;
-      p.x = cloud_ptr->points[i].x; 
-      p.y = cloud_ptr->points[i].y;
-      p.z = cloud_ptr->points[i].z;
-      p.r = 222; 
-      p.g = 222;
-      p.b = 222;
-      model_pointcloud->points.push_back( p );    
-    }
-  }
-  cout << "model_pointcloud->points.size(): "  << model_pointcloud->points.size() << endl ;
-
-}
-
-
+ 
 
 
 
