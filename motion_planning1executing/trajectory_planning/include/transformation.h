@@ -97,21 +97,6 @@ tf::Transform Waypoint_markerTransform_creation(int i, geometry_msgs::Pose P);
 std::string Waypoint_markerName_creation( int i );
 
 
-int count_pointcloud_frameNum(string dataset_folder_path);
-
-
-pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
-                                              int pointcloud_frameNum,
-                                              int receive_capture_count,
-                                              int &process_frame_count,
-                                              bool &trajectoryPlanning_flag,
-                                              Cloud::Ptr cloud_ptr);
-
-void build_model_pointcloud(string dataset_folder_path, 
-                            int pointcloud_frameNum,
-                            PointCloud::Ptr model_pointcloud);
-
-
 
 void rotate_z(float x, float y, float z, float angle, float* x_output, float* y_output, float* z_output) ;
 void rotate_x(float x, float y, float z, float angle, float* x_output, float* y_output, float* z_output)   ;

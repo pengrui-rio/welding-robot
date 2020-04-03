@@ -220,7 +220,7 @@ Cloud::Ptr read_pointcloud (float radius, PointCloud::Ptr cloud_ptr_show)
   // }
 
   //这个不用动
-  cloud_ptr->clear();
+  cloud_ptr->points.clear();
   for(float i = 0; i < cloud_ptr_show->points.size(); i++)
   {
     pcl::PointXYZ p;
@@ -262,7 +262,7 @@ void SurfaceProfile_Reconstruction(float radius,
     smooth_cloud->points.push_back( p );
   }
 
-  cloud_ptr_show->clear();
+  cloud_ptr_show->points.clear();
   for(float i = 0; i < smooth_cloud->points.size(); i++)
   {
     pcl::PointXYZRGB p;
@@ -277,7 +277,7 @@ void SurfaceProfile_Reconstruction(float radius,
 
 
   //这个不用动
-  cloud_ptr->clear();
+  cloud_ptr->points.clear();
   for(float i = 0; i < cloud_ptr_show->points.size(); i++)
   {
     pcl::PointXYZ p;
@@ -664,7 +664,7 @@ void Delete_SmoothChange_Plane(float radius, Cloud::Ptr cloud_ptr, PointCloud::P
     if(keep_flag == "yes")
     {
       //后续的输入点云
-      cloud_ptr->clear();
+      cloud_ptr->points.clear();
       for(float i = 0; i < cloud_ptr_show->points.size(); i++)
       {
         pcl::PointXYZ p;
@@ -676,7 +676,7 @@ void Delete_SmoothChange_Plane(float radius, Cloud::Ptr cloud_ptr, PointCloud::P
       break;
     }
     
-    cloud_ptr_show->clear();
+    cloud_ptr_show->points.clear();
     cout << endl;
 
   }
@@ -686,7 +686,7 @@ void Delete_SmoothChange_Plane(float radius, Cloud::Ptr cloud_ptr, PointCloud::P
 
 void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, sensor_msgs::PointCloud2 pub_pointcloud, ros::Publisher pointcloud_publisher)
 {
-  cout << "ec_tree_cloud->points.size(): "  << cloud_ptr->points.size() << endl ;
+  // cout << "ec_tree_cloud->points.size(): "  << cloud_ptr->points.size() << endl ;
   // push cloud_tree_rm_irrelativePoint into ec_tree_cloud
 //   Cloud::Ptr ec_tree_cloud (new Cloud);
 //   for(float i = 0; i < cloud_ptr->points.size(); i++)
@@ -733,7 +733,7 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
 
     seam_cluster_all.push_back(seam_cluster);
   }
-  cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl;
+  // cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl;
   // cout << "seam_cluster_all[0].size(): " << seam_cluster_all[0].size() << endl;
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // for(float i = 0; i < seam_cluster_all[0].size(); i++)
@@ -752,8 +752,8 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
   int seam_label = 0;
   while(ros::ok())
   {
-    cout << "PLease input index of seam cluster: 0-max" << endl;
     cout << "seam_cluster_all.size(): " << seam_cluster_all.size() << endl ;
+    cout << "PLease input index of seam cluster 0-max :  ";
 
     float index_seam_cluster = 0;
     cin >> index_seam_cluster;
@@ -785,11 +785,11 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
       break;
     }
     
-    cloud_ptr_show->clear();
+    cloud_ptr_show->points.clear();
     cout << endl;
   }
 
-  cloud_ptr->clear();
+  cloud_ptr->points.clear();
   for(float i = 0; i < seam_cluster_all[seam_label].size(); i++)
   { 
     pcl::PointXYZ p;
@@ -1271,7 +1271,7 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
 //     path_points.push_back( p );
 //   }
   
-//   path_cloud->clear();
+//   path_cloud->points.clear();
 //   cout << "path_points.size(): "          << path_points.size() << endl;
 
 //   Point3f p_circle = circle_estimation(path_points);

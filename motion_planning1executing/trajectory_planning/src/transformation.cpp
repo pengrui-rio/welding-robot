@@ -356,46 +356,6 @@ Cloud::Ptr cloud_ptr_origin_copy(Cloud::Ptr cloud_ptr_new)
 }
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-void input_pointcloud_filter(int process_count, int process_count_limit, Cloud::Ptr cloud_ptr, Cloud::Ptr cloud_ptr_filter)
-{
-  for(float i = 0; i < cloud_ptr->points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = cloud_ptr->points[i].x;
-    p.y = cloud_ptr->points[i].y;
-    p.z = cloud_ptr->points[i].z;
-    cloud_ptr_filter->points.push_back( p );    
-  }
-  cout << "process_count: " << process_count << " cloud_ptr_filter->points.size(): " << cloud_ptr_filter->points.size() << endl; 
-
-  ////start filter
-  Cloud::Ptr Cloud_filtered (new Cloud);
-  if(process_count >= process_count_limit)
-  {
-    float radius = 0.001;
-
-    pcl::VoxelGrid<pcl::PointXYZ> voxel;
-    voxel.setLeafSize( radius, radius, radius );
-    voxel.setInputCloud( cloud_ptr_filter );
-    voxel.filter( *Cloud_filtered );
-
-    cout << "input pointcloud filtering done!!!" << endl;
-
-    ////////////////////////////////////////////////////////////////
-    cloud_ptr_filter->points.clear();
-    for(float i = 0; i < Cloud_filtered->points.size(); i++)
-    {
-      pcl::PointXYZ p;
-      p.x = Cloud_filtered->points[i].x;
-      p.y = Cloud_filtered->points[i].y;
-      p.z = Cloud_filtered->points[i].z;
-      cloud_ptr_filter->points.push_back( p );    
-    }
-  }
-}
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 tf::Transform Waypoint_markerTransform_creation(int i, geometry_msgs::Pose P)
 {
@@ -559,7 +519,11 @@ std::string Waypoint_markerName_creation( int i )
 
 
 
-void pathpoint_cut_head_tail(int points_cut_count, Cloud::Ptr PathPoint_Position, vector<Point3f> Torch_Normal_Vector, Cloud::Ptr PathPoint_Position_final, Cloud::Ptr Torch_Normal_Vector_final)
+void pathpoint_cut_head_tail(int points_cut_count, 
+                             Cloud::Ptr PathPoint_Position, 
+                             vector<Point3f> Torch_Normal_Vector, 
+                             Cloud::Ptr PathPoint_Position_final, 
+                             Cloud::Ptr Torch_Normal_Vector_final)
 {
   for(float i = points_cut_count; i < PathPoint_Position->points.size() - points_cut_count; i++)
   {
@@ -582,9 +546,10 @@ void pathpoint_cut_head_tail(int points_cut_count, Cloud::Ptr PathPoint_Position
 
 }
 
-Cloud::Ptr X_Normal_Vector_Temp(Cloud::Ptr PathPoint_Position_final, Cloud::Ptr Torch_Normal_Vector_final)
+void X_Normal_Vector_vertical(Cloud::Ptr X_Normal_Vector,
+                              Cloud::Ptr PathPoint_Position_final, 
+                              Cloud::Ptr Torch_Normal_Vector_final)
 {
-  Cloud::Ptr X_Normal_Vector  (new Cloud);   
   for(float i = 0; i < PathPoint_Position_final->points.size()-1; i++)
   {
     pcl::PointXYZ temp_vector;
@@ -613,14 +578,12 @@ Cloud::Ptr X_Normal_Vector_Temp(Cloud::Ptr PathPoint_Position_final, Cloud::Ptr 
   }
 
   cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl << endl;
-  return X_Normal_Vector;
 }
 
-
-void Y_Z_Normal_Vector( Cloud::Ptr Y_Normal_Vector, 
-                        Cloud::Ptr Z_Normal_Vector, 
-                        Cloud::Ptr X_Normal_Vector, 
-                        Cloud::Ptr Torch_Normal_Vector_final)
+void Y_Z_Normal_Vector_vertical(Cloud::Ptr Y_Normal_Vector, 
+                                Cloud::Ptr Z_Normal_Vector, 
+                                Cloud::Ptr X_Normal_Vector, 
+                                Cloud::Ptr Torch_Normal_Vector_final)
 {
   for(float i = 0; i < X_Normal_Vector->points.size(); i++)
   {
@@ -648,10 +611,10 @@ void Y_Z_Normal_Vector( Cloud::Ptr Y_Normal_Vector,
 
 }
 
-void direction_modification(Cloud::Ptr X_Normal_Vector,
-                            Cloud::Ptr Y_Normal_Vector, 
-                            Cloud::Ptr Z_Normal_Vector, 
-                            Cloud::Ptr PathPoint_Position_final)
+void direction_modification_vertical( Cloud::Ptr X_Normal_Vector,
+                                      Cloud::Ptr Y_Normal_Vector, 
+                                      Cloud::Ptr Z_Normal_Vector, 
+                                      Cloud::Ptr PathPoint_Position_final)
 {
   X_Normal_Vector->points.clear();
   for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
@@ -702,8 +665,130 @@ void direction_modification(Cloud::Ptr X_Normal_Vector,
   cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl;
   cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl;
   cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size() << endl  << endl;
+}
+
+///
+
+void Y_Normal_Vector_horizontal(Cloud::Ptr Y_Normal_Vector,
+                                Cloud::Ptr PathPoint_Position_final, 
+                                Cloud::Ptr Torch_Normal_Vector_final)
+{
+  for(float i = 0; i < PathPoint_Position_final->points.size()-1; i++)
+  {
+    pcl::PointXYZ temp_vector;
+
+    temp_vector.x = PathPoint_Position_final->points[i+1].x - PathPoint_Position_final->points[i].x;
+    temp_vector.y = PathPoint_Position_final->points[i+1].y - PathPoint_Position_final->points[i].y;
+    temp_vector.z = PathPoint_Position_final->points[i+1].z - PathPoint_Position_final->points[i].z;
+
+    Vector3d v(                  temp_vector.x,                   temp_vector.y,                   temp_vector.z);
+    Vector3d w(-Torch_Normal_Vector_final->points[i].x, -Torch_Normal_Vector_final->points[i].y, -Torch_Normal_Vector_final->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ y_normal_vector;
+    y_normal_vector.x = u[0] / n;
+    y_normal_vector.y = u[1] / n;
+    y_normal_vector.z = u[2] / n; 
+    
+    Y_Normal_Vector->points.push_back(y_normal_vector);
+
+    if(i == PathPoint_Position_final->points.size()-1-1)
+    {
+      Y_Normal_Vector->points.push_back(y_normal_vector);
+    }
+    cout << "y_normal_vector" << y_normal_vector << endl;
+  }
+
+  cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl << endl;
+}
+
+void X_Z_Normal_Vector_horizontal(Cloud::Ptr Y_Normal_Vector, 
+                                  Cloud::Ptr Z_Normal_Vector, 
+                                  Cloud::Ptr X_Normal_Vector, 
+                                  Cloud::Ptr Torch_Normal_Vector_final)
+{
+  for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
+  {
+    Vector3d v(-Torch_Normal_Vector_final->points[i].x, -Torch_Normal_Vector_final->points[i].y, -Torch_Normal_Vector_final->points[i].z);
+    Vector3d w(           Y_Normal_Vector->points[i].x,            Y_Normal_Vector->points[i].y,            Y_Normal_Vector->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ x_normal_vector;
+    x_normal_vector.x = u[0] / n;
+    x_normal_vector.y = u[1] / n;
+    x_normal_vector.z = u[2] / n; 
+    cout << "x_normal_vector" << x_normal_vector << endl;
+    X_Normal_Vector->points.push_back(x_normal_vector);
+
+    pcl::PointXYZ z_normal_vector;
+    z_normal_vector.x = -Torch_Normal_Vector_final->points[i].x;
+    z_normal_vector.y = -Torch_Normal_Vector_final->points[i].y;
+    z_normal_vector.z = -Torch_Normal_Vector_final->points[i].z;
+    
+    Z_Normal_Vector->points.push_back(z_normal_vector);
+  }
+  cout << "X_Normal_Vector: " << X_Normal_Vector->points.size()  << endl;
+  cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size()  << endl  << endl;
+
+}
 
 
+void direction_modification_horizontal( Cloud::Ptr X_Normal_Vector,
+                                        Cloud::Ptr Y_Normal_Vector, 
+                                        Cloud::Ptr Z_Normal_Vector, 
+                                        Cloud::Ptr PathPoint_Position_final)
+{
+  Y_Normal_Vector->points.clear();
+  for(float i = 0; i < X_Normal_Vector->points.size(); i++)
+  {
+    Vector3d k(1,
+               0,
+               0);
+
+    Vector3d h(X_Normal_Vector->points[i].x,
+               X_Normal_Vector->points[i].y,
+               X_Normal_Vector->points[i].z);
+
+    if(k.dot(h) < 0)
+    {
+      X_Normal_Vector->points[i].x = -X_Normal_Vector->points[i].x;
+      X_Normal_Vector->points[i].y = -X_Normal_Vector->points[i].y;
+      X_Normal_Vector->points[i].z = -X_Normal_Vector->points[i].z;
+    }
+
+    Vector3d v(X_Normal_Vector->points[i].x, X_Normal_Vector->points[i].y, X_Normal_Vector->points[i].z);
+    Vector3d w(Z_Normal_Vector->points[i].x, Z_Normal_Vector->points[i].y, Z_Normal_Vector->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ y_normal_vector;
+    y_normal_vector.x = u[0] / n;
+    y_normal_vector.y = u[1] / n;
+    y_normal_vector.z = u[2] / n; 
+    
+    Y_Normal_Vector->points.push_back(y_normal_vector);
+  }
+
+  for(float i = 0; i < X_Normal_Vector->points.size(); i++)
+  {
+    cout << "X_Normal_Vector: " << X_Normal_Vector->points[i] << endl;
+  }
+  cout << endl;
+  for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
+  {
+    cout << "Y_Normal_Vector: " << Y_Normal_Vector->points[i] << endl;
+  }
+  cout << endl;
+  for(float i = 0; i < Z_Normal_Vector->points.size(); i++)
+  {
+    cout << "Z_Normal_Vector: " << Z_Normal_Vector->points[i] << endl;
+  }
+  cout << endl;
+  cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl;
+  cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl;
+  cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size() << endl  << endl;
 }
 
 
@@ -940,11 +1025,77 @@ vector< geometry_msgs::Pose > RvizPose_pointInterpolation( int origin_pathpoint_
   return Rviz_TrajectoryPose;
 }
 
+
+void orientation_definition_verticalType( Cloud::Ptr X_Normal_Vector,
+                                          Cloud::Ptr Y_Normal_Vector, 
+                                          Cloud::Ptr Z_Normal_Vector, 
+                                          Cloud::Ptr PathPoint_Position_final, 
+                                          Cloud::Ptr Torch_Normal_Vector_final)
+
+{
+  X_Normal_Vector_vertical( X_Normal_Vector,
+                            PathPoint_Position_final, 
+                            Torch_Normal_Vector_final);
+
+  Y_Z_Normal_Vector_vertical( Y_Normal_Vector, 
+                              Z_Normal_Vector, 
+                              X_Normal_Vector, 
+                              Torch_Normal_Vector_final);
+
+  direction_modification_vertical(X_Normal_Vector, 
+                                  Y_Normal_Vector, 
+                                  Z_Normal_Vector, 
+                                  PathPoint_Position_final);
+}
+
+
+
+
+
+
+void orientation_definition_horizontalType( Cloud::Ptr X_Normal_Vector,
+                                            Cloud::Ptr Y_Normal_Vector, 
+                                            Cloud::Ptr Z_Normal_Vector, 
+                                            Cloud::Ptr PathPoint_Position_final, 
+                                            Cloud::Ptr Torch_Normal_Vector_final)
+
+{
+  Y_Normal_Vector_horizontal( Y_Normal_Vector,
+                              PathPoint_Position_final, 
+                              Torch_Normal_Vector_final);
+
+  X_Z_Normal_Vector_horizontal( Y_Normal_Vector, 
+                                Z_Normal_Vector, 
+                                X_Normal_Vector, 
+                                Torch_Normal_Vector_final);
+
+  direction_modification_horizontal(X_Normal_Vector, 
+                                    Y_Normal_Vector, 
+                                    Z_Normal_Vector, 
+                                    PathPoint_Position_final);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometry_msgs::Pose > &Welding_Trajectory, 
                                                                  Cloud::Ptr PathPoint_Position, 
                                                                  vector<Point3f> Torch_Normal_Vector)
 {
-  int points_cut_count = 3;
+  int points_cut_count = 2;
   Cloud::Ptr PathPoint_Position_final  (new Cloud);   
   Cloud::Ptr Torch_Normal_Vector_final (new Cloud);  
   pathpoint_cut_head_tail(points_cut_count, 
@@ -954,24 +1105,21 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
                           Torch_Normal_Vector_final);
 
   // ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  Cloud::Ptr X_Normal_Vector = X_Normal_Vector_Temp(PathPoint_Position_final, 
-                                                    Torch_Normal_Vector_final);
+  Cloud::Ptr X_Normal_Vector  (new Cloud);   
+  Cloud::Ptr Y_Normal_Vector  (new Cloud);   
+  Cloud::Ptr Z_Normal_Vector  (new Cloud);   
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  Cloud::Ptr Y_Normal_Vector (new Cloud);  
-  Cloud::Ptr Z_Normal_Vector (new Cloud);  
-  Y_Z_Normal_Vector(Y_Normal_Vector, 
-                    Z_Normal_Vector, 
-                    X_Normal_Vector, 
-                    Torch_Normal_Vector_final);
+  // orientation_definition_verticalType( X_Normal_Vector, 
+  //                                      Y_Normal_Vector, 
+  //                                      Z_Normal_Vector, 
+  //                                      PathPoint_Position_final, 
+  //                                      Torch_Normal_Vector_final);
 
-  //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  direction_modification(X_Normal_Vector, 
-                         Y_Normal_Vector, 
-                         Z_Normal_Vector, 
-                         PathPoint_Position_final);
-
-
+  orientation_definition_horizontalType(X_Normal_Vector, 
+                                        Y_Normal_Vector, 
+                                        Z_Normal_Vector, 
+                                        PathPoint_Position_final, 
+                                        Torch_Normal_Vector_final);
   // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   float trajectory_point_size = PathPoint_Position_final->points.size();
 
@@ -1006,196 +1154,6 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
 
   return Rviz_TrajectoryPose;
 }
-
-
-
-
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-int count_pointcloud_frameNum(string dataset_folder_path)
-{
-  DIR *dp;
-	struct dirent *dirp;
-
-	if((dp = opendir(dataset_folder_path.c_str())) == NULL)
-		cout << "Can't open " << dataset_folder_path << endl;
-
-  int count = 0;
-	while((dirp = readdir(dp)) != NULL)
-    count++;
-		// cout << dirp->d_name << endl;
-
-	closedir(dp);
-
-  cout << "pointcloud_frameNum: " << (count-2)/2 <<endl;
-
-  return (count-2)/2;
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void build_model_pointcloud(string dataset_folder_path, 
-                            int pointcloud_frameNum,
-                            PointCloud::Ptr model_pointcloud)
-{
-  Cloud::Ptr cloud_ptr_all (new Cloud);
-
-  for (int receive_capture_count = 1; receive_capture_count <= pointcloud_frameNum; receive_capture_count++)
-  {
-    ostringstream stream;
-    stream << receive_capture_count;
-    string ith_frame = stream.str();
-
-    string file_pointcloud_frame;
-    file_pointcloud_frame = dataset_folder_path + "/" + ith_frame + "_frame.pcd";
-
-    Cloud::Ptr cloud_ptr (new Cloud);   
-    pcl::PCDReader reader;
-    reader.read(file_pointcloud_frame, *cloud_ptr);
-
-    for(float i = 0; i < cloud_ptr->points.size(); i++)
-    {
-      pcl::PointXYZ p;
-      p.x = cloud_ptr->points[i].x; 
-      p.y = cloud_ptr->points[i].y;
-      p.z = cloud_ptr->points[i].z;
-      cloud_ptr_all->points.push_back( p );    
-    }
-  }
-
-  /////////////////////////////////////////////////////////////////
-  Cloud::Ptr Cloud_filtered (new Cloud);
-
-  float radius = 0.005;
-
-  pcl::VoxelGrid<pcl::PointXYZ> voxel;
-  voxel.setLeafSize( radius, radius, radius );
-  voxel.setInputCloud( cloud_ptr_all );
-  voxel.filter( *Cloud_filtered );
-
-  cout << "input pointcloud filtering done!!!" << endl;
-
-  ////////////////////////////////////////////////////////////////
-
-  pcl::search::KdTree<pcl::PointXYZ>::Ptr ec_tree (new pcl::search::KdTree<pcl::PointXYZ>);
-  ec_tree->setInputCloud (Cloud_filtered);//创建点云索引向量，用于存储实际的点云信息
-
-  std::vector<pcl::PointIndices> cluster_indices;
-  pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
-
-  EC.setClusterTolerance (radius*2); //设置近邻搜索的搜索半径为2cm
-  EC.setMinClusterSize (100);//设置一个聚类需要的最少点数目为100
-  EC.setMaxClusterSize (10000000); //设置一个聚类需要的最大点数目为25000
-  EC.setSearchMethod (ec_tree);//设置点云的搜索机制
-  EC.setInputCloud (Cloud_filtered);// input cloud
-  EC.extract (cluster_indices);//从点云中提取聚类，并将点云索引保存在cluster_indices中
-  
-  cout << "ec_tree_cloud->points.size(): "  << Cloud_filtered->points.size() << endl ;
-  cout << "cluster_indices.size(): " << cluster_indices.size() << endl;
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-  // put largest cluster into final seam cloud
-  Cloud::Ptr cloud_cluster (new Cloud);
-  for (vector<pcl::PointIndices>::const_iterator it = cluster_indices.begin (); it != cluster_indices.end (); ++it)
-  {
-    for (std::vector<int>::const_iterator pit = it->indices.begin (); pit != it->indices.end (); ++pit)
-    {
-      cloud_cluster->points.push_back (Cloud_filtered->points[*pit]);  
-    }
-    break;
-  }
- 
-//////////////////////////////////////////////////////////////////////
-
-  for(float i = 0; i < cloud_cluster->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-    p.x = cloud_cluster->points[i].x;
-    p.y = cloud_cluster->points[i].y;
-    p.z = cloud_cluster->points[i].z;
-    p.b = 200;
-    p.g = 200;
-    p.r = 200;
-    model_pointcloud->points.push_back( p );    
-  }
-  
-  cout << "model_pointcloud->points.size(): "  << model_pointcloud->points.size() << endl << endl ;
-
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
-                                              int pointcloud_frameNum,
-                                              int receive_capture_count,
-                                              int &process_frame_count,
-                                              bool &trajectoryPlanning_flag,
-                                              Cloud::Ptr cloud_ptr)
-{
-  pcl::PointXYZ no;
-  if(receive_capture_count == pointcloud_frameNum + 1)
-  {
-    cout << "no more pointcloud data!" << endl;
-    return no;
-  }
-
-  pcl::PointXYZ realsense_position;
-  
-  ostringstream stream;
-  stream << receive_capture_count;
-  string ith_frame = stream.str();
-
-  string file_realsense_position;
-  file_realsense_position = dataset_folder_path + "/" + ith_frame + "_frame.txt";
-
-  ifstream fin(file_realsense_position.c_str());
-  if(fin && process_frame_count+1 == receive_capture_count)
-  {
-    string s;
-    getline(fin,s);
-
-    int _1_T = s.find("\t", 0); //从哪个位置开始搜索x
-    int _2_T = s.find("\t", _1_T+1);   
-
-    string cam_x = s.substr(0, _1_T);
-    stringstream ss_cam_x;
-    ss_cam_x<<cam_x;
-    ss_cam_x>>realsense_position.x;
-
-    string cam_y   = s.substr(_1_T+1, _2_T-_1_T-1);
-    stringstream ss_cam_y;
-    ss_cam_y<<cam_y;
-    ss_cam_y>>realsense_position.y;
-
-    string cam_z   = s.substr(_2_T+1, s.length()-_2_T-1);
-    stringstream ss_cam_z;
-    ss_cam_z << cam_z;
-    ss_cam_z >> realsense_position.z;
-
-    process_frame_count++;
-    cout << "read " << process_frame_count << "th pointcloud frame" << endl;
-    cout << "realsense_position" << realsense_position << endl << endl;
-
-    trajectoryPlanning_flag = true;
-  }
-  
-  string file_pointcloud_frame;
-  file_pointcloud_frame = dataset_folder_path + "/" + ith_frame + "_frame.pcd";
-
-  pcl::PCDReader reader;
-  reader.read(file_pointcloud_frame, *cloud_ptr);
-
-  return realsense_position;
-}
-
-
- 
-
-
-
-
-
 
 
 

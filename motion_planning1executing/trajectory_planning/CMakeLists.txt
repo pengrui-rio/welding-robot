@@ -41,6 +41,8 @@ trajectory_planning_node
 
 src/main.cpp
  
+src/running_flow.cpp
+
 src/motion_planning.cpp
 
 src/transformation.cpp

@@ -6,10 +6,11 @@ Panels:
       Expanded:
         - /PointCloud22
         - /PointCloud23
+        - /TF1
         - /TF1/Frames1
         - /Marker1
         - /Marker1/Namespaces1
-      Splitter Ratio: 0.742560029
+      Splitter Ratio: 0.744186044
     Tree Height: 837
   - Class: rviz/Help
     Name: Help
@@ -205,7 +206,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -222,7 +223,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -235,7 +236,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -252,7 +253,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -278,7 +279,7 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.00999999978
       Style: Points
-      Topic: /model_pointcloud
+      Topic: /model_pointcloud_display
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
@@ -288,8 +289,6 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        ar_marker_6:
-          Value: true
         bar:
           Value: false
         base:
@@ -414,8 +413,7 @@ Visualization Manager:
                   {}
           kinect2_link:
             kinect2_rgb_optical_frame:
-              ar_marker_6:
-                {}
+              {}
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
@@ -423,7 +421,7 @@ Visualization Manager:
       Marker Topic: visualization_marker
       Name: Marker
       Namespaces:
-        basic_shapes: true
+        {}
       Queue Size: 100
       Value: true
   Enabled: true
@@ -442,25 +440,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.923113763
+      Distance: 0.919706523
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.0294363797
-        Y: 0.651863754
-        Z: -1.5332771e-06
+        X: 0.0442001075
+        Y: 0.694875121
+        Z: -1.801498e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 1.364797
+      Pitch: 0.579797208
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 4.89688778
+      Yaw: 3.82688737
     Saved: ~
 Window Geometry:
   Displays:

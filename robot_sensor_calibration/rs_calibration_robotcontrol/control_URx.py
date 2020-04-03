@@ -60,7 +60,7 @@ def euler_to_rotationVector(yaw , roll, pitch):
     R[2][2] = np.square(w) - np.square(x) - np.square(y) + np.square(z)
     rotationVector  = cv2.Rodrigues(R)
 
-    print rotationVector[0]
+    # print rotationVector[0]
     return rotationVector[0]
 
 
@@ -81,67 +81,7 @@ def publish_message(rospy, pub):
     pub_pose.pose.orientation.w = 1
     rospy.loginfo(pub_pose)
     pub.publish(pub_pose)
-
-
-
-visuoguding_Pose = geometry_msgs.msg.Pose()
-
-def callback_VisuoGuding_Pose(pose):
-    global visuoguding_Pose
-
-    visuoguding_Pose.position.x = pose.position.x
-    visuoguding_Pose.position.y = pose.position.y
-    visuoguding_Pose.position.z = pose.position.z
-    visuoguding_Pose.orientation.x = pose.orientation.x
-    visuoguding_Pose.orientation.y = pose.orientation.y
-    visuoguding_Pose.orientation.z = pose.orientation.z
-
-    # print visuoguding_Pose 
-    # print "\n" 
-
-def VisuoGuding_Control(robot, visuoguding_Pose):
-    print "\n============ Press `Enter` to go VisuoGuding_Control ============"
-    raw_input()
-
-    while not rospy.is_shutdown():
-        if math.isnan(visuoguding_Pose.position.x):
-            robot.stop()
-            print "nan! stop!"
-        
-        else:
-            print visuoguding_Pose 
-            print "\n" 
-
-            pose = []
-            pose.append(visuoguding_Pose.position.x)              #px
-            pose.append(visuoguding_Pose.position.y)              #py
-            pose.append(visuoguding_Pose.position.z)              #pz
-            pose.append(visuoguding_Pose.orientation.x) #rx
-            pose.append(visuoguding_Pose.orientation.y) #ry
-            pose.append(visuoguding_Pose.orientation.z) #rz
-            robot.movel(pose, acc=0.01, vel=0.02, wait=True)
     
-
-
-motion_pathPoint = []
-
-def callback_path(pose):
-    global motion_pathPoint
-
-    p = []
-    p.append(pose.position.x)
-    p.append(pose.position.y)
-    p.append(pose.position.z)
-    p.append(pose.orientation.x)
-    p.append(pose.orientation.y)
-    p.append(pose.orientation.z)
-
-
-    motion_pathPoint.append( p )
-    print p 
-    print len(motion_pathPoint)
-    print "\n" 
-
 
 def goto_straight_status(robot):
     print "\n============ Press `Enter` to go back straight-up status ============"
@@ -176,23 +116,57 @@ def move_to_singleXYZRPY(robot, x, y, z, roll, pitch, yaw):
     robot.movel(pose, acc=0.01, vel=0.06, wait=True)
 
 
-
 def move_to_singlePose(robot, pose):
     print "\n============ Press `Enter` to move to certain pose ============"
     raw_input()
 
     robot.movel(pose, acc=0.01, vel=0.06, wait=True)
+ 
 
 
 
-def trajectory_execution(robot, pose_list):
-    print "\n============ Press `Enter` to execute welding trajectory ============"
+def automatic_move(robot, x, y, z, roll, pitch, yaw):
+ 
+    rotation = euler_to_rotationVector(yaw, roll, pitch) # yaw->roll->pitch
+    pose = []
+    pose.append(x)              #px
+    pose.append(y)              #py
+    pose.append(z)              #pz
+    pose.append(rotation[0][0]) #rx
+    pose.append(rotation[1][0]) #ry
+    pose.append(rotation[2][0]) #rz
+    robot.movel(pose, acc=0.001, vel=0.001, wait=False)
+
+
+marker_Pose = geometry_msgs.msg.Pose()
+
+def callback_marker_info(pose):
+    global marker_Pose
+
+    marker_Pose.position.x = pose.position.x
+    marker_Pose.position.y = pose.position.y
+    marker_Pose.position.z = pose.position.z
+ 
+
+def automatic_calibration(robot, marker_Pose):
+    print "\n============ Press `Enter` to go automatic_calibration ============"
     raw_input()
 
-    move_to_singlePose(robot, pose_list[0])
+    i = 0
+    while not rospy.is_shutdown():
+        i = i + 1
+        if i % 10000 == 0:
+            i =0
+            pose = robot.getl()
+            print "pose"
+            print pose
 
-    robot.movels(pose_list, acc=0.01, vel=0.01, wait=False)
-
+        input_x = pose[0] - marker_Pose.position.x
+        input_y = pose[1] + marker_Pose.position.y 
+        # automatic_move(robot, input_x, input_y, 0.52, 0, 180, 0)
+    
+    robot.stop()
+    print "robot.stop()"
 
 
 
@@ -201,42 +175,30 @@ if __name__ == "__main__":
         logging.basicConfig(level=logging.WARN)
         robot = urx.Robot("192.168.0.2")
 
-        rospy.init_node('robot_motion', anonymous=True)
-        rospy.Subscriber("Welding_Trajectory", Pose, callback_path)
-        rospy.Subscriber("VisuoGuding_Pose", Pose, callback_VisuoGuding_Pose)
+        rospy.init_node('automatic_sensorRobot_calibration', anonymous=True)
+        rospy.Subscriber("marker_info", Pose, callback_marker_info)
 
-        pub = rospy.Publisher('robot_currentpose', PoseStamped, queue_size=10)
         rate = rospy.Rate(1000) # 1000hz
 
         print "\n"
         pose = robot.getl()
         print  pose
         print "\n"
-
+        robot.stop()
         ##########################################################################################################
 
-        goto_straight_status(robot)
+        # goto_straight_status(robot)
 
         # ##########################################################################################################
     
         # move_to_singleXYZRPY(robot, 0, -0.35, 0.65, 45, 180, 0) #x, y, z, roll, pitch, yaw
 
         # move_to_singleXYZRPY(robot, 0, -0.6, 0.52, 90, 180, 0)  #x, y, z, roll, pitch, yaw
-        # move_to_singleXYZRPY(robot, 0, -0.4, 0.52, 0, 180, 0)  #x, y, z, roll, pitch, yaw
+        # move_to_singleXYZRPY(robot, -0.03776431571831436, -0.40847125799157285, 0.52, 0, 180, 0)  #x, y, z, roll, pitch, yaw
 
         ##########################################################################################################
 
-        VisuoGuding_Control(robot, visuoguding_Pose)
-
-        ##########################################################################################################
-
-        publish_message(rospy, pub)
-
-        ##########################################################################################################
-
-        trajectory_execution(robot, motion_pathPoint)
-
-        ##########################################################################################################
+        automatic_calibration(robot, marker_Pose)
 
 
 

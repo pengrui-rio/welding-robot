@@ -131,36 +131,9 @@ int main(int argc, char **argv)
   tf::TransformListener listener;
   tf::TransformBroadcaster tf_broadcaster;
 
+  int i = 0;
   while (ros::ok()) 
-  {
-    // EyeinHand_compute_TEC();
-    // Point3f object = EyeinHand_Result_validation();
-    // cout << "object position: " << object << endl;
-    // double px = object.x;//double px = -0.04;
-    // double py = object.y;
-    // double pz = object.z + 0.01;
-    // float T_o_B_q[4];
-    // euler_to_quaternion(90, 0, 0, T_o_B_q);
-    // double qx = T_o_B_q[0];
-    // double qy = T_o_B_q[1];
-    // double qz = T_o_B_q[2];
-    // double qw = T_o_B_q[3];
-
-    // tf::Quaternion rotation (qx,qy,qz,qw);
-    // tf::Vector3 origin (px,py,pz);
-    // tf::Transform t (rotation, origin);
-
-    // std::string markerFrame = "GT_ar_marker_";
-    // std::stringstream out;
-    // out << 1;
-    // std::string id_string = out.str();
-    // markerFrame += id_string;
-    // tf::StampedTransform GT_Marker (t, ros::Time::now(), "/base_link", markerFrame.c_str());
-    // tf_broadcaster. sendTransform(GT_Marker);
-
-
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  { 
     // listen other coordinates
     tf::StampedTransform transform;
     try
@@ -177,32 +150,13 @@ int main(int argc, char **argv)
     Base_End.position.x = transform.getOrigin().x();      Base_End.position.y = transform.getOrigin().y();      Base_End.position.z = transform.getOrigin().z();
     Base_End.orientation.x = transform.getRotation().x(); Base_End.orientation.y = transform.getRotation().y(); Base_End.orientation.z = transform.getRotation().z(); Base_End.orientation.w = transform.getRotation().w();
     // cout << "Base_End: " << endl << Base_End << endl;
-    EyeinHand_compute_TEC(Base_End);
 
-
-    //broadcast ground truth of AR marker:
-    double px = 0.056;//double px = -0.04;
-    double py = 0.328;
-    double pz = 0.001;
-    float T_o_B_q[4];
-    euler_to_quaternion(90, 0, 0, T_o_B_q);
-    double qx = T_o_B_q[0];
-    double qy = T_o_B_q[1];
-    double qz = T_o_B_q[2];
-    double qw = T_o_B_q[3];
-
-    tf::Quaternion rotation (qx,qy,qz,qw);
-    tf::Vector3 origin (px,py,pz);
-    tf::Transform t (rotation, origin);
-
-    std::string markerFrame = "GT_ar_marker_";
-    std::stringstream out;
-    out << 1;
-    std::string id_string = out.str();
-    markerFrame += id_string;
-    tf::StampedTransform GT_Marker (t, ros::Time::now(), "/base_link", markerFrame.c_str());
-    tf_broadcaster. sendTransform(GT_Marker);
-
+    i = i + 1;
+    if ((i % 100000) == 0)
+    {
+      i = 0;
+      EyeinHand_compute_TEC(Base_End);
+    }
 
 
     ros::spinOnce(); //allow data update from callback; 
@@ -318,12 +272,7 @@ void EyeinHand_compute_TEC(geometry_msgs::Pose Base_End)
            T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], Base_End.position.y,
            T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], Base_End.position.z,
            0,          0,          0,          1;
-  // cout << "T_B_E: " << endl << T_B_E << endl;
-  // cout << "purple: " << 180*atan2(T_B_E_r[2], T_B_E_r[8]) / M_PI << endl;
-  // cout << "red: "    << 180*atan2(T_B_E_r[3], T_B_E_r[4]) / M_PI << endl;
-  // cout << "green: "  << 180*asin(-T_B_E_r[5])             / M_PI << endl;
-  // cout << endl;
-
+ 
 
   // Camera -> object
 	Matrix4d T_C_o; 
@@ -336,12 +285,7 @@ void EyeinHand_compute_TEC(geometry_msgs::Pose Base_End)
            T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], marker_center_y,
            T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], marker_center_z,
            0,          0,          0,          1;
-  // cout << "T_C_o: " << endl << T_C_o << endl;
-  // cout << "purple: " << 180*atan2(T_C_o_r[2], T_C_o_r[8]) / M_PI << endl;
-  // cout << "red: "    << 180*atan2(T_C_o_r[3], T_C_o_r[4]) / M_PI << endl;
-  // cout << "green: "  << 180*asin(-T_C_o_r[5])             / M_PI << endl;
-  // cout << endl;
-
+ 
 
   // object -> Base
 	Matrix4d T_B_o; 
@@ -352,6 +296,7 @@ void EyeinHand_compute_TEC(geometry_msgs::Pose Base_End)
   T_B_o_Q[2] = Base_End.orientation.z;
   T_B_o_Q[3] = Base_End.orientation.w;
 
+
   float T_B_o_r[9];
   Quaternion_to_RotationMatrix(T_B_o_Q[0], T_B_o_Q[1], T_B_o_Q[2], T_B_o_Q[3], T_B_o_r);
   // euler_to_RotationMatrix(90, 0, 0, T_o_B_r);
@@ -359,12 +304,6 @@ void EyeinHand_compute_TEC(geometry_msgs::Pose Base_End)
            T_B_o_r[3], T_B_o_r[4], T_B_o_r[5], 0.524,
            T_B_o_r[6], T_B_o_r[7], T_B_o_r[8], 0.0001,
            0,          0,          0,          1;
-  // cout << "T_o_B: " << endl << T_o_B << endl;
-  // cout << "purple: " << 180*atan2(T_o_B_r[2], T_o_B_r[8]) / M_PI << endl;
-  // cout << "red: "    << 180*atan2(T_o_B_r[3], T_o_B_r[4]) / M_PI << endl;
-  // cout << "green: "  << 180*asin(-T_o_B_r[5])             / M_PI << endl;
-  // cout << endl;
-
 
 
   // End -> Camera

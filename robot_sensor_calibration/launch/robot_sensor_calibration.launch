@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<launch>
+  
+   <!--  start realsense  -->
+  <arg name="align_depth" default="true"/>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+      <arg name="align_depth"              value="$(arg align_depth)"/>
+  </include>
+
+
+  <!--  start kinectv2_arTracker  -->
+  <include file="$(find ar_track_alvar)/launch/realsense_arTracker.launch">
+  </include>
+
+
+  <!--  start calibration_computing   -->
+  <node pkg="calibration_computing" type="calibration_computing_node" name="calibration_computing" respawn="true" output="screen">
+  </node>
+
+
+  <!--  start rs_calibration_robotcontrol  -->
+  <node pkg="rs_calibration_robotcontrol" type="control_URx.py" name="rs_calibration_robotcontrol" respawn="true" output="screen">
+  </node>
+  
+
+
+</launch>
+ 

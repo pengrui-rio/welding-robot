@@ -46,7 +46,8 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 #include <pcl/segmentation/extract_clusters.h>
- #include <pcl/surface/mls.h>
+#include <pcl/surface/mls.h>
+
 
 // 定义点云类型
 typedef pcl::PointCloud<pcl::PointXYZRGB> PointCloud; 
@@ -121,7 +122,10 @@ Cloud::Ptr Compute_All_PathPoints(Cloud::Ptr seam_edge);
 
 void push_point_showCloud(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show);
 
-vector<Point3f> OriginWaypoint_torchDir_Unify(Cloud::Ptr PathPoint_Position, vector<Point3f> Torch_Normal_Vector, Point3f Cam_Position);
+vector<Point3f> OriginWaypoint_torchDir_Unify(Cloud::Ptr PathPoint_Position, vector<Point3f> Torch_Normal_Vector, vector<Point3f> Cam_Position);
+
+vector<Point3f> select_nearest_Cam_Position( vector< pcl::PointXYZ > all_realsense_position, 
+                                             Cloud::Ptr PathPoint_Position);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -129,7 +133,9 @@ Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_sho
 
 Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show);
 
-vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position);
 
 
-
+vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position,
+                                                 Cloud::Ptr cloud_ptr, 
+                                                 PointCloud::Ptr cloud_ptr_show, 
+                                                 vector< pcl::PointXYZ > all_realsense_position);

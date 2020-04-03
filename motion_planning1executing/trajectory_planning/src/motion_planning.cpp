@@ -1184,16 +1184,16 @@ void push_point_showCloud(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show)
 
 
 
-vector<Point3f> OriginWaypoint_torchDir_Unify(Cloud::Ptr PathPoint_Position, vector<Point3f> Normal_Vector, Point3f Cam_Position)
+vector<Point3f> OriginWaypoint_torchDir_Unify(Cloud::Ptr PathPoint_Position, vector<Point3f> Normal_Vector, vector<Point3f> Cam_Position)
 {
   //求标准向量：点到相机坐标系
   vector<Point3f> Vector_point_to_camPosi;
   for(float i = 0; i < PathPoint_Position->points.size(); i++)
   {
     Point3f standard_vector;
-    standard_vector.x = Cam_Position.x - PathPoint_Position->points[i].x;
-    standard_vector.y = Cam_Position.y - PathPoint_Position->points[i].y;
-    standard_vector.z = Cam_Position.z - PathPoint_Position->points[i].z;
+    standard_vector.x = Cam_Position[i].x - PathPoint_Position->points[i].x;
+    standard_vector.y = Cam_Position[i].y - PathPoint_Position->points[i].y;
+    standard_vector.z = Cam_Position[i].z - PathPoint_Position->points[i].z;
     Vector_point_to_camPosi.push_back(standard_vector);
   }
 
@@ -1237,6 +1237,48 @@ vector<Point3f> OriginWaypoint_torchDir_Unify(Cloud::Ptr PathPoint_Position, vec
 }
 
 
+vector<Point3f> select_nearest_Cam_Position( vector< pcl::PointXYZ > all_realsense_position, 
+                                             Cloud::Ptr PathPoint_Position)
+{
+    vector<Point3f> All_Cam_Position;
+    for(float i = 0; i < PathPoint_Position->points.size(); i++)
+    {
+        Point3f Cam_Position;
+
+        vector<float> all_dis;
+        for(float j = 0; j < all_realsense_position.size(); j++)
+        {
+            all_dis.push_back(Distance_two_Points(PathPoint_Position->points[i], all_realsense_position[j])) ;
+        }
+
+        float Distance_min = 0, Distance_min_index = 0;
+        for(float k = 0; k < all_dis.size(); k++)
+        { 
+            if(k == 0)
+            {
+                Distance_min = all_dis[0];
+            }
+            if (Distance_min > all_dis[k])
+            {
+                Distance_min = all_dis[k];
+                Distance_min_index = k;
+            }
+        }
+        Cam_Position.x = all_realsense_position[Distance_min_index].x;
+        Cam_Position.y = all_realsense_position[Distance_min_index].y;
+        Cam_Position.z = all_realsense_position[Distance_min_index].z;
+
+        All_Cam_Position.push_back(Cam_Position);
+    }
+    return All_Cam_Position;
+}
+
+
+
+
+
+
+
 
 
 
@@ -1268,7 +1310,7 @@ Cloud::Ptr Extract_Seam_edge(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_sho
 }
 
 
-Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_ptr_origin, PointCloud::Ptr cloud_ptr_show)
+Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_ptr_modelSeam, PointCloud::Ptr cloud_ptr_show)
 {
     cloud_ptr_show_creation(seam_edge, cloud_ptr_show);
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1295,14 +1337,18 @@ Cloud::Ptr PathPoint_Position_Generation(Cloud::Ptr seam_edge, Cloud::Ptr cloud_
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     //展示排序好的pathpoints
-    Show_Ordered_PathPoints(PathPoint_Position, cloud_ptr_origin, cloud_ptr_show);
+    Show_Ordered_PathPoints(PathPoint_Position, cloud_ptr_modelSeam, cloud_ptr_show);
 
  
     return PathPoint_Position;
 }
 
 
-vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, Cloud::Ptr cloud_ptr_origin, Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show, Point3f Cam_Position)
+
+vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position,
+                                                 Cloud::Ptr cloud_ptr, 
+                                                 PointCloud::Ptr cloud_ptr_show, 
+                                                 vector< pcl::PointXYZ > all_realsense_position)
 {
     Cloud::Ptr all_cloud_ptr (new Cloud);
     for(float j = 0; j < PathPoint_Position->points.size(); j++)
@@ -1397,6 +1443,10 @@ vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, 
         }
     }
 
+    //select_nearest_Cam_Position：
+    vector<Point3f> Cam_Position = select_nearest_Cam_Position(all_realsense_position, PathPoint_Position);
+    
+    //OriginWaypoint_torchDir_Unify:
     vector<Point3f> Torch_Normal_Vector = OriginWaypoint_torchDir_Unify(PathPoint_Position, Normal_Vector, Cam_Position);
     cout << "Torch_Normal_Vector:\n" << Torch_Normal_Vector << endl;
     cout << "Torch_Normal_Vector.size:" << Torch_Normal_Vector.size() << endl; 
@@ -1423,12 +1473,12 @@ vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position, 
         }
         cloud_ptr_show->points.push_back( p );         
     }
-    for(float i = 0; i < cloud_ptr_origin->points.size(); i++)
+    for(float i = 0; i < cloud_ptr->points.size(); i++)
     {
         pcl::PointXYZRGB p;
-        p.x = cloud_ptr_origin->points[ i ].x;
-        p.y = cloud_ptr_origin->points[ i ].y;
-        p.z = cloud_ptr_origin->points[ i ].z;
+        p.x = cloud_ptr->points[ i ].x;
+        p.y = cloud_ptr->points[ i ].y;
+        p.z = cloud_ptr->points[ i ].z;
         p.b = 200;
         p.g = 200;
         p.r = 200;
