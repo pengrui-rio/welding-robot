@@ -31,9 +31,9 @@
   <node pkg="vg_transform" type="vg_transform_node" name="vg_transform" respawn="true" output="screen">
   </node>
   
-  <!--  start visuoguiding_robotcontrol  -->
+  <!--  start visuoguiding_robotcontrol -->
   <node pkg="vg_Rcontrol" type="control_URx.py" name="vg_Rcontrol" respawn="true" output="screen">
-  </node>  
+  </node>   
 
 
   <!--  start realsense  -->

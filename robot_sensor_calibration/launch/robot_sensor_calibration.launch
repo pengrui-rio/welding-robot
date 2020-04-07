@@ -19,9 +19,9 @@
   </node>
 
 
-  <!--  start rs_calibration_robotcontrol  -->
+  <!--  start rs_calibration_robotcontrol  
   <node pkg="rs_calibration_robotcontrol" type="control_URx.py" name="rs_calibration_robotcontrol" respawn="true" output="screen">
-  </node>
+  </node>-->
   
 
 

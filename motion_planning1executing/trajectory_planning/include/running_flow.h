@@ -3,8 +3,12 @@
 
 #include <ros/ros.h>
 #include <math.h>
-#include <iostream>   
+#include <iostream>
+#include <string>
 #include <vector>
+#include <fstream>
+#include <sstream>
+
 #include <Eigen/Dense>
 #include <string>
 #include <dirent.h>
@@ -122,6 +126,7 @@ void build_model_pointcloud(string dataset_folder_path,
                             PointCloud::Ptr model_pointcloud);
 
 
+vector< geometry_msgs::Pose > read_trajectory_frame( string trajectoryInfo_folder_path );
 
 
 void show_pointcloud_Rviz(int show_Pointcloud_timeMax, 

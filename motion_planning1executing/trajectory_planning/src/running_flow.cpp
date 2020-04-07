@@ -157,10 +157,16 @@ vector< geometry_msgs::Pose > trajectory_planning(Cloud::Ptr cloud_ptr_modelSeam
   }
 
 
+  float seam_detection_radius = 0.01;
+
   int show_Pointcloud_timeMax = 100;
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
 
   //Trajectory Planning:
+  SurfaceProfile_Reconstruction(seam_detection_radius, 
+                                cloud_ptr_modelSeam, 
+                                cloud_ptr_show);
+
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "5.提取焊接缝边界" << endl << endl;
   Cloud::Ptr seam_edge = Extract_Seam_edge(cloud_ptr_modelSeam, cloud_ptr_show);
@@ -206,6 +212,20 @@ vector< geometry_msgs::Pose > trajectory_planning(Cloud::Ptr cloud_ptr_modelSeam
   }
 
 
+  ofstream outFile;
+	outFile.open("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv", ios::out); // 打开模式可省略
+  for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
+  {
+	  outFile << Rviz_TrajectoryPose[i].position.x << ',' 
+            << Rviz_TrajectoryPose[i].position.y << ',' 
+            << Rviz_TrajectoryPose[i].position.z << ','
+            << Rviz_TrajectoryPose[i].orientation.x << ',' 
+            << Rviz_TrajectoryPose[i].orientation.y << ','
+            << Rviz_TrajectoryPose[i].orientation.z << ','
+            << Rviz_TrajectoryPose[i].orientation.w << endl;
+  }
+	outFile.close();
+ 
   return Rviz_TrajectoryPose;
 }
 
@@ -263,24 +283,24 @@ void integrate_allsingle_pointcloudFrame(Cloud::Ptr cloud_ptr,
   cloud_ptr->points.clear();
 
    
-  Cloud::Ptr Cloud_filtered (new Cloud);
+  // Cloud::Ptr Cloud_filtered (new Cloud);
 
-  float radius = 0.001;
+  // float radius = 0.001;
 
-  pcl::VoxelGrid<pcl::PointXYZ> voxel;
-  voxel.setLeafSize( radius, radius, radius );
-  voxel.setInputCloud( cloud_ptr_modelSeam );
-  voxel.filter( *Cloud_filtered );
+  // pcl::VoxelGrid<pcl::PointXYZ> voxel;
+  // voxel.setLeafSize( radius, radius, radius );
+  // voxel.setInputCloud( cloud_ptr_modelSeam );
+  // voxel.filter( *Cloud_filtered );
 
-  cloud_ptr_modelSeam->points.clear();
-  for(float i = 0; i < Cloud_filtered->points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = Cloud_filtered->points[i].x; 
-    p.y = Cloud_filtered->points[i].y;
-    p.z = Cloud_filtered->points[i].z;
-    cloud_ptr_modelSeam->points.push_back( p );    
-  }
+  // cloud_ptr_modelSeam->points.clear();
+  // for(float i = 0; i < Cloud_filtered->points.size(); i++)
+  // {
+  //   pcl::PointXYZ p;
+  //   p.x = Cloud_filtered->points[i].x; 
+  //   p.y = Cloud_filtered->points[i].y;
+  //   p.z = Cloud_filtered->points[i].z;
+  //   cloud_ptr_modelSeam->points.push_back( p );    
+  // }
 
 
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
@@ -342,7 +362,7 @@ void build_model_pointcloud(string dataset_folder_path,
 
     Cloud::Ptr cloud_ptr (new Cloud);   
     PointCloud::Ptr model_cloud_all (new PointCloud);
-    
+
     pcl::PCDReader reader;
     reader.read(file_pointcloud_frame, *cloud_ptr);
 
@@ -350,7 +370,7 @@ void build_model_pointcloud(string dataset_folder_path,
     {
       pcl::PointXYZ p;
       p.x = cloud_ptr->points[i].x; 
-      p.y = cloud_ptr->points[i].y;
+      p.y = cloud_ptr->points[i].y + 0.1;
       p.z = cloud_ptr->points[i].z;
       cloud_ptr_all->points.push_back( p );    
     }
@@ -485,41 +505,87 @@ pcl::PointXYZ read_realtime_pointcloud_frame( string dataset_folder_path,
   return realsense_position;
 }
 
-
- 
-
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void show_pointcloud_Rviz(int show_Pointcloud_timeMax, 
-                          PointCloud::Ptr show_Rviz_cloud, 
-                          sensor_msgs::PointCloud2 pub_pointcloud, 
-                          ros::Publisher pointcloud_publisher)
+
+vector< geometry_msgs::Pose > read_trajectory_frame( string trajectoryInfo_folder_path )
 {
-  for(float i = 0; i < show_Pointcloud_timeMax; i++)
+  
+	ifstream inFile(trajectoryInfo_folder_path.c_str());
+	string lineStr;
+	vector< vector <string> > strArray;
+	while (getline(inFile, lineStr))
+	{
+		// 打印整行字符串
+		cout << lineStr << endl;
+		// 存成二维表结构
+		stringstream ss(lineStr);
+		string str;
+		vector<string> lineArray;
+		// 按照逗号分隔
+		while (getline(ss, str, ','))
+			lineArray.push_back(str);
+		strArray.push_back(lineArray);
+	}
+  cout << "strArray.size(): " << strArray.size() << endl;
+
+  vector< geometry_msgs::Pose > trajectory_pose;
+  for(float i = 0; i < strArray.size(); i++)
   {
-    pcl::toROSMsg(*show_Rviz_cloud, pub_pointcloud);
-    pub_pointcloud.header.frame_id = "base_link";
-    pub_pointcloud.header.stamp = ros::Time::now();
-    pointcloud_publisher.publish(pub_pointcloud);
+    if(strArray[i].size() == 0)
+    {
+      cout << "empty!!" << endl;
+      continue;
+    }
+    geometry_msgs::Pose pose;
+
+    stringstream position_x;
+    position_x << strArray[i][0];
+    position_x >> pose.position.x;
+
+    stringstream position_y;
+    position_y << strArray[i][1];
+    position_y >> pose.position.y;
+    pose.position.y = pose.position.y + 0.1;
+
+    stringstream position_z;
+    position_z << strArray[i][2];
+    position_z >> pose.position.z;
+
+    stringstream orientation_x;
+    orientation_x << strArray[i][3];
+    orientation_x >> pose.orientation.x;
+
+    stringstream orientation_y;
+    orientation_y << strArray[i][4];
+    orientation_y >> pose.orientation.y;
+
+    stringstream orientation_z;
+    orientation_z << strArray[i][5];
+    orientation_z >> pose.orientation.z;
+ 
+    stringstream orientation_w;
+    orientation_w << strArray[i][6];
+    orientation_w >> pose.orientation.w;
+ 
+    cout << "pose: " << pose << endl;
+
+    trajectory_pose.push_back(pose);
   }
-  show_Rviz_cloud->points.clear();
+  cout << "trajectory_pose.size(): " << trajectory_pose.size() << endl;
+
+
+  return trajectory_pose;
 }
+
+
+
+
+
+
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void publish_pointcloud_Rviz(string coordinate, 
-                             PointCloud::Ptr pointloud, 
-                             sensor_msgs::PointCloud2 pub_pointcloud, 
-                             ros::Publisher pointcloud_publisher)
-{
-    pcl::toROSMsg(*pointloud, pub_pointcloud);
-    pub_pointcloud.header.frame_id = coordinate;// 
-    pub_pointcloud.header.stamp = ros::Time::now();
-    pointcloud_publisher.publish(pub_pointcloud);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 bool processing_frame_ornot(Cloud::Ptr cloud_ptr, 
                             int show_Pointcloud_timeMax, 
@@ -555,3 +621,36 @@ bool processing_frame_ornot(Cloud::Ptr cloud_ptr,
   
   return process_flag;
 }
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void show_pointcloud_Rviz(int show_Pointcloud_timeMax, 
+                          PointCloud::Ptr show_Rviz_cloud, 
+                          sensor_msgs::PointCloud2 pub_pointcloud, 
+                          ros::Publisher pointcloud_publisher)
+{
+  for(float i = 0; i < show_Pointcloud_timeMax; i++)
+  {
+    pcl::toROSMsg(*show_Rviz_cloud, pub_pointcloud);
+    pub_pointcloud.header.frame_id = "base_link";
+    pub_pointcloud.header.stamp = ros::Time::now();
+    pointcloud_publisher.publish(pub_pointcloud);
+  }
+  show_Rviz_cloud->points.clear();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void publish_pointcloud_Rviz(string coordinate, 
+                             PointCloud::Ptr pointloud, 
+                             sensor_msgs::PointCloud2 pub_pointcloud, 
+                             ros::Publisher pointcloud_publisher)
+{
+    pcl::toROSMsg(*pointloud, pub_pointcloud);
+    pub_pointcloud.header.frame_id = coordinate;// 
+    pub_pointcloud.header.stamp = ros::Time::now();
+    pointcloud_publisher.publish(pub_pointcloud);
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

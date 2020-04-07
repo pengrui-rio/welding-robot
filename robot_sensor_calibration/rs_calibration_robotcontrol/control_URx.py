@@ -195,6 +195,7 @@ if __name__ == "__main__":
 
         # move_to_singleXYZRPY(robot, 0, -0.6, 0.52, 90, 180, 0)  #x, y, z, roll, pitch, yaw
         # move_to_singleXYZRPY(robot, -0.03776431571831436, -0.40847125799157285, 0.52, 0, 180, 0)  #x, y, z, roll, pitch, yaw
+        move_to_singleXYZRPY(robot, 0, -0.4, 0.65, 0, 180, 0)  #x, y, z, roll, pitch, yaw
 
         ##########################################################################################################
 

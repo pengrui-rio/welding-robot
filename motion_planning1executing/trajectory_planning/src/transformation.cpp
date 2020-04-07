@@ -740,35 +740,35 @@ void direction_modification_horizontal( Cloud::Ptr X_Normal_Vector,
                                         Cloud::Ptr Z_Normal_Vector, 
                                         Cloud::Ptr PathPoint_Position_final)
 {
-  Y_Normal_Vector->points.clear();
-  for(float i = 0; i < X_Normal_Vector->points.size(); i++)
+  X_Normal_Vector->points.clear();
+  for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
   {
-    Vector3d k(1,
-               0,
+    Vector3d k(0,
+               -1,
                0);
 
-    Vector3d h(X_Normal_Vector->points[i].x,
-               X_Normal_Vector->points[i].y,
-               X_Normal_Vector->points[i].z);
+    Vector3d h(Y_Normal_Vector->points[i].x,
+               Y_Normal_Vector->points[i].y,
+               Y_Normal_Vector->points[i].z);
 
     if(k.dot(h) < 0)
     {
-      X_Normal_Vector->points[i].x = -X_Normal_Vector->points[i].x;
-      X_Normal_Vector->points[i].y = -X_Normal_Vector->points[i].y;
-      X_Normal_Vector->points[i].z = -X_Normal_Vector->points[i].z;
+      Y_Normal_Vector->points[i].x = -Y_Normal_Vector->points[i].x;
+      Y_Normal_Vector->points[i].y = -Y_Normal_Vector->points[i].y;
+      Y_Normal_Vector->points[i].z = -Y_Normal_Vector->points[i].z;
     }
 
-    Vector3d v(X_Normal_Vector->points[i].x, X_Normal_Vector->points[i].y, X_Normal_Vector->points[i].z);
+    Vector3d v(Y_Normal_Vector->points[i].x, Y_Normal_Vector->points[i].y, Y_Normal_Vector->points[i].z);
     Vector3d w(Z_Normal_Vector->points[i].x, Z_Normal_Vector->points[i].y, Z_Normal_Vector->points[i].z);
-    Vector3d u = w.cross(v);
+    Vector3d u = v.cross(w);
     float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
 
-    pcl::PointXYZ y_normal_vector;
-    y_normal_vector.x = u[0] / n;
-    y_normal_vector.y = u[1] / n;
-    y_normal_vector.z = u[2] / n; 
+    pcl::PointXYZ x_normal_vector;
+    x_normal_vector.x = u[0] / n;
+    x_normal_vector.y = u[1] / n;
+    x_normal_vector.z = u[2] / n; 
     
-    Y_Normal_Vector->points.push_back(y_normal_vector);
+    X_Normal_Vector->points.push_back(x_normal_vector);
   }
 
   for(float i = 0; i < X_Normal_Vector->points.size(); i++)
@@ -1095,7 +1095,7 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
                                                                  Cloud::Ptr PathPoint_Position, 
                                                                  vector<Point3f> Torch_Normal_Vector)
 {
-  int points_cut_count = 2;
+  int points_cut_count = 1;
   Cloud::Ptr PathPoint_Position_final  (new Cloud);   
   Cloud::Ptr Torch_Normal_Vector_final (new Cloud);  
   pathpoint_cut_head_tail(points_cut_count, 

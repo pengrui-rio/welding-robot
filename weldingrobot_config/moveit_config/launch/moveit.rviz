@@ -295,10 +295,6 @@ Visualization Manager:
           Value: false
         base_link:
           Value: true
-        camera_aligned_depth_to_color_frame:
-          Value: false
-        camera_aligned_depth_to_infra1_frame:
-          Value: false
         camera_bottom_screw_frame:
           Value: false
         camera_color_frame:
@@ -308,14 +304,6 @@ Visualization Manager:
         camera_depth_frame:
           Value: false
         camera_depth_optical_frame:
-          Value: false
-        camera_infra1_frame:
-          Value: false
-        camera_infra1_optical_frame:
-          Value: false
-        camera_infra2_frame:
-          Value: false
-        camera_infra2_optical_frame:
           Value: false
         camera_left_ir_frame:
           Value: false
@@ -344,7 +332,7 @@ Visualization Manager:
         tool0:
           Value: false
         tool0_controller:
-          Value: true
+          Value: false
         torchSupport:
           Value: false
         upper_arm_link:
@@ -359,7 +347,7 @@ Visualization Manager:
           Value: false
         wrist_3_link:
           Value: false
-      Marker Scale: 0.200000003
+      Marker Scale: 1
       Name: TF
       Show Arrows: false
       Show Axes: true
@@ -381,11 +369,6 @@ Visualization Manager:
                         tool0:
                           camera_bottom_screw_frame:
                             camera_link:
-                              camera_aligned_depth_to_color_frame:
-                                {}
-                              camera_aligned_depth_to_infra1_frame:
-                                camera_infra1_optical_frame:
-                                  {}
                               camera_depth_frame:
                                 camera_color_frame:
                                   camera_color_optical_frame:
@@ -398,11 +381,6 @@ Visualization Manager:
                                 camera_right_ir_frame:
                                   camera_right_ir_optical_frame:
                                     {}
-                              camera_infra1_frame:
-                                {}
-                              camera_infra2_frame:
-                                camera_infra2_optical_frame:
-                                  {}
                           torchSupport:
                             {}
                           welding_torch:
@@ -440,25 +418,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.919706523
+      Distance: 2.41622686
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0442001075
-        Y: 0.694875121
-        Z: -1.801498e-06
+        X: -0.0911593586
+        Y: 0.331944704
+        Z: -1.68228871e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.579797208
+      Pitch: 0.419796884
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 3.82688737
+      Yaw: 1.56188869
     Saved: ~
 Window Geometry:
   Displays:
