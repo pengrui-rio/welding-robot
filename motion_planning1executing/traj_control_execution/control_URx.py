@@ -223,7 +223,7 @@ if __name__ == "__main__":
 
 
         ##########################################################################################################
-        # move_to_singleXYZRPY(robot, 0, -0.25, 0.5, 90, 180, 0)  #x, y, z, roll, pitch, yaw
+        move_to_singleXYZRPY(robot, 0, -0.4452267739944697, 0.5863251420793869, 0, 180, 0)  #x, y, z, roll, pitch, yaw
 
         # move_to_singleXYZRPY(robot, 0, -0.6, 0.65, 0, 180, 0)  #x, y, z, roll, pitch, yaw
         # # # write_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/box4.csv", motion_pathPoint)
@@ -234,22 +234,22 @@ if __name__ == "__main__":
         # move_to_singleXYZRPY(robot, 0.3, -0.5, 0.2, 90, 150, 0)  #x, y, z, roll, pitch, yaw
 
 
-        motiontrajectory = read_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/box.csv")
+        # motiontrajectory = read_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/box.csv")
 
-        pose = []
-        pose.append(motiontrajectory[0][0])
-        pose.append(motiontrajectory[0][1])
-        pose.append(motiontrajectory[0][2])
-        pose.append(motiontrajectory[0][3])
-        pose.append(motiontrajectory[0][4])
-        pose.append(motiontrajectory[0][5])
-        pose[0] = pose[0] + 0.1
-        move_to_singlePose(robot, pose)
+        # pose = []
+        # pose.append(motiontrajectory[0][0])
+        # pose.append(motiontrajectory[0][1])
+        # pose.append(motiontrajectory[0][2])
+        # pose.append(motiontrajectory[0][3])
+        # pose.append(motiontrajectory[0][4])
+        # pose.append(motiontrajectory[0][5])
+        # pose[0] = pose[0] + 0.1
+        # move_to_singlePose(robot, pose)
 
 
-        print "\n"
-        print motiontrajectory
-        trajectory_execution(robot, motiontrajectory)
+        # print "\n"
+        # print motiontrajectory
+        # trajectory_execution(robot, motiontrajectory)
 
  
 

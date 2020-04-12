@@ -18,6 +18,7 @@ rosrun trajectory_planning trajectory_planning_node
 
 相机三维坐标转化为机械臂坐标需要标定相机与机械臂之间的位置关系，这个标定就称为手眼标定。
 
+video link: : https://vimeo.com/371773986
  
 需要git clone 默认package
 

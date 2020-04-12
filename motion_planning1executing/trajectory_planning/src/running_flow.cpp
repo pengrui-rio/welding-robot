@@ -63,7 +63,7 @@ bool welding_seam_location( Cloud::Ptr cloud_ptr,
   int show_Pointcloud_timeMax = 100;
  
 
-   PointCloud::Ptr cloud_ptr_show (new PointCloud);
+  PointCloud::Ptr cloud_ptr_show (new PointCloud);
 
   cout << "要不要处理这帧点云"  << endl;
   bool process_flag = processing_frame_ornot( cloud_ptr, 
@@ -162,10 +162,17 @@ vector< geometry_msgs::Pose > trajectory_planning(Cloud::Ptr cloud_ptr_modelSeam
   int show_Pointcloud_timeMax = 100;
   PointCloud::Ptr cloud_ptr_show (new PointCloud);
 
+
   //Trajectory Planning:
+
+  cout << "4.SurfaceProfile_Reconstruction" << endl << endl; 
   SurfaceProfile_Reconstruction(seam_detection_radius, 
                                 cloud_ptr_modelSeam, 
                                 cloud_ptr_show);
+  show_pointcloud_Rviz(show_Pointcloud_timeMax,   
+                        cloud_ptr_show, 
+                        pub_pointcloud, 
+                        pointcloud_publisher);
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << "5.提取焊接缝边界" << endl << endl;
@@ -212,19 +219,19 @@ vector< geometry_msgs::Pose > trajectory_planning(Cloud::Ptr cloud_ptr_modelSeam
   }
 
 
-  ofstream outFile;
-	outFile.open("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv", ios::out); // 打开模式可省略
-  for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
-  {
-	  outFile << Rviz_TrajectoryPose[i].position.x << ',' 
-            << Rviz_TrajectoryPose[i].position.y << ',' 
-            << Rviz_TrajectoryPose[i].position.z << ','
-            << Rviz_TrajectoryPose[i].orientation.x << ',' 
-            << Rviz_TrajectoryPose[i].orientation.y << ','
-            << Rviz_TrajectoryPose[i].orientation.z << ','
-            << Rviz_TrajectoryPose[i].orientation.w << endl;
-  }
-	outFile.close();
+  // ofstream outFile;
+	// outFile.open("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv", ios::out); // 打开模式可省略
+  // for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
+  // {
+	//   outFile << Rviz_TrajectoryPose[i].position.x << ',' 
+  //           << Rviz_TrajectoryPose[i].position.y << ',' 
+  //           << Rviz_TrajectoryPose[i].position.z << ','
+  //           << Rviz_TrajectoryPose[i].orientation.x << ',' 
+  //           << Rviz_TrajectoryPose[i].orientation.y << ','
+  //           << Rviz_TrajectoryPose[i].orientation.z << ','
+  //           << Rviz_TrajectoryPose[i].orientation.w << endl;
+  // }
+	// outFile.close();
  
   return Rviz_TrajectoryPose;
 }
@@ -370,7 +377,7 @@ void build_model_pointcloud(string dataset_folder_path,
     {
       pcl::PointXYZ p;
       p.x = cloud_ptr->points[i].x; 
-      p.y = cloud_ptr->points[i].y + 0.1;
+      p.y = cloud_ptr->points[i].y;
       p.z = cloud_ptr->points[i].z;
       cloud_ptr_all->points.push_back( p );    
     }
@@ -546,7 +553,7 @@ vector< geometry_msgs::Pose > read_trajectory_frame( string trajectoryInfo_folde
     stringstream position_y;
     position_y << strArray[i][1];
     position_y >> pose.position.y;
-    pose.position.y = pose.position.y + 0.1;
+    pose.position.y = pose.position.y;
 
     stringstream position_z;
     position_z << strArray[i][2];

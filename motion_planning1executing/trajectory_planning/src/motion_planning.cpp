@@ -1180,6 +1180,7 @@ void push_point_showCloud(Cloud::Ptr seam_edge, PointCloud::Ptr cloud_ptr_show)
 
         cloud_ptr_show->points.push_back( p ); 
     }
+
 }
 
 

@@ -77,6 +77,7 @@ void euler_to_RotationMatrix(float Yaw, float Pitch, float Roll, float R[9])
 void analyze_realsense_data(PointCloud::Ptr cloud)
 {
   // 遍历深度图
+  float ave_z = 0, count_point = 0;
   for (int m = 0; m < depth_pic.rows; m++)  //480
   {
     for (int n = 0; n < depth_pic.cols; n++) //640
@@ -85,6 +86,9 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
       float d = depth_pic.ptr<float>(m)[n]; 
       // d 可能没有值，若如此，跳过此点
       if (d == 0)
+          continue;
+
+      if(isnan(d))
           continue;
 
       // d 存在值，则向点云增加一个点
@@ -108,10 +112,18 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
       p.g = color_pic.ptr<uchar>(m)[n*3+1];
       p.r = color_pic.ptr<uchar>(m)[n*3+2];
 
+      cloud->points.push_back( p );    
 
-      cloud->points.push_back( p );        
+
+      if( (m > depth_pic.rows / 4 && m < depth_pic.rows * 3 / 4) && (n > depth_pic.cols / 4 && n < depth_pic.cols * 3 / 4) )
+      {
+        count_point++;
+        ave_z = ave_z + p.z;
+      }    
     }
   }
+  cout << "ave_z: " << ave_z / count_point << endl;
+  cout << "count_point: " << count_point << endl << endl;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

@@ -59,7 +59,7 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   waitKey(1);
 }
 
-string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/box";
+string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/curve";
 int receive_capture_count  = 1;
 int process_frame_count    = 1;
 void pointcloud_storageFolder_Callback(const std_msgs::String::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
@@ -122,7 +122,7 @@ int main(int argc, char **argv)
 
   //read trajectory info
   vector< geometry_msgs::Pose > record_rviz_trajecotrypose = 
-  read_trajectory_frame("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box.csv");
+  read_trajectory_frame("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv");
  
   while (ros::ok()) 
   {

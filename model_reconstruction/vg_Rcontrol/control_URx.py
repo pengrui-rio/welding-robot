@@ -46,6 +46,8 @@ def callback_VisuoGuding_Pose(pose):
 def VisuoGuding_Control(robot, visuoguding_Pose):
     # print "\n============ Press `Enter` to go VisuoGuding_Control ============"
     # raw_input()
+    ith = 0
+
     print_count = 1000
     i = 0
     while not rospy.is_shutdown():
@@ -59,7 +61,7 @@ def VisuoGuding_Control(robot, visuoguding_Pose):
 
         robot_current_pose = robot.getl()
         if math.isnan(visuoguding_Pose.position.x) == False and visuoguding_Pose.position.z >= 0.1:
-
+            ith = ith + 1 
             pose = []
             pose.append(visuoguding_Pose.position.x)              #px
             pose.append(visuoguding_Pose.position.y)              #py
@@ -69,7 +71,12 @@ def VisuoGuding_Control(robot, visuoguding_Pose):
             pose.append(robot_current_pose[5]) #rz
             robot.movel(pose, acc=0.01, vel=0.02, wait=True)
     
- 
+            robot_current_pose = robot.getl()
+            print  robot_current_pose
+            print "ith\n"
+            print ith
+
+
 
 if __name__ == "__main__":
     try:  

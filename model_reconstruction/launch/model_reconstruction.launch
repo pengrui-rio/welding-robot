@@ -21,21 +21,22 @@
   
 
 
-  <!--  start kinect  -->
+  <!--  start kinect 
   <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
-  </include>
+  </include> -->
 
-  <!--  start kinectv2_arTracker  -->
+  <!--  start kinectv2_arTracker 
   <include file="$(find ar_track_alvar)/launch/kinectv2_arTracker.launch">
-  </include>
+  </include> -->
   
-  <!--  start visuoguiding_transform  -->
+  <!--  start visuoguiding_transform  
   <node pkg="vg_transform" type="vg_transform_node" name="vg_transform" respawn="true" output="screen">
-  </node>
+  </node>-->
   
-  <!--  start visuoguiding_robotcontrol -->
+  <!--  start visuoguiding_robotcontrol 
   <node pkg="vg_Rcontrol" type="control_URx.py" name="vg_Rcontrol" respawn="true" output="screen">
-  </node>   
+  </node>   -->
+
 
 
   <!--  start realsense  -->
@@ -44,13 +45,13 @@
       <arg name="align_depth"              value="$(arg align_depth)"/>
   </include>
   
-  <!--  start model reconstruction -->
+  <!--  start model reconstruction   -->
   <node pkg="reconstruction" type="reconstruction_node" name="reconstruction" respawn="true" output="screen">
-  </node>   
+  </node> 
   
-  <!--  start send_capture_command   -->
+  <!--  start send_capture_command   
   <node pkg="reconstruction" type="send_capture_command.py" name="send_capture_command" respawn="true" output="screen">
-  </node>  
+  </node>  -->
   
 </launch>
  
