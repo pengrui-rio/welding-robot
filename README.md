@@ -147,44 +147,43 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
       - wrist_3_joint
  
  创建robot_moveit/launch/robot_planning.launch（copy from demo.launch）:
+ 
+   主要内容：
+
+   1.planning_context.launch 
+   Load the URDF, SRDF and other .yaml configuration files on the param server
+
+   2.move_group.launch
+   Run the main MoveIt! executable without trajectory execution
+
+   3.moveit_rviz.launch
+   Run Rviz and load the default config to see the state of the move_group node
+
+   4.default_warehouse_db.launch
+   Load database
      
-     主要内容：
      
-     1.planning_context.launch 
-     Load the URDF, SRDF and other .yaml configuration files on the param server
+   Tips：
        
-     2.move_group.launch
-     Run the main MoveIt! executable without trajectory execution
-     
-     3.moveit_rviz.launch
-     Run Rviz and load the default config to see the state of the move_group node
-     
-     4.default_warehouse_db.launch
-     Load database
-     
-     
-       Tips：
-       
-       1.控制实物时一定要注释这个node，否则会发fake pose干扰motion planning
-       <!-- We do not have a robot connected, so publish fake joint states 
+   1.控制实物时一定要注释这个node，否则会发fake pose干扰motion planning
+     <!-- We do not have a robot connected, so publish fake joint states 
        <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-         <param name="use_gui" value="$(arg use_gui)"/>
-         <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
-       </node>  --> 
+           <param name="use_gui" value="$(arg use_gui)"/>
+           <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+         </node>  --> 
 
-       2.修改参数
-       fake_execution->false   控制实物
-
-                       true    仿真模拟
+   2.修改参数
+      fake_execution->false   控制实物
+       true    仿真模拟
  
  修改robot_moveit/launch/xxx_moveit_controller_manager.launch.xml :
  
-       <launch>
-        <rosparam file="$(find robot_moveit)/config/controllers.yaml"/>
+  <launch>
+      <rosparam file="$(find robot_moveit)/config/controllers.yaml"/>
         <param name="use_controller_manager" value="false"/>
         <param name="trajectory_execution/execution_duration_monitoring" value="false"/>
         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
-       </launch>
+   </launch>
             
  执行： 
  roslaunch ur_modern_driver ur3_bringup.launch robot_ip:=ur自己的IP
@@ -192,13 +191,13 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
  roslaunch robot_moveit robot_planning.launch
  
  
-      加载自己创建的stl文件，如果出现 
-      It starts with the word 'solid', indicating that it's an ASCII STL file, 
+ 加载自己创建的stl文件，如果出现 
+    It starts with the word 'solid', indicating that it's an ASCII STL file, 
       but it does not contain the word 'endsolid' soit is either a malformed ASCII STL file or it is actually a binary STL file. 
       Trying to interpret it as a binary STL file instead.
 
-      则进入该stl文件目录下开启一个终端，输入：
-      sed -i 's/^solid/robot/' *
+  则进入该stl文件目录下开启一个终端，输入：
+   sed -i 's/^solid/robot/' *
 
 
  
@@ -281,27 +280,27 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
  
 3.[Universal_Robots_ROS_Driver配置](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver)
 
- 1.# source global ros
+ 1. source global ros:
    $ source /opt/ros/<your_ros_version>/setup.bash
 
-   create a catkin workspace
+   create a catkin workspace:
    $ mkdir -p catkin_ws/src && cd catkin_ws
 
-   clone the driver
+   clone the driver:
    $ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
 
-    clone fork of the description to use the calibration feature
+   clone fork of the description to use the calibration feature:
    $ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
 
-    install dependencies
+   install dependencies:
    $ sudo apt update -qq
    $ rosdep update
    $ rosdep install --from-path src --ignore-src -y  （注意要在工作空间的路径下，而不是src路径下！！！，这个命令会安装很多控制器）
 
-    build the workspace
+   build the workspace:
    $ catkin_make
 
-    activate the workspace (ie: source it)
+   activate the workspace (ie: source it):
    $ source devel/setup.bash
    
    
@@ -335,7 +334,7 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
   
   2.在创建的moveit包下面的config文件夹里面，新创建一个controllers.yaml:
   
-     controller_list:
+   controller_list:
       - name: "scaled_pos_traj_controller"
         action_ns: follow_joint_trajectory
         type: FollowJointTrajectory
@@ -349,23 +348,21 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
           
   3.创建Moveit相关的launch文件：
   
-     1.创建robot_moveit/launch/robot_planning.launch（copy from demo.launch）:
+   1.创建robot_moveit/launch/robot_planning.launch（copy from demo.launch）:
 
-        Tips：
-
-        1.控制实物时一定要注释这个node，否则会发fake pose干扰motion planning
+   Tips：
+      1.控制实物时一定要注释这个node，否则会发fake pose干扰motion planning
         <!-- We do not have a robot connected, so publish fake joint states 
         <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
           <param name="use_gui" value="$(arg use_gui)"/>
           <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
         </node>  -->            
 
-        2.修改参数
+   2.修改参数
         fake_execution->false   控制实物
-
-                        true    仿真模拟
+                       true    仿真模拟
  
-     2.修改robot_moveit/launch/xxx_moveit_controller_manager.launch.xml :
+  2.修改robot_moveit/launch/xxx_moveit_controller_manager.launch.xml :
 
            <launch>
             <rosparam file="$(find robot_moveit)/config/controllers.yaml"/>
