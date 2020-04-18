@@ -244,7 +244,7 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-配置UR5与Moveit！（我用的版本是 UR5-URSoftware 3.11.0.81xxx）：
+# 配置UR5与Moveit！（我用的版本是 UR5-URSoftware 3.11.0.81xxx）：
 1.ip设置：
 
  ur5设置静态IP： 192.168.0.2
@@ -284,24 +284,24 @@ roslaunch ur3_moveit_config moveit_rviz.launch config:=true
  1.# source global ros
    $ source /opt/ros/<your_ros_version>/setup.bash
 
-   # create a catkin workspace
+   create a catkin workspace
    $ mkdir -p catkin_ws/src && cd catkin_ws
 
-   # clone the driver
+   clone the driver
    $ git clone https://github.com/UniversalRobots/Universal_Robots_ROS_Driver.git src/Universal_Robots_ROS_Driver
 
-   # clone fork of the description to use the calibration feature
+    clone fork of the description to use the calibration feature
    $ git clone -b calibration_devel https://github.com/fmauch/universal_robot.git src/fmauch_universal_robot
 
-   # install dependencies
+    install dependencies
    $ sudo apt update -qq
    $ rosdep update
    $ rosdep install --from-path src --ignore-src -y  （注意要在工作空间的路径下，而不是src路径下！！！，这个命令会安装很多控制器）
 
-   # build the workspace
+    build the workspace
    $ catkin_make
 
-   # activate the workspace (ie: source it)
+    activate the workspace (ie: source it)
    $ source devel/setup.bash
    
    
