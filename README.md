@@ -1,33 +1,30 @@
 # welding-robot  
 
-# tube
+# Tube
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
 
-# cube
+# Cube
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/cube.gif)
 
 # Y-shape
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/y-shape.gif)
 
-# box
+# Box
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
 
+# Command
 roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
 
 roslaunch moveit_config execution_real.launch
 
-rosrun control control.py
+roslaunch model_reconstruction  model_reconstruction.launch
 
-roslaunch realsense2_camera rs_camera.launch align_depth:=true
+rosrun  trajectory_planning trajectory_planning_node
 
-roslaunch kinect2_bridge kinect2_bridge.launch
+rosrun traj_control_execution control_URx.py 
 
-roslaunch ar_track_alvar ar_indiv.launch
 
-rosrun weldingrobot_sensor_calibration weldingrobot_sensor_calibration_node
-
-rosrun trajectory_planning trajectory_planning_node
-
+# Tutorial
 相机三维坐标转化为机械臂坐标需要标定相机与机械臂之间的位置关系，这个标定就称为手眼标定。
 
 video link: : https://vimeo.com/371773986
