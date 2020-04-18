@@ -1,7 +1,16 @@
 # welding-robot  
 
+# tube
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
-![image](https://github.com/professor1996/welding-robot/blob/master/demo/Y-shape.gif)
+
+# cube
+![image](https://github.com/professor1996/welding-robot/blob/master/demo/cube.gif)
+
+# Y-shape
+![image](https://github.com/professor1996/welding-robot/blob/master/demo/y-shape.gif)
+
+# box
+![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
 
 roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
 
