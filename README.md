@@ -1,7 +1,7 @@
 # welding-robot  
 
-![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
-![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
+![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
+![image](https://github.com/professor1996/welding-robot/blob/master/demo/Y-shape.gif)
 
 roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
 
