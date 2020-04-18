@@ -49,9 +49,9 @@
   <node pkg="reconstruction" type="reconstruction_node" name="reconstruction" respawn="true" output="screen">
   </node> 
   
-  <!--  start send_capture_command   
+  <!--  start send_capture_command-->   
   <node pkg="reconstruction" type="send_capture_command.py" name="send_capture_command" respawn="true" output="screen">
-  </node>  -->
+  </node>  
   
 </launch>
  

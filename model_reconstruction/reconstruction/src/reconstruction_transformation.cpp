@@ -115,15 +115,15 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
       cloud->points.push_back( p );    
 
 
-      if( (m > depth_pic.rows / 4 && m < depth_pic.rows * 3 / 4) && (n > depth_pic.cols / 4 && n < depth_pic.cols * 3 / 4) )
-      {
-        count_point++;
-        ave_z = ave_z + p.z;
-      }    
+      // if( (m > depth_pic.rows / 4 && m < depth_pic.rows * 3 / 4) && (n > depth_pic.cols / 4 && n < depth_pic.cols * 3 / 4) )
+      // {
+      //   count_point++;
+      //   ave_z = ave_z + p.z;
+      // }    
     }
   }
-  cout << "ave_z: " << ave_z / count_point << endl;
-  cout << "count_point: " << count_point << endl << endl;
+  // cout << "ave_z: " << ave_z / count_point << endl;
+  // cout << "count_point: " << count_point << endl << endl;
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 

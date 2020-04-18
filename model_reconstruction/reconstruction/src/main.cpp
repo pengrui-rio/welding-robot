@@ -174,7 +174,7 @@ int main(int argc, char **argv)
   tf::TransformBroadcaster tf_broadcaster;
 
   //create pointcloud dataset and send the folder path:
-  // string dataset_folder_path = create_pointcloud_storageFolder_sendPath(pointcloud_storageFolder_pub, naptime);
+  string dataset_folder_path = create_pointcloud_storageFolder_sendPath(pointcloud_storageFolder_pub, naptime);
 
   ///////////////////////////////////////////////////////////////////////////////
 
@@ -212,17 +212,17 @@ int main(int argc, char **argv)
                              pub_cam_pc_transform_pointcloud, 
                              cam_pc_transform_pointcloud_publisher);
     //////////////////////////////////////////////////////////////////////////////////////
-    // //3.拼接基座坐标系下的点云，重建model
-    // model_3D_reconstruction(receive_capture_command,
-    //                         receive_capture_count,
-    //                         dataset_folder_path,
-    //                         realsense_position_acquisition(transform_baselink2tool0), 
-    //                         cam_pc_transform_pointcloud,
-    //                         map_pointcloud);
-    // publish_pointcloud_Rviz("base_link", 
-    //                          map_pointcloud, 
-    //                          pub_map_pointcloud, 
-    //                          map_pointcloud_publisher);
+    //3.拼接基座坐标系下的点云，重建model
+    model_3D_reconstruction(receive_capture_command,
+                            receive_capture_count,
+                            dataset_folder_path,
+                            realsense_position_acquisition(transform_baselink2tool0), 
+                            cam_pc_transform_pointcloud,
+                            map_pointcloud);
+    publish_pointcloud_Rviz("base_link", 
+                             map_pointcloud, 
+                             pub_map_pointcloud, 
+                             map_pointcloud_publisher);
     //////////////////////////////////////////////////////////////////////////////////////
      
     camera_pointcloud->points.clear();

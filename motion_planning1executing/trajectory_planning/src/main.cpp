@@ -59,7 +59,7 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   waitKey(1);
 }
 
-string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/curve";
+string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/box";
 int receive_capture_count  = 1;
 int process_frame_count    = 1;
 void pointcloud_storageFolder_Callback(const std_msgs::String::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
@@ -120,37 +120,37 @@ int main(int argc, char **argv)
                          pointcloud_frameNum,
                          model_pointcloud_display);
 
-  //read trajectory info
-  vector< geometry_msgs::Pose > record_rviz_trajecotrypose = 
-  read_trajectory_frame("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv");
+  // //read trajectory info
+  // vector< geometry_msgs::Pose > record_rviz_trajecotrypose = 
+  // read_trajectory_frame("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv");
  
   while (ros::ok()) 
   {
-    // vector< geometry_msgs::Pose > Rviz_TrajectoryPose = 
+    vector< geometry_msgs::Pose > Rviz_TrajectoryPose = 
 
-    // trajectory_6DOF_generation( read_realtime_pointcloud_frame( dataset_folder_path,
-    //                                                             pointcloud_frameNum,
-    //                                                             receive_capture_count,
-    //                                                             process_frame_count,
-    //                                                             trajectoryPlanning_flag,
-    //                                                             cloud_ptr),                                 
-    //                             cloud_ptr, 
-    //                             cloud_ptr_modelSeam, 
+    trajectory_6DOF_generation( read_realtime_pointcloud_frame( dataset_folder_path,
+                                                                pointcloud_frameNum,
+                                                                receive_capture_count,
+                                                                process_frame_count,
+                                                                trajectoryPlanning_flag,
+                                                                cloud_ptr),                                 
+                                cloud_ptr, 
+                                cloud_ptr_modelSeam, 
                             
-    //                             trajectoryPlanning_flag, 
-    //                             receive_capture_count,
+                                trajectoryPlanning_flag, 
+                                receive_capture_count,
 
-    //                             pub_pointcloud, 
-    //                             pointcloud_publisher, 
-    //                             Welding_Trajectory_publisher,
+                                pub_pointcloud, 
+                                pointcloud_publisher, 
+                                Welding_Trajectory_publisher,
                                 
-    //                             naptime);
+                                naptime);
 
     //////////// 在Rviz里面显示每display_pointsize个点的pose
-    for(int i = 0; i < record_rviz_trajecotrypose.size(); i++)
+    for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
     {
       std::string   markerFrame       = Waypoint_markerName_creation(i);
-      tf::Transform waypoint_tranform = Waypoint_markerTransform_creation(i, record_rviz_trajecotrypose[i]);
+      tf::Transform waypoint_tranform = Waypoint_markerTransform_creation(i, Rviz_TrajectoryPose[i]);
 
       tf::StampedTransform waypoint_Marker (waypoint_tranform, ros::Time::now(), "/base_link", markerFrame.c_str());
       tf_broadcaster.sendTransform(waypoint_Marker);

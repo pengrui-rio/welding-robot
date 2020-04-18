@@ -574,10 +574,10 @@ void X_Normal_Vector_vertical(Cloud::Ptr X_Normal_Vector,
     {
       X_Normal_Vector->points.push_back(x_normal_vector);
     }
-    cout << "x_normal_vector" << x_normal_vector << endl;
+    // cout << "x_normal_vector" << x_normal_vector << endl;
   }
 
-  cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl << endl;
+  // cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl << endl;
 }
 
 void Y_Z_Normal_Vector_vertical(Cloud::Ptr Y_Normal_Vector, 
@@ -596,7 +596,7 @@ void Y_Z_Normal_Vector_vertical(Cloud::Ptr Y_Normal_Vector,
     y_normal_vector.x = u[0] / n;
     y_normal_vector.y = u[1] / n;
     y_normal_vector.z = u[2] / n; 
-    cout << "y_normal_vector" << y_normal_vector << endl;
+    // cout << "y_normal_vector" << y_normal_vector << endl;
     Y_Normal_Vector->points.push_back(y_normal_vector);
 
     pcl::PointXYZ z_normal_vector;
@@ -606,8 +606,8 @@ void Y_Z_Normal_Vector_vertical(Cloud::Ptr Y_Normal_Vector,
     
     Z_Normal_Vector->points.push_back(z_normal_vector);
   }
-  cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size()  << endl;
-  cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size()  << endl  << endl;
+  // cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size()  << endl;
+  // cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size()  << endl  << endl;
 
 }
 
@@ -649,17 +649,17 @@ void direction_modification_vertical( Cloud::Ptr X_Normal_Vector,
   }
   for(float i = 0; i < X_Normal_Vector->points.size(); i++)
   {
-    cout << "X_Normal_Vector: " << X_Normal_Vector->points[i] << endl;
+    // cout << "X_Normal_Vector: " << X_Normal_Vector->points[i] << endl;
   }
   cout << endl;
   for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
   {
-    cout << "Y_Normal_Vector: " << Y_Normal_Vector->points[i] << endl;
+    // cout << "Y_Normal_Vector: " << Y_Normal_Vector->points[i] << endl;
   }
   cout << endl;
   for(float i = 0; i < Z_Normal_Vector->points.size(); i++)
   {
-    cout << "Z_Normal_Vector: " << Z_Normal_Vector->points[i] << endl;
+    // cout << "Z_Normal_Vector: " << Z_Normal_Vector->points[i] << endl;
   }
   cout << endl;
   cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl;
@@ -667,7 +667,7 @@ void direction_modification_vertical( Cloud::Ptr X_Normal_Vector,
   cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size() << endl  << endl;
 }
 
-///
+ 
 
 void Y_Normal_Vector_horizontal(Cloud::Ptr Y_Normal_Vector,
                                 Cloud::Ptr PathPoint_Position_final, 
@@ -697,7 +697,7 @@ void Y_Normal_Vector_horizontal(Cloud::Ptr Y_Normal_Vector,
     {
       Y_Normal_Vector->points.push_back(y_normal_vector);
     }
-    cout << "y_normal_vector" << y_normal_vector << endl;
+    // cout << "y_normal_vector" << y_normal_vector << endl;
   }
 
   cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl << endl;
@@ -719,7 +719,7 @@ void X_Z_Normal_Vector_horizontal(Cloud::Ptr Y_Normal_Vector,
     x_normal_vector.x = u[0] / n;
     x_normal_vector.y = u[1] / n;
     x_normal_vector.z = u[2] / n; 
-    cout << "x_normal_vector" << x_normal_vector << endl;
+    // cout << "x_normal_vector" << x_normal_vector << endl;
     X_Normal_Vector->points.push_back(x_normal_vector);
 
     pcl::PointXYZ z_normal_vector;
@@ -734,6 +734,14 @@ void X_Z_Normal_Vector_horizontal(Cloud::Ptr Y_Normal_Vector,
 
 }
 
+void Y_X_exchange(Cloud::Ptr Y_Normal_Vector, Cloud::Ptr X_Normal_Vector)
+{
+  int normal_count = Y_Normal_Vector->points.size();
+  for(float i = 0; i < normal_count; i++)
+  {
+    
+  }
+}
 
 void direction_modification_horizontal( Cloud::Ptr X_Normal_Vector,
                                         Cloud::Ptr Y_Normal_Vector, 
@@ -773,23 +781,202 @@ void direction_modification_horizontal( Cloud::Ptr X_Normal_Vector,
 
   for(float i = 0; i < X_Normal_Vector->points.size(); i++)
   {
-    cout << "X_Normal_Vector: " << X_Normal_Vector->points[i] << endl;
+    // cout << "X_Normal_Vector: " << X_Normal_Vector->points[i] << endl;
   }
   cout << endl;
   for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
   {
-    cout << "Y_Normal_Vector: " << Y_Normal_Vector->points[i] << endl;
+    // cout << "Y_Normal_Vector: " << Y_Normal_Vector->points[i] << endl;
   }
   cout << endl;
   for(float i = 0; i < Z_Normal_Vector->points.size(); i++)
   {
-    cout << "Z_Normal_Vector: " << Z_Normal_Vector->points[i] << endl;
+    // cout << "Z_Normal_Vector: " << Z_Normal_Vector->points[i] << endl;
   }
   cout << endl;
   cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl;
   cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl;
   cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size() << endl  << endl;
 }
+
+
+void Temp_vector_computation( Cloud::Ptr Temp_vector1,
+                              Cloud::Ptr Temp_vector2,
+                              Cloud::Ptr PathPoint_Position_final, 
+                              Cloud::Ptr Torch_Normal_Vector_final)
+{
+  for(float i = 0; i < PathPoint_Position_final->points.size()-1; i++)
+  {
+    pcl::PointXYZ temp_vector;
+
+    temp_vector.x = PathPoint_Position_final->points[i+1].x - PathPoint_Position_final->points[i].x;
+    temp_vector.y = PathPoint_Position_final->points[i+1].y - PathPoint_Position_final->points[i].y;
+    temp_vector.z = PathPoint_Position_final->points[i+1].z - PathPoint_Position_final->points[i].z;
+
+    Vector3d v(                  temp_vector.x,                   temp_vector.y,                   temp_vector.z);
+    Vector3d w(-Torch_Normal_Vector_final->points[i].x, -Torch_Normal_Vector_final->points[i].y, -Torch_Normal_Vector_final->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ vec;
+    vec.x = u[0] / n;
+    vec.y = u[1] / n;
+    vec.z = u[2] / n; 
+    
+    Temp_vector1->points.push_back(vec);
+
+    if(i == PathPoint_Position_final->points.size()-1-1)
+    {
+      Temp_vector1->points.push_back(vec);
+    }
+    // cout << "vec" << vec << endl;
+  }
+
+  cout << "Temp_vector1: " << Temp_vector1->points.size() << endl << endl;
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  for(float i = 0; i < Temp_vector1->points.size(); i++)
+  {
+    Vector3d v(-Torch_Normal_Vector_final->points[i].x, -Torch_Normal_Vector_final->points[i].y, -Torch_Normal_Vector_final->points[i].z);
+    Vector3d w(              Temp_vector1->points[i].x,               Temp_vector1->points[i].y,               Temp_vector1->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ vec;
+    vec.x = u[0] / n;
+    vec.y = u[1] / n;
+    vec.z = u[2] / n; 
+    // cout << "x_normal_vector" << x_normal_vector << endl;
+    Temp_vector2->points.push_back(vec);
+
+  }
+  cout << "Temp_vector2: " << Temp_vector2->points.size() << endl << endl;
+}
+
+void Y_Normal_Vector_computation(Cloud::Ptr Y_Normal_Vector,
+                                 Cloud::Ptr Temp_vector1,
+                                 Cloud::Ptr Temp_vector2)
+{
+  int vec_count = Temp_vector1->points.size();
+
+  for(float i = 0; i < Temp_vector1->points.size(); i++)
+  {
+    Vector3d k(0,
+               -1,
+               0);
+
+    Vector3d vec1(Temp_vector1->points[i].x,
+                  Temp_vector1->points[i].y,
+                  Temp_vector1->points[i].z);
+
+    Vector3d vec2(Temp_vector2->points[i].x,
+                  Temp_vector2->points[i].y,
+                  Temp_vector2->points[i].z);
+
+    if( fabs(k.dot(vec1)) >= fabs(k.dot(vec2)) )
+    {
+      Y_Normal_Vector->points.push_back(Temp_vector1->points[i]);
+    }
+    if( fabs(k.dot(vec1)) < fabs(k.dot(vec2)) )
+    {
+      Y_Normal_Vector->points.push_back(Temp_vector2->points[i]);
+    }
+  }
+  cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl << endl;
+
+}
+
+
+void X_Z_Normal_Vector_computation(Cloud::Ptr Y_Normal_Vector, 
+                                   Cloud::Ptr Z_Normal_Vector, 
+                                   Cloud::Ptr X_Normal_Vector, 
+                                   Cloud::Ptr Torch_Normal_Vector_final)
+{
+  for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
+  {
+    Vector3d v(-Torch_Normal_Vector_final->points[i].x, -Torch_Normal_Vector_final->points[i].y, -Torch_Normal_Vector_final->points[i].z);
+    Vector3d w(           Y_Normal_Vector->points[i].x,            Y_Normal_Vector->points[i].y,            Y_Normal_Vector->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ x_normal_vector;
+    x_normal_vector.x = u[0] / n;
+    x_normal_vector.y = u[1] / n;
+    x_normal_vector.z = u[2] / n; 
+    // cout << "x_normal_vector" << x_normal_vector << endl;
+    X_Normal_Vector->points.push_back(x_normal_vector);
+
+    pcl::PointXYZ z_normal_vector;
+    z_normal_vector.x = -Torch_Normal_Vector_final->points[i].x;
+    z_normal_vector.y = -Torch_Normal_Vector_final->points[i].y;
+    z_normal_vector.z = -Torch_Normal_Vector_final->points[i].z;
+    
+    Z_Normal_Vector->points.push_back(z_normal_vector);
+  }
+  cout << "X_Normal_Vector: " << X_Normal_Vector->points.size()  << endl;
+  cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size()  << endl  << endl;
+
+}
+
+ 
+void direction_modification(Cloud::Ptr X_Normal_Vector,
+                            Cloud::Ptr Y_Normal_Vector, 
+                            Cloud::Ptr Z_Normal_Vector, 
+                            Cloud::Ptr PathPoint_Position_final)
+{
+  X_Normal_Vector->points.clear();
+  for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
+  {
+    Vector3d k(0,
+               -1,
+               0);
+
+    Vector3d h(Y_Normal_Vector->points[i].x,
+               Y_Normal_Vector->points[i].y,
+               Y_Normal_Vector->points[i].z);
+
+    if(k.dot(h) < 0)
+    {
+      Y_Normal_Vector->points[i].x = -Y_Normal_Vector->points[i].x;
+      Y_Normal_Vector->points[i].y = -Y_Normal_Vector->points[i].y;
+      Y_Normal_Vector->points[i].z = -Y_Normal_Vector->points[i].z;
+    }
+
+    Vector3d v(Y_Normal_Vector->points[i].x, Y_Normal_Vector->points[i].y, Y_Normal_Vector->points[i].z);
+    Vector3d w(Z_Normal_Vector->points[i].x, Z_Normal_Vector->points[i].y, Z_Normal_Vector->points[i].z);
+    Vector3d u = v.cross(w);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ x_normal_vector;
+    x_normal_vector.x = u[0] / n;
+    x_normal_vector.y = u[1] / n;
+    x_normal_vector.z = u[2] / n; 
+    
+    X_Normal_Vector->points.push_back(x_normal_vector);
+  }
+
+  for(float i = 0; i < X_Normal_Vector->points.size(); i++)
+  {
+    // cout << "X_Normal_Vector: " << X_Normal_Vector->points[i] << endl;
+  }
+  cout << endl;
+  for(float i = 0; i < Y_Normal_Vector->points.size(); i++)
+  {
+    // cout << "Y_Normal_Vector: " << Y_Normal_Vector->points[i] << endl;
+  }
+  cout << endl;
+  for(float i = 0; i < Z_Normal_Vector->points.size(); i++)
+  {
+    // cout << "Z_Normal_Vector: " << Z_Normal_Vector->points[i] << endl;
+  }
+  cout << endl;
+  cout << "X_Normal_Vector: " << X_Normal_Vector->points.size() << endl;
+  cout << "Y_Normal_Vector: " << Y_Normal_Vector->points.size() << endl;
+  cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size() << endl  << endl;
+}
+
+
+
 
 
 vector< geometry_msgs::Pose >  Moveit_Pose_generation(float trajectory_point_size, 
@@ -831,7 +1018,7 @@ vector< geometry_msgs::Pose >  Moveit_Pose_generation(float trajectory_point_siz
     Rviz_TrajectoryPose.push_back(pose);
 
   }
-  cout << "Rviz_TrajectoryPose.size(): " << Rviz_TrajectoryPose.size() << endl << endl;
+  // cout << "Rviz_TrajectoryPose.size(): " << Rviz_TrajectoryPose.size() << endl << endl;
 
   return Rviz_TrajectoryPose;
 }
@@ -845,7 +1032,7 @@ void URx_Pose_generation( float trajectory_point_size,
 {
   for(float i = 0; i < trajectory_point_size; i++)
   {
-    cout << "count: " << i+1 << endl;
+    // cout << "count: " << i+1 << endl;
 
     //for URx：
     // 旋转矩阵转换为四元数
@@ -1020,7 +1207,7 @@ vector< geometry_msgs::Pose > RvizPose_pointInterpolation( int origin_pathpoint_
   //   cout <<  Rviz_TrajectoryPose[i] << endl;
   // }
 
-  cout << "Rviz_TrajectoryPose.size(): " << Rviz_TrajectoryPose.size() << endl;
+  // cout << "Rviz_TrajectoryPose.size(): " << Rviz_TrajectoryPose.size() << endl;
 
   return Rviz_TrajectoryPose;
 }
@@ -1048,11 +1235,6 @@ void orientation_definition_verticalType( Cloud::Ptr X_Normal_Vector,
                                   PathPoint_Position_final);
 }
 
-
-
-
-
-
 void orientation_definition_horizontalType( Cloud::Ptr X_Normal_Vector,
                                             Cloud::Ptr Y_Normal_Vector, 
                                             Cloud::Ptr Z_Normal_Vector, 
@@ -1076,6 +1258,36 @@ void orientation_definition_horizontalType( Cloud::Ptr X_Normal_Vector,
 }
 
 
+void orientation_computation( Cloud::Ptr X_Normal_Vector,
+                              Cloud::Ptr Y_Normal_Vector, 
+                              Cloud::Ptr Z_Normal_Vector, 
+                              Cloud::Ptr PathPoint_Position_final, 
+                              Cloud::Ptr Torch_Normal_Vector_final)
+
+{
+  Cloud::Ptr Temp_vector1 (new Cloud);   
+  Cloud::Ptr Temp_vector2 (new Cloud); 
+
+  Temp_vector_computation(Temp_vector1,
+                          Temp_vector2,
+                          PathPoint_Position_final,
+                          Torch_Normal_Vector_final);
+
+  Y_Normal_Vector_computation(Y_Normal_Vector,
+                              Temp_vector1, 
+                              Temp_vector2);
+
+  X_Z_Normal_Vector_computation(Y_Normal_Vector, 
+                                Z_Normal_Vector, 
+                                X_Normal_Vector, 
+                                Torch_Normal_Vector_final);
+
+  direction_modification( X_Normal_Vector, 
+                          Y_Normal_Vector, 
+                          Z_Normal_Vector, 
+                          PathPoint_Position_final);
+}
+
 
 
 
@@ -1095,7 +1307,7 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
                                                                  Cloud::Ptr PathPoint_Position, 
                                                                  vector<Point3f> Torch_Normal_Vector)
 {
-  int points_cut_count = 1;
+  int points_cut_count = 3;
   Cloud::Ptr PathPoint_Position_final  (new Cloud);   
   Cloud::Ptr Torch_Normal_Vector_final (new Cloud);  
   pathpoint_cut_head_tail(points_cut_count, 
@@ -1115,11 +1327,17 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
   //                                      PathPoint_Position_final, 
   //                                      Torch_Normal_Vector_final);
 
-  orientation_definition_horizontalType(X_Normal_Vector, 
-                                        Y_Normal_Vector, 
-                                        Z_Normal_Vector, 
-                                        PathPoint_Position_final, 
-                                        Torch_Normal_Vector_final);
+  // orientation_definition_horizontalType(X_Normal_Vector, 
+  //                                       Y_Normal_Vector, 
+  //                                       Z_Normal_Vector, 
+  //                                       PathPoint_Position_final, 
+  //                                       Torch_Normal_Vector_final);
+  orientation_computation(X_Normal_Vector, 
+                          Y_Normal_Vector, 
+                          Z_Normal_Vector, 
+                          PathPoint_Position_final, 
+                          Torch_Normal_Vector_final);
+
   // //////////////////////////////////////////////////////////////////////////////////////////////////////////////
   float trajectory_point_size = PathPoint_Position_final->points.size();
 
