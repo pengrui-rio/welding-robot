@@ -2,6 +2,10 @@
 3D vision-based automatic welding robotic system.
 
 Here are some of motion demos.
+
+paper:https://arxiv.org/submit/3147664/view
+
+
 # Tube
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
 
