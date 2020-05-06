@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+
+
+<launch>   
+  
+    <!--  start moveit_rviz  
+  <include file="$(find moveit_config)/launch/execution_real.launch">
+  </include> -->
+  
+
+  <!--  start ur_robot_driver ur5_bringup 
+   <arg name="robot_ip" />
+   <arg name="kinematics_config" default="$(find ur_description)/config/ur5_default.yaml"/>
+
+  <include file="$(find ur_robot_driver)/launch/ur5_bringup.launch">
+
+    <arg name="robot_ip" value="$(arg robot_ip)"/>
+    <arg name="kinematics_config" value="$(arg kinematics_config)"/>
+  </include> -->
+  
+
+
+  <!--  start kinect 
+  <include file="$(find kinect2_bridge)/launch/kinect2_bridge.launch">
+  </include> -->
+
+  <!--  start kinectv2_arTracker 
+  <include file="$(find ar_track_alvar)/launch/kinectv2_arTracker.launch">
+  </include> -->
+  
+  <!--  start visuoguiding_transform  
+  <node pkg="vg_transform" type="vg_transform_node" name="vg_transform" respawn="true" output="screen">
+  </node>-->
+  
+  <!--  start visuoguiding_robotcontrol 
+  <node pkg="vg_Rcontrol" type="control_URx.py" name="vg_Rcontrol" respawn="true" output="screen">
+  </node>   -->
+
+
+
+  <!--  start realsense  -->
+  <arg name="align_depth" default="true"/>
+  <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+      <arg name="align_depth"              value="$(arg align_depth)"/>
+  </include>
+  
+  <!--  start model reconstruction   -->
+  <node pkg="reconstruction" type="reconstruction_node" name="reconstruction" respawn="true" output="screen">
+  </node> 
+  
+  <!--  start send_capture_command-->   
+  <node pkg="reconstruction" type="send_capture_command.py" name="send_capture_command" respawn="true" output="screen">
+  </node>  
+  
+</launch>
+ 

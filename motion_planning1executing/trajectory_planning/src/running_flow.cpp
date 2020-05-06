@@ -553,7 +553,6 @@ vector< geometry_msgs::Pose > read_trajectory_frame( string trajectoryInfo_folde
     stringstream position_y;
     position_y << strArray[i][1];
     position_y >> pose.position.y;
-    pose.position.y = pose.position.y;
 
     stringstream position_z;
     position_z << strArray[i][2];

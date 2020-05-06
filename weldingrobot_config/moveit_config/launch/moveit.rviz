@@ -233,7 +233,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: RGB8
       Decay Time: 0
-      Enabled: true
+      Enabled: false
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -250,7 +250,7 @@ Visualization Manager:
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: true
+      Value: false
     - Alpha: 1
       Autocompute Intensity Bounds: true
       Autocompute Value Bounds:
@@ -263,7 +263,7 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: FlatColor
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
       Max Intensity: 4096
@@ -276,11 +276,11 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.00999999978
       Style: Points
-      Topic: /model_pointcloud_display
+      Topic: /map_pointcloud
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz/TF
       Enabled: true
       Frame Timeout: 15
@@ -328,132 +328,10 @@ Visualization Manager:
           Value: false
         tool0:
           Value: false
-        tool0_controller:
-          Value: false
         torchSupport:
           Value: false
         upper_arm_link:
           Value: false
-        waypoint_marker_0:
-          Value: true
-        waypoint_marker_1:
-          Value: true
-        waypoint_marker_10:
-          Value: true
-        waypoint_marker_11:
-          Value: true
-        waypoint_marker_12:
-          Value: true
-        waypoint_marker_13:
-          Value: true
-        waypoint_marker_14:
-          Value: true
-        waypoint_marker_15:
-          Value: true
-        waypoint_marker_16:
-          Value: true
-        waypoint_marker_17:
-          Value: true
-        waypoint_marker_18:
-          Value: true
-        waypoint_marker_19:
-          Value: true
-        waypoint_marker_2:
-          Value: true
-        waypoint_marker_20:
-          Value: true
-        waypoint_marker_21:
-          Value: true
-        waypoint_marker_22:
-          Value: true
-        waypoint_marker_23:
-          Value: true
-        waypoint_marker_24:
-          Value: true
-        waypoint_marker_25:
-          Value: true
-        waypoint_marker_26:
-          Value: true
-        waypoint_marker_27:
-          Value: true
-        waypoint_marker_28:
-          Value: true
-        waypoint_marker_29:
-          Value: true
-        waypoint_marker_3:
-          Value: true
-        waypoint_marker_30:
-          Value: true
-        waypoint_marker_31:
-          Value: true
-        waypoint_marker_32:
-          Value: true
-        waypoint_marker_33:
-          Value: true
-        waypoint_marker_34:
-          Value: true
-        waypoint_marker_35:
-          Value: true
-        waypoint_marker_36:
-          Value: true
-        waypoint_marker_37:
-          Value: true
-        waypoint_marker_38:
-          Value: true
-        waypoint_marker_39:
-          Value: true
-        waypoint_marker_4:
-          Value: true
-        waypoint_marker_40:
-          Value: true
-        waypoint_marker_41:
-          Value: true
-        waypoint_marker_42:
-          Value: true
-        waypoint_marker_43:
-          Value: true
-        waypoint_marker_44:
-          Value: true
-        waypoint_marker_45:
-          Value: true
-        waypoint_marker_46:
-          Value: true
-        waypoint_marker_47:
-          Value: true
-        waypoint_marker_48:
-          Value: true
-        waypoint_marker_49:
-          Value: true
-        waypoint_marker_5:
-          Value: true
-        waypoint_marker_50:
-          Value: true
-        waypoint_marker_51:
-          Value: true
-        waypoint_marker_52:
-          Value: true
-        waypoint_marker_53:
-          Value: true
-        waypoint_marker_54:
-          Value: true
-        waypoint_marker_55:
-          Value: true
-        waypoint_marker_56:
-          Value: true
-        waypoint_marker_57:
-          Value: true
-        waypoint_marker_58:
-          Value: true
-        waypoint_marker_59:
-          Value: true
-        waypoint_marker_6:
-          Value: true
-        waypoint_marker_7:
-          Value: true
-        waypoint_marker_8:
-          Value: true
-        waypoint_marker_9:
-          Value: true
         welding_torch:
           Value: false
         world:
@@ -473,8 +351,7 @@ Visualization Manager:
         world:
           base_link:
             base:
-              tool0_controller:
-                {}
+              {}
             shoulder_link:
               upper_arm_link:
                 forearm_link:
@@ -506,126 +383,6 @@ Visualization Manager:
               post:
                 bar:
                   {}
-            waypoint_marker_0:
-              {}
-            waypoint_marker_1:
-              {}
-            waypoint_marker_10:
-              {}
-            waypoint_marker_11:
-              {}
-            waypoint_marker_12:
-              {}
-            waypoint_marker_13:
-              {}
-            waypoint_marker_14:
-              {}
-            waypoint_marker_15:
-              {}
-            waypoint_marker_16:
-              {}
-            waypoint_marker_17:
-              {}
-            waypoint_marker_18:
-              {}
-            waypoint_marker_19:
-              {}
-            waypoint_marker_2:
-              {}
-            waypoint_marker_20:
-              {}
-            waypoint_marker_21:
-              {}
-            waypoint_marker_22:
-              {}
-            waypoint_marker_23:
-              {}
-            waypoint_marker_24:
-              {}
-            waypoint_marker_25:
-              {}
-            waypoint_marker_26:
-              {}
-            waypoint_marker_27:
-              {}
-            waypoint_marker_28:
-              {}
-            waypoint_marker_29:
-              {}
-            waypoint_marker_3:
-              {}
-            waypoint_marker_30:
-              {}
-            waypoint_marker_31:
-              {}
-            waypoint_marker_32:
-              {}
-            waypoint_marker_33:
-              {}
-            waypoint_marker_34:
-              {}
-            waypoint_marker_35:
-              {}
-            waypoint_marker_36:
-              {}
-            waypoint_marker_37:
-              {}
-            waypoint_marker_38:
-              {}
-            waypoint_marker_39:
-              {}
-            waypoint_marker_4:
-              {}
-            waypoint_marker_40:
-              {}
-            waypoint_marker_41:
-              {}
-            waypoint_marker_42:
-              {}
-            waypoint_marker_43:
-              {}
-            waypoint_marker_44:
-              {}
-            waypoint_marker_45:
-              {}
-            waypoint_marker_46:
-              {}
-            waypoint_marker_47:
-              {}
-            waypoint_marker_48:
-              {}
-            waypoint_marker_49:
-              {}
-            waypoint_marker_5:
-              {}
-            waypoint_marker_50:
-              {}
-            waypoint_marker_51:
-              {}
-            waypoint_marker_52:
-              {}
-            waypoint_marker_53:
-              {}
-            waypoint_marker_54:
-              {}
-            waypoint_marker_55:
-              {}
-            waypoint_marker_56:
-              {}
-            waypoint_marker_57:
-              {}
-            waypoint_marker_58:
-              {}
-            waypoint_marker_59:
-              {}
-            waypoint_marker_6:
-              {}
-            waypoint_marker_7:
-              {}
-            waypoint_marker_8:
-              {}
-            waypoint_marker_9:
-              {}
           kinect2_link:
             kinect2_rgb_optical_frame:
               {}
@@ -655,25 +412,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 0.512157023
+      Distance: 1.40719676
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.080501236
-        Y: 0.542808414
-        Z: -1.6487611e-06
+        X: 0.0347468033
+        Y: 0.608268619
+        Z: -1.52955181e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.119800784
+      Pitch: 0.94980073
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 2.37882328
+      Yaw: 1.68882835
     Saved: ~
 Window Geometry:
   Displays:
