@@ -1,5 +1,5 @@
 # welding-robot  
-3D vision-based automatic welding robotic system.
+3D vision-based automatic welding robotic system.   
 
 Here are some of motion demos.
 
