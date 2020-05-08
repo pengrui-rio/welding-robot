@@ -3,7 +3,6 @@
 
 Here are some of motion demos.
 
-paper:https://arxiv.org/submit/3147664/view
 
 
 # Tube
