@@ -1372,7 +1372,7 @@ vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position,
     }
     ////////////////////////////////////////////////////////////////////////////
 
-    float radius = 0.025;
+    float radius = 0.1;
     pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;  // 创建一个 KdTree 对象
     kdtree.setInputCloud (all_cloud_ptr);  // 将前面创建的随机点云作为 KdTree 输入
     vector<int> pointIdxRadiusSearch; // 创建两个向量，分别存放近邻的索引值、近邻的中心距
@@ -1450,7 +1450,7 @@ vector<Point3f> PathPoint_Orientation_Generation(Cloud::Ptr PathPoint_Position,
     //OriginWaypoint_torchDir_Unify:
     vector<Point3f> Torch_Normal_Vector = OriginWaypoint_torchDir_Unify(PathPoint_Position, Normal_Vector, Cam_Position);
     cout << "Torch_Normal_Vector:\n" << Torch_Normal_Vector << endl;
-    cout << "Torch_Normal_Vector.size:" << Torch_Normal_Vector.size() << endl; 
+    cout << "Torch_Normal_Vector.size:" << Torch_Normal_Vector.size() << endl << endl; 
 
 
     for(float i = 0; i < all_cloud_ptr->points.size(); i++)

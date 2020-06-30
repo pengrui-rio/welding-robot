@@ -99,196 +99,196 @@ void euler_to_RotationMatrix(float Yaw, float Pitch, float Roll, float R[9])
 }
 
  
-pcl::PointXYZ camera_to_base_transform(geometry_msgs::Pose Base_End, pcl::PointXYZ Cam_Object)
-{
+// pcl::PointXYZ camera_to_base_transform(geometry_msgs::Pose Base_End, pcl::PointXYZ Cam_Object)
+// {
 
-  //Base -> End:
-  float T_B_E_Q[4];
-  T_B_E_Q[0] = Base_End.orientation.x;
-  T_B_E_Q[1] = Base_End.orientation.y;
-  T_B_E_Q[2] = Base_End.orientation.z;
-  T_B_E_Q[3] = Base_End.orientation.w;
+//   //Base -> End:
+//   float T_B_E_Q[4];
+//   T_B_E_Q[0] = Base_End.orientation.x;
+//   T_B_E_Q[1] = Base_End.orientation.y;
+//   T_B_E_Q[2] = Base_End.orientation.z;
+//   T_B_E_Q[3] = Base_End.orientation.w;
 
-  float T_B_E_r[9];
-  Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);   
-  // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
-  Matrix4d T_B_E; // Base -> End
-  T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], Base_End.position.x,
-           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], Base_End.position.y,
-           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], Base_End.position.z,
-           0,          0,          0,          1;
-  // cout << "T_B_E: " << endl << T_B_E << endl;
-
-
-  // End -> Camera
-  Matrix4d T_E_C;
-  T_E_C <<   1,   2.7798e-18,            0,   -0.0355791,
-  -5.57321e-19,            1,  2.71051e-20,    -0.116142,
-    1.0842e-19,            0,            1,    0.0708987,
-             0,            0,            0,            1;
-  // cout << "T_E_C: " << endl << T_E_C << endl;
+//   float T_B_E_r[9];
+//   Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);   
+//   // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
+//   Matrix4d T_B_E; // Base -> End
+//   T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], Base_End.position.x,
+//            T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], Base_End.position.y,
+//            T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], Base_End.position.z,
+//            0,          0,          0,          1;
+//   // cout << "T_B_E: " << endl << T_B_E << endl;
 
 
-  // Base -> Camera
-  Matrix4d T_B_C;
-  T_B_C = T_B_E * T_E_C;
-  // cout << "T_B_C: " << endl << T_B_C << endl;
+//   // End -> Camera
+//   Matrix4d T_E_C;
+//   T_E_C <<   1,   2.7798e-18,            0,   -0.0355791,
+//   -5.57321e-19,            1,  2.71051e-20,    -0.116142,
+//     1.0842e-19,            0,            1,    0.0708987,
+//              0,            0,            0,            1;
+//   // cout << "T_E_C: " << endl << T_E_C << endl;
 
 
-  // Camera -> object  0.0691944 -0.0164191
-  Matrix4d T_C_o; 
-  float T_C_o_Q[4];
-  euler_to_quaternion(0, 0, 0, T_C_o_Q);
-  float T_C_o_r[9];
-  Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
-  // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
-  T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], Cam_Object.x,
-           T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], Cam_Object.y,
-           T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], Cam_Object.z,
-           0,          0,          0,          1;
-  // cout << "T_C_o: " << endl << T_C_o << endl;
-
-  // result by calibration:
-  Matrix4d T_R;
-  T_R = T_B_C * T_C_o;
-  // cout << "T_R: " << endl << T_R << endl;
-
-  pcl::PointXYZ object_position_world;
-  object_position_world.x = T_R(0,3);
-  object_position_world.y = T_R(1,3);
-  object_position_world.z = T_R(2,3);
-
-  return  object_position_world;
-}
+//   // Base -> Camera
+//   Matrix4d T_B_C;
+//   T_B_C = T_B_E * T_E_C;
+//   // cout << "T_B_C: " << endl << T_B_C << endl;
 
 
-pcl::PointXYZ realsense_position_acquisition(tf::StampedTransform transform)
-{
-  geometry_msgs::Pose Base_End;
-  Base_End.position.x = transform.getOrigin().x();    Base_End.position.y = transform.getOrigin().y();    Base_End.position.z = transform.getOrigin().z();
-  Base_End.orientation.x = transform.getRotation().x(); Base_End.orientation.y = transform.getRotation().y(); Base_End.orientation.z = transform.getRotation().z(); Base_End.orientation.w = transform.getRotation().w();
-  // cout << "Base_End: " << Base_End << endl;
- ///////////////////////////////////////////////////
+//   // Camera -> object  0.0691944 -0.0164191
+//   Matrix4d T_C_o; 
+//   float T_C_o_Q[4];
+//   euler_to_quaternion(0, 0, 0, T_C_o_Q);
+//   float T_C_o_r[9];
+//   Quaternion_to_RotationMatrix(T_C_o_Q[0], T_C_o_Q[1], T_C_o_Q[2], T_C_o_Q[3], T_C_o_r);//camera_color_optical_frame
+//   // euler_to_RotationMatrix(-90, -180, 0, T_C_o_r);
+//   T_C_o << T_C_o_r[0], T_C_o_r[1], T_C_o_r[2], Cam_Object.x,
+//            T_C_o_r[3], T_C_o_r[4], T_C_o_r[5], Cam_Object.y,
+//            T_C_o_r[6], T_C_o_r[7], T_C_o_r[8], Cam_Object.z,
+//            0,          0,          0,          1;
+//   // cout << "T_C_o: " << endl << T_C_o << endl;
 
-  //Base -> End:
-  float T_B_E_Q[4];
-  T_B_E_Q[0] = Base_End.orientation.x;
-  T_B_E_Q[1] = Base_End.orientation.y;
-  T_B_E_Q[2] = Base_End.orientation.z;
-  T_B_E_Q[3] = Base_End.orientation.w;
+//   // result by calibration:
+//   Matrix4d T_R;
+//   T_R = T_B_C * T_C_o;
+//   // cout << "T_R: " << endl << T_R << endl;
 
-  float T_B_E_r[9];
-  Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);   
-  // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
-  Matrix4d T_B_E; // Base -> End
-  T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], Base_End.position.x,
-           T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], Base_End.position.y,
-           T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], Base_End.position.z,
-           0,          0,          0,          1;
-  // cout << "T_B_E: " << endl << T_B_E << endl;
+//   pcl::PointXYZ object_position_world;
+//   object_position_world.x = T_R(0,3);
+//   object_position_world.y = T_R(1,3);
+//   object_position_world.z = T_R(2,3);
 
-
-  // End -> Camera
-  Matrix4d T_E_C;
-  T_E_C <<   1,   2.7798e-18,            0,   -0.0355791,
-  -5.57321e-19,            1,  2.71051e-20,    -0.116142,
-    1.0842e-19,            0,            1,    0.0738987,
-             0,            0,            0,            1;
+//   return  object_position_world;
+// }
 
 
-  // Base -> Camera
-  Matrix4d T_B_C;
-  T_B_C = T_B_E * T_E_C;
-  // cout << "T_B_C: " << endl << T_B_C << endl;
+// pcl::PointXYZ realsense_position_acquisition(tf::StampedTransform transform)
+// {
+//   geometry_msgs::Pose Base_End;
+//   Base_End.position.x = transform.getOrigin().x();    Base_End.position.y = transform.getOrigin().y();    Base_End.position.z = transform.getOrigin().z();
+//   Base_End.orientation.x = transform.getRotation().x(); Base_End.orientation.y = transform.getRotation().y(); Base_End.orientation.z = transform.getRotation().z(); Base_End.orientation.w = transform.getRotation().w();
+//   // cout << "Base_End: " << Base_End << endl;
+//  ///////////////////////////////////////////////////
 
-  pcl::PointXYZ realsense_position;
-  realsense_position.x = T_B_C(0,3);
-  realsense_position.y = T_B_C(1,3);
-  realsense_position.z = T_B_C(2,3);
+//   //Base -> End:
+//   float T_B_E_Q[4];
+//   T_B_E_Q[0] = Base_End.orientation.x;
+//   T_B_E_Q[1] = Base_End.orientation.y;
+//   T_B_E_Q[2] = Base_End.orientation.z;
+//   T_B_E_Q[3] = Base_End.orientation.w;
 
-  return realsense_position;
-}
-
-
-
-
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void analyze_realsense_data(PointCloud::Ptr cloud)
-{
-  // 遍历深度图
-  for (int m = 0; m < depth_pic.rows; m++)  //480
-  {
-    for (int n = 0; n < depth_pic.cols; n++) //640
-    {
-      // 获取深度图中(m,n)处的值
-      float d = depth_pic.ptr<float>(m)[n]; 
-      // d 可能没有值，若如此，跳过此点
-      if (d == 0)
-          continue;
-
-      // d 存在值，则向点云增加一个点
-      pcl::PointXYZRGB p, p_z, p_x, p_y;
-      pcl::PointXYZRGB p_transform;
-
-      // 计算这个点的空间坐标
-      p.z = double(d) / camera_factor  ;
-      p.x = (n - camera_cx) * p.z / camera_fx; 
-      p.y = (m - camera_cy) * p.z / camera_fy;
-
-      //筛选位于机械臂工作空间内的点
-      if( (p.x < -1 || p.x > 1) || (p.y < -1 || p.y > 1) || (p.z < -1 || p.z > 1) )
-      {
-        continue;
-      }
-
-      // 从rgb图像中获取它的颜色
-      // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
-      p.b = color_pic.ptr<uchar>(m)[n*3];
-      p.g = color_pic.ptr<uchar>(m)[n*3+1];
-      p.r = color_pic.ptr<uchar>(m)[n*3+2];
+//   float T_B_E_r[9];
+//   Quaternion_to_RotationMatrix(T_B_E_Q[0], T_B_E_Q[1], T_B_E_Q[2], T_B_E_Q[3], T_B_E_r);   
+//   // euler_to_RotationMatrix(0, -180, 0, T_B_E_r);
+//   Matrix4d T_B_E; // Base -> End
+//   T_B_E << T_B_E_r[0], T_B_E_r[1], T_B_E_r[2], Base_End.position.x,
+//            T_B_E_r[3], T_B_E_r[4], T_B_E_r[5], Base_End.position.y,
+//            T_B_E_r[6], T_B_E_r[7], T_B_E_r[8], Base_End.position.z,
+//            0,          0,          0,          1;
+//   // cout << "T_B_E: " << endl << T_B_E << endl;
 
 
-      cloud->points.push_back( p );        
-    }
-  }
-}
+//   // End -> Camera
+//   Matrix4d T_E_C;
+//   T_E_C <<   1,   2.7798e-18,            0,   -0.0355791,
+//   -5.57321e-19,            1,  2.71051e-20,    -0.106142,
+//     1.0842e-19,            0,            1,    0.0708987,
+//              0,            0,            0,            1;
+
+
+//   // Base -> Camera
+//   Matrix4d T_B_C;
+//   T_B_C = T_B_E * T_E_C;
+//   // cout << "T_B_C: " << endl << T_B_C << endl;
+
+//   pcl::PointXYZ realsense_position;
+//   realsense_position.x = T_B_C(0,3);
+//   realsense_position.y = T_B_C(1,3);
+//   realsense_position.z = T_B_C(2,3);
+
+//   return realsense_position;
+// }
 
 
 
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void coordinate_transformation(tf::StampedTransform transform, PointCloud::Ptr camera_pointcloud, PointCloud::Ptr cam_pc_transform, Cloud::Ptr cloud_ptr)
-{
-  geometry_msgs::Pose Base_End;
-  Base_End.position.x = transform.getOrigin().x();    Base_End.position.y = transform.getOrigin().y();    Base_End.position.z = transform.getOrigin().z();
-  Base_End.orientation.x = transform.getRotation().x(); Base_End.orientation.y = transform.getRotation().y(); Base_End.orientation.z = transform.getRotation().z(); Base_End.orientation.w = transform.getRotation().w();
-  ///////////////////////////////////////////////////////////////////////////////////////
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// void analyze_realsense_data(PointCloud::Ptr cloud)
+// {
+//   // 遍历深度图
+//   for (int m = 0; m < depth_pic.rows; m++)  //480
+//   {
+//     for (int n = 0; n < depth_pic.cols; n++) //640
+//     {
+//       // 获取深度图中(m,n)处的值
+//       float d = depth_pic.ptr<float>(m)[n]; 
+//       // d 可能没有值，若如此，跳过此点
+//       if (d == 0)
+//           continue;
 
-  for (float i = 0; i < camera_pointcloud->points.size(); i++)  //480
-  {
-    pcl::PointXYZRGB p_pushback; 
-    pcl::PointXYZ p_cloud_ptr;
-    pcl::PointXYZ Cam_Object;
+//       // d 存在值，则向点云增加一个点
+//       pcl::PointXYZRGB p, p_z, p_x, p_y;
+//       pcl::PointXYZRGB p_transform;
 
-    Cam_Object.x    = camera_pointcloud->points[i].x; 
-    Cam_Object.y    = camera_pointcloud->points[i].y; 
-    Cam_Object.z    = camera_pointcloud->points[i].z; 
+//       // 计算这个点的空间坐标
+//       p.z = double(d) / camera_factor  ;
+//       p.x = (n - camera_cx) * p.z / camera_fx; 
+//       p.y = (m - camera_cy) * p.z / camera_fy;
 
-    pcl::PointXYZ p_tranform = camera_to_base_transform(Base_End, Cam_Object);
+//       //筛选位于机械臂工作空间内的点
+//       if( (p.x < -1 || p.x > 1) || (p.y < -1 || p.y > 1) || (p.z < -1 || p.z > 1) )
+//       {
+//         continue;
+//       }
+
+//       // 从rgb图像中获取它的颜色
+//       // rgb是三通道的BGR格式图，所以按下面的顺序获取颜色
+//       p.b = color_pic.ptr<uchar>(m)[n*3];
+//       p.g = color_pic.ptr<uchar>(m)[n*3+1];
+//       p.r = color_pic.ptr<uchar>(m)[n*3+2];
+
+
+//       cloud->points.push_back( p );        
+//     }
+//   }
+// }
+
+
+
+
+// ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// void coordinate_transformation(tf::StampedTransform transform, PointCloud::Ptr camera_pointcloud, PointCloud::Ptr cam_pc_transform, Cloud::Ptr cloud_ptr)
+// {
+//   geometry_msgs::Pose Base_End;
+//   Base_End.position.x = transform.getOrigin().x();    Base_End.position.y = transform.getOrigin().y();    Base_End.position.z = transform.getOrigin().z();
+//   Base_End.orientation.x = transform.getRotation().x(); Base_End.orientation.y = transform.getRotation().y(); Base_End.orientation.z = transform.getRotation().z(); Base_End.orientation.w = transform.getRotation().w();
+//   ///////////////////////////////////////////////////////////////////////////////////////
+
+//   for (float i = 0; i < camera_pointcloud->points.size(); i++)  //480
+//   {
+//     pcl::PointXYZRGB p_pushback; 
+//     pcl::PointXYZ p_cloud_ptr;
+//     pcl::PointXYZ Cam_Object;
+
+//     Cam_Object.x    = camera_pointcloud->points[i].x; 
+//     Cam_Object.y    = camera_pointcloud->points[i].y; 
+//     Cam_Object.z    = camera_pointcloud->points[i].z; 
+
+//     pcl::PointXYZ p_tranform = camera_to_base_transform(Base_End, Cam_Object);
     
-    p_cloud_ptr.x = p_pushback.x = p_tranform.x; 
-    p_cloud_ptr.y = p_pushback.y = p_tranform.y;  
-    p_cloud_ptr.z = p_pushback.z = p_tranform.z; 
+//     p_cloud_ptr.x = p_pushback.x = p_tranform.x; 
+//     p_cloud_ptr.y = p_pushback.y = p_tranform.y;  
+//     p_cloud_ptr.z = p_pushback.z = p_tranform.z; 
 
-    p_pushback.b = camera_pointcloud->points[i].b;
-    p_pushback.g = camera_pointcloud->points[i].g;
-    p_pushback.r = camera_pointcloud->points[i].r;
+//     p_pushback.b = camera_pointcloud->points[i].b;
+//     p_pushback.g = camera_pointcloud->points[i].g;
+//     p_pushback.r = camera_pointcloud->points[i].r;
 
-    cam_pc_transform->points.push_back( p_pushback );    
+//     cam_pc_transform->points.push_back( p_pushback );    
 
-    cloud_ptr->points.push_back( p_cloud_ptr );
-  }
-}
+//     cloud_ptr->points.push_back( p_cloud_ptr );
+//   }
+// }
 
 
 
@@ -543,6 +543,11 @@ void pathpoint_cut_head_tail(int points_cut_count,
   }
   cout << "PathPoint_Position_final->points.size(): " << PathPoint_Position_final->points.size()  << endl;
   cout << "Torch_Normal_Vector_final.size(): "        << Torch_Normal_Vector_final->points.size() << endl << endl;
+
+  for(float i = 0; i < Torch_Normal_Vector_final->points.size(); i++)
+  {
+    cout << "Torch_Normal_Vector_final"        << Torch_Normal_Vector_final->points[i] << endl;
+  }
 
 }
 
@@ -912,6 +917,7 @@ void X_Z_Normal_Vector_computation(Cloud::Ptr Y_Normal_Vector,
     z_normal_vector.z = -Torch_Normal_Vector_final->points[i].z;
     
     Z_Normal_Vector->points.push_back(z_normal_vector);
+    cout << "z_normal_vector: " << z_normal_vector << endl;
   }
   cout << "X_Normal_Vector: " << X_Normal_Vector->points.size()  << endl;
   cout << "Z_Normal_Vector: " << Z_Normal_Vector->points.size()  << endl  << endl;
@@ -1282,6 +1288,89 @@ void orientation_computation( Cloud::Ptr X_Normal_Vector,
                                 X_Normal_Vector, 
                                 Torch_Normal_Vector_final);
 
+
+  int intern = 3;
+  Cloud::Ptr X_Normal_Vector_filtered (new Cloud); 
+  
+  for(float i = 0; i < X_Normal_Vector->points.size(); i++)
+  {
+    pcl::PointXYZ x_normal_vector_filtered;
+
+    if(i >= 0 + intern && i <= X_Normal_Vector->points.size() - 1 - intern)
+    {
+      for(float j = i - intern; j <= i + intern; j++)
+      {
+        x_normal_vector_filtered.x += X_Normal_Vector->points[j].x;
+        x_normal_vector_filtered.y += X_Normal_Vector->points[j].y;
+        x_normal_vector_filtered.z += X_Normal_Vector->points[j].z;
+      }
+
+      x_normal_vector_filtered.x = x_normal_vector_filtered.x / (2 * intern + 1) * 1.0;
+      x_normal_vector_filtered.y = x_normal_vector_filtered.y / (2 * intern + 1) * 1.0;
+      x_normal_vector_filtered.z = x_normal_vector_filtered.z / (2 * intern + 1) * 1.0;
+    }
+
+    if(i < intern)
+    {
+      for(float j = 0; j <= 0 + 2 * intern; j++)
+      {
+        x_normal_vector_filtered.x += X_Normal_Vector->points[j].x;
+        x_normal_vector_filtered.y += X_Normal_Vector->points[j].y;
+        x_normal_vector_filtered.z += X_Normal_Vector->points[j].z;
+      }
+
+      x_normal_vector_filtered.x = x_normal_vector_filtered.x / (2 * intern + 1) * 1.0;
+      x_normal_vector_filtered.y = x_normal_vector_filtered.y / (2 * intern + 1) * 1.0;
+      x_normal_vector_filtered.z = x_normal_vector_filtered.z / (2 * intern + 1) * 1.0;
+    }
+
+
+    if(i > X_Normal_Vector->points.size() - 1 - intern)
+    {
+      for(float j = X_Normal_Vector->points.size() - 1 - 2 * intern; j <= X_Normal_Vector->points.size() - 1; j++)
+      {
+        x_normal_vector_filtered.x += X_Normal_Vector->points[j].x;
+        x_normal_vector_filtered.y += X_Normal_Vector->points[j].y;
+        x_normal_vector_filtered.z += X_Normal_Vector->points[j].z;
+      }
+
+      x_normal_vector_filtered.x = x_normal_vector_filtered.x / (2 * intern + 1) * 1.0;
+      x_normal_vector_filtered.y = x_normal_vector_filtered.y / (2 * intern + 1) * 1.0;
+      x_normal_vector_filtered.z = x_normal_vector_filtered.z / (2 * intern + 1) * 1.0;
+    }
+
+    X_Normal_Vector_filtered->points.push_back(x_normal_vector_filtered);
+
+  }
+  X_Normal_Vector->points.clear();
+
+  for(float i = 0; i < X_Normal_Vector_filtered->points.size(); i++)
+  {
+    pcl::PointXYZ p;
+
+    p.x = X_Normal_Vector_filtered->points[i].x;
+    p.y = X_Normal_Vector_filtered->points[i].y;
+    p.z = X_Normal_Vector_filtered->points[i].z;
+    X_Normal_Vector->points.push_back(p);
+  }
+
+  Y_Normal_Vector->points.clear();
+  for(float i = 0; i < X_Normal_Vector->points.size(); i++)
+  {
+    Vector3d v(X_Normal_Vector->points[i].x, X_Normal_Vector->points[i].y, X_Normal_Vector->points[i].z);
+    Vector3d w(Z_Normal_Vector->points[i].x, Z_Normal_Vector->points[i].y, Z_Normal_Vector->points[i].z);
+    Vector3d u = w.cross(v);
+    float n = sqrt( u[0]*u[0] + u[1]*u[1] + u[2]*u[2] );
+
+    pcl::PointXYZ y_normal_vector;
+    y_normal_vector.x = u[0] / n;
+    y_normal_vector.y = u[1] / n;
+    y_normal_vector.z = u[2] / n; 
+    
+    Y_Normal_Vector->points.push_back(y_normal_vector);
+  }
+
+
   direction_modification( X_Normal_Vector, 
                           Y_Normal_Vector, 
                           Z_Normal_Vector, 
@@ -1342,7 +1431,7 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
   float trajectory_point_size = PathPoint_Position_final->points.size();
 
   // PointCloud::Ptr rotation_originWaypoint (new PointCloud);
-  // Cloud::Ptr Pathpoint_Temp (new Cloud); 
+  // Cloud::Ptr Pathpoint_Temp (new Cloud);  
   vector< geometry_msgs::Pose > Rviz_TrajectoryPose = Moveit_Pose_generation( trajectory_point_size, 
                                                                               X_Normal_Vector, 
                                                                               Y_Normal_Vector, 
@@ -1372,6 +1461,7 @@ vector< geometry_msgs::Pose > Ultimate_6DOF_TrajectoryGeneration(vector< geometr
 
   return Rviz_TrajectoryPose;
 }
+
 
 
 

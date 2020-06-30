@@ -59,7 +59,7 @@ void depth_Callback(const sensor_msgs::ImageConstPtr& depth_msg)
   waitKey(1);
 }
 
-string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/box";
+string dataset_folder_path = "/home/rick/Documents/a_system/src/pointcloud_dataset/Fri_Jun_6_17_44_55";
 int receive_capture_count  = 1;
 int process_frame_count    = 1;
 void pointcloud_storageFolder_Callback(const std_msgs::String::ConstPtr& msg) //Note it is geometry_msgs::PoseStamped, not std_msgs::PoseStamped
@@ -114,18 +114,46 @@ int main(int argc, char **argv)
   tf::StampedTransform transform_tool02torch;
 
 
-  //read pointcloud dataset
+  /////read pointcloud dataset
   int pointcloud_frameNum = count_pointcloud_frameNum(dataset_folder_path);
   build_model_pointcloud(dataset_folder_path, 
                          pointcloud_frameNum,
                          model_pointcloud_display);
 
   // //read trajectory info
-  // vector< geometry_msgs::Pose > record_rviz_trajecotrypose = 
-  // read_trajectory_frame("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv");
- 
+  // vector< geometry_msgs::Pose > Rviz_TrajectoryPose = 
+  // read_trajectory_frame("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/cad_test.csv");
+  // pcl::PCDReader reader;
+  // reader.read("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/cylinder_pointcloud_model.pcd", *model_pointcloud_display);
+
+  // for(float i = 0; i < model_pointcloud_display->points.size(); i++)
+  // {
+  //   model_pointcloud_display->points[i].b = 200;
+  //   model_pointcloud_display->points[i].g = 200;
+  //   model_pointcloud_display->points[i].r = 200;
+  // }
+  // // pcl::PCDReader reader;
+  // reader.read("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/cylinder_pointcloud_model.pcd", *cloud_ptr);
+
+
+  vector< geometry_msgs::Pose > Rviz_TrajectoryPose;
+  bool processing_flag = true;
   while (ros::ok()) 
   {
+    // if (processing_flag)
+    // {
+    //   // Rviz_TrajectoryPose->clear();
+    //   Rviz_TrajectoryPose = CAD_TrajectoryPlanning( cloud_ptr,
+    //                                                 pub_pointcloud, 
+    //                                                 pointcloud_publisher, 
+    //                                                 Welding_Trajectory_publisher,
+                                                    
+    //                                                 naptime);
+    //   processing_flag = false;
+    // }
+
+
+
     vector< geometry_msgs::Pose > Rviz_TrajectoryPose = 
 
     trajectory_6DOF_generation( read_realtime_pointcloud_frame( dataset_folder_path,

@@ -72,6 +72,16 @@ using namespace std;
 using namespace Eigen;
   
 
+vector< geometry_msgs::Pose > CAD_TrajectoryPlanning( Cloud::Ptr cloud_ptr,
+
+                                                      sensor_msgs::PointCloud2 pub_pointcloud, 
+                                                      ros::Publisher pointcloud_publisher, 
+                                                      ros::Publisher Welding_Trajectory_publisher,
+                                                      
+                                                      ros::Rate naptime);
+
+
+                                                      
 vector< geometry_msgs::Pose > trajectory_6DOF_generation(pcl::PointXYZ realsense_position, 
                                                          Cloud::Ptr cloud_ptr, 
                                                          Cloud::Ptr cloud_ptr_modelSeam, 

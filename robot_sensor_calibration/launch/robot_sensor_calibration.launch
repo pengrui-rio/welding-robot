@@ -5,7 +5,7 @@
    <!--  start realsense  -->
   <arg name="align_depth" default="true"/>
   <include file="$(find realsense2_camera)/launch/rs_camera.launch">
-      <arg name="align_depth"              value="$(arg align_depth)"/>
+      <arg name="align_depth"           value="$(arg align_depth)"/>
   </include>
 
 

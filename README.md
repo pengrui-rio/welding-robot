@@ -1,8 +1,9 @@
 # welding-robot  
-3D vision-based automatic welding robotic system.   
+3D vision-based automatic welding robotic system.
 
 Here are some of motion demos.
 
+paper:https://arxiv.org/submit/3147664/view
 
 
 # Tube
@@ -231,17 +232,13 @@ https://blog.csdn.net/qq_25267657/article/details/84871028
  设置电脑ip：
  edit connections->IPv4 settings->add address
 
- IP地址不是跟机器人一样的，如机器人的IP地址是 192.168.0.2
+ IP地址不是跟机器人一样的，如机器人的IP地址是192.168.0.2
  那为了使电脑跟它处于一个局域网下只需要将最后一个小数点后面的那个设置得不一样即可，设置成 192.168.0.3 即可
  子网掩码和网关和机器人一致即可：
- 
                        PC IP : 192.168.0.3
                       子网掩码： 255.255.255.0
                          网关： 192.168.0.10
-  
- 设置好了之后测试连接是否成功ping robot_ip：
- 
- ping 192.168.0.2
+                         
                          
 2.ur5[外部控制配置](https://github.com/UniversalRobots/Universal_Robots_ROS_Driver/blob/master/ur_robot_driver/doc/install_urcap_cb3.md)：
 

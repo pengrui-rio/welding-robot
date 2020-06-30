@@ -22,7 +22,7 @@ from geometry_msgs.msg import PoseStamped, Pose
 import logging
 from math import pi
 import numpy as np
-import math3d as m3d
+# import math3d as m3d
 import math
 import csv
 
@@ -184,7 +184,7 @@ def move_to_singleXYZRPY(robot, x, y, z, roll, pitch, yaw):
     pose.append(rotation[2][0]) #rz
     robot.movel(pose, acc=0.01, vel=0.06, wait=True)
 
-
+ 
 
 def move_to_singlePose(robot, pose):
     print "\n============ Press `Enter` to move to certain pose ============"
@@ -218,30 +218,67 @@ if __name__ == "__main__":
         rate = rospy.Rate(1000) # 1000hz
 
         print "\n"
-        pose = robot.getl()
-        print  pose
-        print "\n"
-        # time.sleep(5)
-        ##########################################################################################################
-
+        pose = robot.getl()######################################################tch, yaw
+        # move_to_singleXYZRPY(robot, 0,  -0.3, 0.35, 90, 180, 0)  #x, y, z, roll, pitch, yaw
         # goto_straight_status(robot)
 
+
+        # #########################################################################################################
+        move_to_singleXYZRPY(robot, 0, -0.3, 0.5, 90, 180, 0)  #x, y, z, roll, pitch, yaw
+
+        move_to_singleXYZRPY(robot, 0, -0.3, 0.5,  0, 180, 0)  #x, y, z, roll, pitch, yaw
+
+
+        # # print "wait"
+        # raw_input()
+        # write_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/Y-shape.csv", motion_pathPoint)
+
+
+ 
+
+        # motiontrajectory = read_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/test.csv")
+        # inverse_motiontrajectory = inverse_trajectory(motiontrajectory)
+        # print "\n"
+        # print motiontrajectory
+
+        # while not rospy.is_shutdown():
+        #     print "\n"
+        #     print motiontrajectory
+        #     trajectory_execution(robot, motiontrajectory)
+
+        #     time.sleep(2)
+
+        #     print "\n"
+        #     print inverse_motiontrajectory
+        #     trajectory_execution(robot, inverse_motiontrajectory)
+
+        #     time.sleep(2)
+
+
+
         ##########################################################################################################
-    
-        # move_to_singleXYZRPY(robot, 0, -0.35, 0.65, 45, 180, 0) #x, y, z, roll, pitch, yaw
-        # move_to_singleXYZRPY(robot, 0,  -0.3, 0.35, 90, 180, 0)  #x, y, z, roll, pitch, yaw
 
-
-        # move_to_singleXYZRPY(robot, 0, -0.3, 0.5, 90, 180, 0)  #x, y, z, roll, pitch, yaw
-
-        #########################################################################################################
-        # move_to_singleXYZRPY(robot, 0, -0.5, 0.5, 0, 180, 0)  #x, y, z, roll, pitch, yaw
-
-        # write_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/test.csv", motion_pathPoint)
+    finally:
+        robot.close() 
 
 
 
-        # motiontrajectory = read_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/test3.csv")
+
+
+
+
+
+
+
+
+
+
+
+        # motiontrajectory = read_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/cad_test.csv")
+        # print "\n"
+        # print motiontrajectory
+        # trajectory_execution(robot, motiontrajectory)
+
 
         # pose = []
         # index = 1
@@ -265,36 +302,3 @@ if __name__ == "__main__":
 
 
 
-
- 
-
-        motiontrajectory = read_csv("/home/rick/Documents/a_system/src/motion_planning1executing/traj_control_execution/trajectoryURx_csv/box.csv")
-        inverse_motiontrajectory = inverse_trajectory(motiontrajectory)
-
-
-        print "\n"
-        print motiontrajectory
-
-        while not rospy.is_shutdown():
-            print "\n"
-            print motiontrajectory
-            trajectory_execution(robot, motiontrajectory)
-
-            time.sleep(2)
-
-            print "\n"
-            print inverse_motiontrajectory
-            trajectory_execution(robot, inverse_motiontrajectory)
-
-            time.sleep(2)
-
-
-
-        ##########################################################################################################
-
-
-
-    finally:
-        robot.close()
-
- 

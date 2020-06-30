@@ -117,6 +117,8 @@ class MoveGroupPythonInteface(object):
 
 
   def motion(self):
+    print "pose:"
+    print self.group.get_current_pose().pose
 
     print "============ Press `Enter` to set the initial pose ..."
     raw_input()

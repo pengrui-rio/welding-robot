@@ -240,54 +240,54 @@ void SurfaceProfile_Reconstruction(float radius,
                                    Cloud::Ptr cloud_ptr, 
                                    PointCloud::Ptr cloud_ptr_show)
 {
-  pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
-  pcl::PointCloud<pcl::PointNormal> mls_points;
-  pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
-  mls.setComputeNormals (true);
-  mls.setInputCloud (cloud_ptr);
-  mls.setPolynomialOrder (2);
-  mls.setSearchMethod (tree);
-  mls.setSearchRadius (radius);
-  mls.process (mls_points);
-  cout << "smooth size(): " <<  mls_points.size() << endl << endl;
+  // pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>);
+  // pcl::PointCloud<pcl::PointNormal> mls_points;
+  // pcl::MovingLeastSquares<pcl::PointXYZ, pcl::PointNormal> mls;
+  // mls.setComputeNormals (true);
+  // mls.setInputCloud (cloud_ptr);
+  // mls.setPolynomialOrder (2);
+  // mls.setSearchMethod (tree);
+  // mls.setSearchRadius (radius);
+  // mls.process (mls_points);
+  // cout << "smooth size(): " <<  mls_points.size() << endl << endl;
 
-  Cloud::Ptr smooth_cloud ( new Cloud );
-  for(float i = 0; i < mls_points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = mls_points[i].x; 
-    p.y = mls_points[i].y;
-    p.z = mls_points[i].z;
+  // Cloud::Ptr smooth_cloud ( new Cloud );
+  // for(float i = 0; i < mls_points.size(); i++)
+  // {
+  //   pcl::PointXYZ p;
+  //   p.x = mls_points[i].x; 
+  //   p.y = mls_points[i].y;
+  //   p.z = mls_points[i].z;
 
-    smooth_cloud->points.push_back( p );
-  }
+  //   smooth_cloud->points.push_back( p );
+  // }
 
-  cloud_ptr_show->points.clear();
-  for(float i = 0; i < smooth_cloud->points.size(); i++)
-  {
-    pcl::PointXYZRGB p;
-    p.x = smooth_cloud->points[i].x;
-    p.y = smooth_cloud->points[i].y;
-    p.z = smooth_cloud->points[i].z;
-    p.b = 200; 
-    p.g = 200;
-    p.r = 200;
-    cloud_ptr_show->points.push_back( p );    
-  }
+  // cloud_ptr_show->points.clear();
+  // for(float i = 0; i < smooth_cloud->points.size(); i++)
+  // {
+  //   pcl::PointXYZRGB p;
+  //   p.x = smooth_cloud->points[i].x;
+  //   p.y = smooth_cloud->points[i].y;
+  //   p.z = smooth_cloud->points[i].z;
+  //   p.b = 200; 
+  //   p.g = 200;
+  //   p.r = 200;
+  //   cloud_ptr_show->points.push_back( p );    
+  // }
 
 
-  //这个不用动
-  cloud_ptr->points.clear();
-  for(float i = 0; i < cloud_ptr_show->points.size(); i++)
-  {
-    pcl::PointXYZ p;
-    p.x = cloud_ptr_show->points[i].x; 
-    p.y = cloud_ptr_show->points[i].y;
-    p.z = cloud_ptr_show->points[i].z;
-    cloud_ptr->points.push_back( p );    
-  }
+  // //这个不用动
+  // cloud_ptr->points.clear();
+  // for(float i = 0; i < cloud_ptr_show->points.size(); i++)
+  // {
+  //   pcl::PointXYZ p;
+  //   p.x = cloud_ptr_show->points[i].x; 
+  //   p.y = cloud_ptr_show->points[i].y;
+  //   p.z = cloud_ptr_show->points[i].z;
+  //   cloud_ptr->points.push_back( p );    
+  // }
 
-  cout << "cloud_ptr_show->points.size()" << cloud_ptr->points.size() << endl << endl;
+  // cout << "cloud_ptr_show->points.size()" << cloud_ptr->points.size() << endl << endl;
 
   // cloud_ptr->width = 1;
   // cloud_ptr->height = cloud_ptr->points.size();
@@ -295,6 +295,18 @@ void SurfaceProfile_Reconstruction(float radius,
   // cout << "cloud_ptr->points.size()" << cloud_ptr->points.size() << endl;
   // pcl::PCDWriter writer;
   // writer.write("/home/rick/Documents/a_system/src/trajectory_planning/src/driver_test_cloud.pcd", *cloud_ptr, false) ;
+
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_ptr->points[i].x;
+    p.y = cloud_ptr->points[i].y;
+    p.z = cloud_ptr->points[i].z;
+    p.b = 200; 
+    p.g = 200;
+    p.r = 200;
+    cloud_ptr_show->points.push_back( p );    
+  }
 
 }
 
@@ -707,7 +719,7 @@ void Screen_Candidate_Seam(Cloud::Ptr cloud_ptr, PointCloud::Ptr cloud_ptr_show,
   std::vector<pcl::PointIndices> cluster_indices;
   pcl::EuclideanClusterExtraction<pcl::PointXYZ> EC;
 
-  EC.setClusterTolerance (0.0015); //设置近邻搜索的搜索半径为2cm
+  EC.setClusterTolerance (0.002); //设置近邻搜索的搜索半径为2cm
   EC.setMinClusterSize (500);//设置一个聚类需要的最少点数目为100
   EC.setMaxClusterSize (10000000); //设置一个聚类需要的最大点数目为25000
   EC.setSearchMethod (ec_tree);//设置点云的搜索机制

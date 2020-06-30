@@ -106,26 +106,75 @@ int main(int argc, char **argv)
   ros::Publisher vis_pub                                 = nh.advertise<visualization_msgs::Marker>( "visualization_marker", 0 );
 
   //pointcloud msgs: 
- 
   sensor_msgs::PointCloud2 pub_model_target_pointcloud;
   sensor_msgs::PointCloud2 pub_workpiece_3D_model_pointcloud;
   
-  // CAD_csv_to_pointcloud("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/cylinder.csv", map_pointcloud);
+  // CAD_csv_to_pointcloud:
+  // PointCloud::Ptr csv_pointcloud (new PointCloud); 
+  // CAD_csv_to_pointcloud("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/csv-f-cc/Y-type.csv", csv_pointcloud);
+
   ///////////////////////////////////////////////////////////////////////////////
   Cloud::Ptr   workpiece_3D_model  (new Cloud);  
   PointCloud::Ptr workpiece_3D_model_pointcloud (new PointCloud); 
 
-  Cloud::Ptr   model_target        (new Cloud);    Cloud::Ptr   model_target_temp       (new Cloud);  
+  Cloud::Ptr   model_target        (new Cloud);    
+  Cloud::Ptr   model_target_temp       (new Cloud);  
+  Cloud::Ptr   model_target_temp_processed       (new Cloud);  
   PointCloud::Ptr model_target_pointcloud       (new PointCloud);
 
-  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/ICP_straight.pcd", workpiece_3D_model);
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/CAD_cylinder.pcd", workpiece_3D_model);
   // create_target_pointcloudModel(model_target, workpiece_3D_model);
   transform_workpiece_pointcloud_model(workpiece_3D_model);
 
-  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/1_frame.pcd", model_target);
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/1_frame.pcd", model_target);
   *model_target_temp += *model_target;  model_target->points.clear();
-  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/2_frame.pcd", model_target);
-  *model_target_temp += *model_target;
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/2_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/3_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();  
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/4_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/5_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/6_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/7_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/8_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cylinder/9_frame.pcd", model_target);
+  *model_target_temp += *model_target;  model_target->points.clear();
+  // read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cube/4_frame.pcd", model_target);
+  // *model_target_temp += *model_target;  model_target->points.clear();
+  // read_pointcloud_for_icp("/home/rick/Documents/a_system/src/CAD2pointcloud/data/PCD/cube/5_frame.pcd", model_target);
+  // *model_target_temp += *model_target;  model_target->points.clear();
+
+  // cout << "model_target_temp->points.size()" << model_target_temp->points.size() << endl;
+  // pcl::PCDWriter writer;
+  // writer.write("/home/rick/Documents/Jeffery/cylinder.pcd", *model_target_temp, false) ;
+
+
+  for(float j = 0; j < model_target_temp->points.size(); j++)
+  {
+    pcl::PointXYZ p; 
+    p.x = model_target_temp->points[j].x;
+    p.y = model_target_temp->points[j].y;
+    p.z = model_target_temp->points[j].z;
+
+    // if(p.z >= 0.015)
+    // {
+    //   model_target_temp_processed->points.push_back( p );    
+    // }
+    model_target_temp_processed->points.push_back( p );    
+  }
+  // model_target_temp->points.clear();
+
+  float r = 0.002;
+
+  filter(r, model_target_temp_processed);
+  filter(r, workpiece_3D_model);
+
+
 
   workpiece_3D_model_2_workpiece_3D_model_pointcloud(workpiece_3D_model, workpiece_3D_model_pointcloud);
   publish_pointcloud_Rviz("base_link", 
@@ -133,19 +182,21 @@ int main(int argc, char **argv)
                             pub_workpiece_3D_model_pointcloud, 
                             workpiece_3D_model_pointcloud_publisher);
 
-  model_target_2_model_target_pointcloud(model_target_temp, model_target_pointcloud);
+
+  model_target_2_model_target_pointcloud(model_target_temp_processed, model_target_pointcloud);
   publish_pointcloud_Rviz("base_link", 
                             model_target_pointcloud, 
                             pub_model_target_pointcloud, 
                             model_target_pointcloud_publisher);
 
-  pcl::IterativeClosestPoint<PointType, PointType> icp = ICP_config(model_target_temp, workpiece_3D_model);
+  pcl::IterativeClosestPoint<PointType, PointType> icp = ICP_config(model_target_temp_processed, workpiece_3D_model);
   
   int iterations = 1;  // Default number of ICP iterations
 
+
   while (ros::ok()) 
   {
-    ICP_registration(iterations, icp, model_target_temp, workpiece_3D_model);
+    ICP_registration(iterations, icp, model_target_temp_processed, workpiece_3D_model);
     iterations++;
 
     workpiece_3D_model_2_workpiece_3D_model_pointcloud(workpiece_3D_model, workpiece_3D_model_pointcloud);
@@ -154,7 +205,7 @@ int main(int argc, char **argv)
                              pub_workpiece_3D_model_pointcloud, 
                              workpiece_3D_model_pointcloud_publisher);
 
-    model_target_2_model_target_pointcloud(model_target_temp, model_target_pointcloud);
+    model_target_2_model_target_pointcloud(model_target_temp_processed, model_target_pointcloud);
     publish_pointcloud_Rviz("base_link", 
                              model_target_pointcloud, 
                              pub_model_target_pointcloud, 
@@ -165,7 +216,7 @@ int main(int argc, char **argv)
     // naptime.sleep(); // wait for remainder of specified period; 
   }
 
-  // ros::spin();
+  ros::spin();
 
   return 0;
 }

@@ -157,12 +157,12 @@ void CAD_csv_to_pointcloud( string trajectoryInfo_folder_path, PointCloud::Ptr m
     stringstream position_x;
     position_x << strArray[i][0];
     position_x >> p.x;
-    p.x = p.x / 1000 + 0.1;
+    p.x = p.x / 1000 ;
 
     stringstream position_y;
     position_y << strArray[i][1];
     position_y >> p.y;
-    p.y = p.y / 1000 + 0.6;
+    p.y = p.y / 1000 ;
 
     stringstream position_z;
     position_z << strArray[i][2];
@@ -180,7 +180,7 @@ void CAD_csv_to_pointcloud( string trajectoryInfo_folder_path, PointCloud::Ptr m
 
   cout << "map_pointcloud->points.size()" << map_pointcloud->points.size() << endl;
   pcl::PCDWriter writer;
-  writer.write("/home/rick/Documents/pcl_sample/ICP/ICP_cylinder.pcd", *map_pointcloud, false) ;
+  writer.write("/home/rick/Documents/a_system/src/CAD2pointcloud/stl_file/PCD/CAD_Y-type.pcd", *map_pointcloud, false) ;
 
 }
 
@@ -191,10 +191,24 @@ void read_pointcloud_for_icp(string PCD_folder_path, Cloud::Ptr cloud_ptr_in)
   reader.read(PCD_folder_path, *cloud_ptr_in);
 }
 
+
+void print4x4Matrix (const Eigen::Matrix4d & matrix)
+{
+  printf ("Rotation matrix :\n");
+  printf ("    | %6.3f %6.3f %6.3f | \n", matrix (0, 0), matrix (0, 1), matrix (0, 2));
+  printf ("R = | %6.3f %6.3f %6.3f | \n", matrix (1, 0), matrix (1, 1), matrix (1, 2));
+  printf ("    | %6.3f %6.3f %6.3f | \n", matrix (2, 0), matrix (2, 1), matrix (2, 2));
+  printf ("Translation vector :\n");
+  printf ("t = < %6.3f, %6.3f, %6.3f >\n\n", matrix (0, 3), matrix (1, 3), matrix (2, 3));
+}
+
+
 void transform_workpiece_pointcloud_model(Cloud::Ptr workpiece_pointcloud_model)
 {
-  // float R = 150, P = 0, Y = 0;
-  float R = 0, P = 180, Y = -20;
+  //  float R = 0, P = 180, Y = -20; //straight
+  float R = 180, P = 25, Y = 90; //cylinder
+  // float R = 0, P = 90, Y = 0; //cube
+
   Eigen::Vector3d ea(R * M_PI / 180.0, P * M_PI / 180.0, Y * M_PI / 180.0);
 
   //3.1 欧拉角转换为旋转矩阵
@@ -215,11 +229,10 @@ void transform_workpiece_pointcloud_model(Cloud::Ptr workpiece_pointcloud_model)
   transformation_matrix (2, 0) = rotation_matrix3(2, 0);
   transformation_matrix (2, 1) = rotation_matrix3(2, 1);
   transformation_matrix (2, 2) = rotation_matrix3(2, 2);
-
-  // Z轴的平移向量 (0.4 meters)
+ 
   transformation_matrix (0, 3) = 0;
   transformation_matrix (1, 3) = 0;
-  transformation_matrix (2, 3) = 0.3;
+  transformation_matrix (2, 3) = 0;
 
   Cloud::Ptr   workpiece_pointcloud_model_temp  (new Cloud);  
   cout << "Applying this rigid transformation to: workpiece_pointcloud_model -> pointcloud_model_target" << endl;
@@ -270,10 +283,20 @@ void ICP_registration(int iterations,
   time.tic ();
   icp.align (*workpiece_pointcloud_model);
   cout << "Applied " << iterations << " ICP iteration(s) in " << time.toc () << " ms" << endl;
+  Eigen::Matrix4d transformation_matrix = Eigen::Matrix4d::Identity ();
 
   if (icp.hasConverged ())
   {
     cout << "ICP has converged, score is " << icp.getFitnessScore () << endl << endl;
+    transformation_matrix = icp.getFinalTransformation ().cast<double>();
+    print4x4Matrix (transformation_matrix);
+
+    workpiece_pointcloud_model->width = 1;
+    workpiece_pointcloud_model->height = workpiece_pointcloud_model->points.size();
+
+    // cout << "workpiece_pointcloud_model->points.size()" << workpiece_pointcloud_model->points.size() << endl;
+    // pcl::PCDWriter writer;
+    // writer.write("/home/rick/Documents/a_system/src/CAD2pointcloud/data/cylinder_pointcloud_model.pcd", *workpiece_pointcloud_model, false) ;
   }
   else
   {
@@ -427,3 +450,28 @@ void ICP_registration(int iterations,
 
 
 // }
+
+
+
+void filter(float r, Cloud::Ptr cloud)
+{
+  Cloud::Ptr filtered (new Cloud);
+
+  pcl::VoxelGrid<pcl::PointXYZ> voxel;
+  voxel.setLeafSize( r, r, r );
+  voxel.setInputCloud( cloud );
+  voxel.filter( *filtered );
+
+  cloud->points.clear();
+  for(float j = 0; j < filtered->points.size(); j++)
+  {
+    pcl::PointXYZ p; 
+    p.x = filtered->points[j].x;
+    p.y = filtered->points[j].y;
+    p.z = filtered->points[j].z;
+
+    cloud->points.push_back( p );    
+  }
+  filtered->points.clear();
+
+}

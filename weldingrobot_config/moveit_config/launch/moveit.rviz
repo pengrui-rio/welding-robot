@@ -4,8 +4,9 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-        - /TF1
-        - /Marker1
+        - /Global Options1
+        - /PointCloud23
+        - /TF1/Frames1
         - /Marker1/Namespaces1
       Splitter Ratio: 0.744186044
     Tree Height: 837
@@ -17,7 +18,7 @@ Panels:
     Name: Views
     Splitter Ratio: 0.5
 Toolbars:
-  toolButtonStyle: 2
+  toolButtonStyle: 0
 Visualization Manager:
   Class: ""
   Displays:
@@ -25,7 +26,7 @@ Visualization Manager:
       Cell Size: 1
       Class: rviz/Grid
       Color: 160; 160; 164
-      Enabled: true
+      Enabled: false
       Line Style:
         Line Width: 0.0299999993
         Value: Lines
@@ -38,7 +39,7 @@ Visualization Manager:
       Plane: XY
       Plane Cell Count: 10
       Reference Frame: <Fixed Frame>
-      Value: true
+      Value: false
     - Class: moveit_rviz_plugin/PlanningScene
       Enabled: true
       Move Group Namespace: ""
@@ -60,11 +61,6 @@ Visualization Manager:
           Expand Link Details: false
           Expand Tree: false
           Link Tree Style: Links in Alphabetic Order
-          bar:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           base:
             Alpha: 1
             Show Axes: false
@@ -125,26 +121,7 @@ Visualization Manager:
             Show Axes: false
             Show Trail: false
             Value: true
-          kinect2_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          kinect2_rgb_optical_frame:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-          post:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
           shoulder_link:
-            Alpha: 1
-            Show Axes: false
-            Show Trail: false
-            Value: true
-          table:
             Alpha: 1
             Show Axes: false
             Show Trail: false
@@ -261,7 +238,7 @@ Visualization Manager:
       Channel Name: intensity
       Class: rviz/PointCloud2
       Color: 255; 255; 255
-      Color Transformer: FlatColor
+      Color Transformer: RGB8
       Decay Time: 0
       Enabled: true
       Invert Rainbow: false
@@ -276,129 +253,126 @@ Visualization Manager:
       Size (Pixels): 3
       Size (m): 0.00999999978
       Style: Points
-      Topic: /map_pointcloud
+      Topic: /model_pointcloud_display
       Unreliable: false
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 0.630043328
+        Min Value: -0.00964482035
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /model_target_pointcloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 0.630043328
+        Min Value: -0.00964482035
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /workpiece_3D_model_pointcloud
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
     - Class: rviz/TF
-      Enabled: true
+      Enabled: false
       Frame Timeout: 15
       Frames:
         All Enabled: false
-        bar:
-          Value: false
-        base:
-          Value: false
-        base_link:
-          Value: true
-        camera_bottom_screw_frame:
-          Value: false
-        camera_color_frame:
-          Value: false
-        camera_color_optical_frame:
-          Value: false
-        camera_depth_frame:
-          Value: false
-        camera_depth_optical_frame:
-          Value: false
-        camera_left_ir_frame:
-          Value: false
-        camera_left_ir_optical_frame:
-          Value: false
-        camera_link:
-          Value: false
-        camera_right_ir_frame:
-          Value: false
-        camera_right_ir_optical_frame:
-          Value: false
-        ee_link:
-          Value: false
-        forearm_link:
-          Value: false
-        kinect2_link:
-          Value: false
-        kinect2_rgb_optical_frame:
-          Value: false
-        post:
-          Value: false
-        shoulder_link:
-          Value: false
-        table:
-          Value: false
-        tool0:
-          Value: false
-        torchSupport:
-          Value: false
-        upper_arm_link:
-          Value: false
-        welding_torch:
-          Value: false
-        world:
-          Value: false
-        wrist_1_link:
-          Value: false
-        wrist_2_link:
-          Value: false
-        wrist_3_link:
-          Value: false
       Marker Scale: 0.200000003
       Name: TF
       Show Arrows: false
       Show Axes: true
       Show Names: false
       Tree:
-        world:
-          base_link:
-            base:
-              {}
-            shoulder_link:
-              upper_arm_link:
-                forearm_link:
-                  wrist_1_link:
-                    wrist_2_link:
-                      wrist_3_link:
-                        ee_link:
-                          {}
-                        tool0:
-                          camera_bottom_screw_frame:
-                            camera_link:
-                              camera_depth_frame:
-                                camera_color_frame:
-                                  camera_color_optical_frame:
-                                    {}
-                                camera_depth_optical_frame:
-                                  {}
-                                camera_left_ir_frame:
-                                  camera_left_ir_optical_frame:
-                                    {}
-                                camera_right_ir_frame:
-                                  camera_right_ir_optical_frame:
-                                    {}
-                          torchSupport:
-                            {}
-                          welding_torch:
-                            {}
-            table:
-              post:
-                bar:
-                  {}
-          kinect2_link:
-            kinect2_rgb_optical_frame:
-              {}
+        {}
       Update Interval: 0
-      Value: true
+      Value: false
     - Class: rviz/Marker
-      Enabled: true
+      Enabled: false
       Marker Topic: visualization_marker
       Name: Marker
       Namespaces:
         {}
       Queue Size: 100
-      Value: true
+      Value: false
+    - Alpha: 1
+      Autocompute Intensity Bounds: true
+      Autocompute Value Bounds:
+        Max Value: 0.630043328
+        Min Value: -0.00964482035
+        Value: true
+      Axis: Z
+      Channel Name: intensity
+      Class: rviz/PointCloud2
+      Color: 255; 255; 255
+      Color Transformer: RGB8
+      Decay Time: 0
+      Enabled: false
+      Invert Rainbow: false
+      Max Color: 255; 255; 255
+      Max Intensity: 4096
+      Min Color: 0; 0; 0
+      Min Intensity: 0
+      Name: PointCloud2
+      Position Transformer: XYZ
+      Queue Size: 10
+      Selectable: true
+      Size (Pixels): 3
+      Size (m): 0.00999999978
+      Style: Points
+      Topic: /camera/depth/color/points
+      Unreliable: false
+      Use Fixed Frame: true
+      Use rainbow: true
+      Value: false
   Enabled: true
   Global Options:
-    Background Color: 48; 48; 48
+    Background Color: 255; 255; 255
     Default Light: true
     Fixed Frame: world
     Frame Rate: 30
@@ -412,25 +386,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/XYOrbit
-      Distance: 1.40719676
+      Distance: 1.17437053
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.0599999987
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.0347468033
-        Y: 0.608268619
-        Z: -1.52955181e-06
+        X: 1.53992581
+        Y: 0.232288659
+        Z: -1.86855323e-06
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.0500000007
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.00999999978
-      Pitch: 0.94980073
+      Pitch: 0.379796684
       Target Frame: world
       Value: XYOrbit (rviz)
-      Yaw: 1.68882835
+      Yaw: 3.01707387
     Saved: ~
 Window Geometry:
   Displays:

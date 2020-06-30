@@ -90,3 +90,7 @@ void ICP_registration(int iterations,
                       Cloud::Ptr workpiece_pointcloud_model);
 
 void ICP_registration(string PCD_folder_path, PointCloud::Ptr map_pointcloud);
+
+
+
+void filter(float r, Cloud::Ptr cloud);

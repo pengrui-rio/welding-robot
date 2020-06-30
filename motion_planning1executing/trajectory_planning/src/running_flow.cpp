@@ -5,6 +5,87 @@
 vector< geometry_msgs::Pose > Rviz_TrajectoryPose;
 vector< pcl::PointXYZ > all_realsense_position;
 
+
+vector< geometry_msgs::Pose > CAD_TrajectoryPlanning( Cloud::Ptr cloud_ptr,
+
+                                                      sensor_msgs::PointCloud2 pub_pointcloud, 
+                                                      ros::Publisher pointcloud_publisher, 
+                                                      ros::Publisher Welding_Trajectory_publisher,
+                                                      
+                                                      ros::Rate naptime)
+{
+  input_pointcloud_filter(cloud_ptr);
+
+  pcl::PointXYZ singleFrame_realsense_position;
+  for(float i = 0; i < cloud_ptr->points.size(); i++)
+  {
+    pcl::PointXYZRGB p;
+    p.x = cloud_ptr->points[i].x;
+    p.y = cloud_ptr->points[i].y;
+    p.z = cloud_ptr->points[i].z;
+
+    singleFrame_realsense_position.x += p.x;    
+    singleFrame_realsense_position.y += p.y;    
+    singleFrame_realsense_position.z += p.z;    
+  }
+  singleFrame_realsense_position.x = singleFrame_realsense_position.x / cloud_ptr->points.size();
+  singleFrame_realsense_position.y = singleFrame_realsense_position.y / cloud_ptr->points.size();
+  singleFrame_realsense_position.z = singleFrame_realsense_position.z / cloud_ptr->points.size();
+
+  welding_seam_location(cloud_ptr, 
+                        singleFrame_realsense_position, 
+                        pub_pointcloud, 
+                        pointcloud_publisher);
+
+  // pcl::PointXYZ position;
+  // for(float i = 0; i < cloud_ptr->points.size(); i++)
+  // {
+  //   pcl::PointXYZRGB p;
+  //   p.x = cloud_ptr->points[i].x;
+  //   p.y = cloud_ptr->points[i].y;
+  //   p.z = cloud_ptr->points[i].z;
+
+  //   position.x += p.x;    
+  //   position.y += p.y;    
+  //   position.z += p.z;    
+  // }
+  // position.x = position.x / cloud_ptr->points.size();
+  // position.y = position.y / cloud_ptr->points.size();
+  // position.z = position.z / cloud_ptr->points.size();
+  singleFrame_realsense_position.x = -0.260405;
+  singleFrame_realsense_position.y =  0.700942;
+  singleFrame_realsense_position.z =  0.238146;
+  all_realsense_position.push_back(singleFrame_realsense_position);
+  // cloud_ptr->points.push_back( singleFrame_realsense_position );    
+
+  singleFrame_realsense_position.x = -0.0355285;
+  singleFrame_realsense_position.y =  0.701815;
+  singleFrame_realsense_position.z =  0.345082;
+  all_realsense_position.push_back(singleFrame_realsense_position);
+  // cloud_ptr->points.push_back( singleFrame_realsense_position );    
+
+  singleFrame_realsense_position.x =  0.176993;
+  singleFrame_realsense_position.y =  0.702516;
+  singleFrame_realsense_position.z =  0.269644;
+  all_realsense_position.push_back(singleFrame_realsense_position);
+  // cloud_ptr->points.push_back( singleFrame_realsense_position );    
+
+
+  cout << "all_realsense_position.size(): " << all_realsense_position.size() << endl;
+  Rviz_TrajectoryPose = trajectory_planning(cloud_ptr, 
+                                            all_realsense_position,
+                                            pub_pointcloud, 
+                                            pointcloud_publisher,   
+                                            Welding_Trajectory_publisher,
+                                            naptime);
+
+  return Rviz_TrajectoryPose;
+}
+
+
+
+
+
 vector< geometry_msgs::Pose > trajectory_6DOF_generation(pcl::PointXYZ singleFrame_realsense_position, 
                                                          Cloud::Ptr cloud_ptr, 
                                                          Cloud::Ptr cloud_ptr_modelSeam, 
@@ -34,6 +115,16 @@ vector< geometry_msgs::Pose > trajectory_6DOF_generation(pcl::PointXYZ singleFra
                                         cloud_ptr_modelSeam, 
                                         pub_pointcloud, 
                                         pointcloud_publisher);
+    
+    
+    cloud_ptr_modelSeam->width = 1;
+    cloud_ptr_modelSeam->height = cloud_ptr_modelSeam->points.size();
+
+    cout << "cloud_ptr_modelSeam->points.size()" << cloud_ptr_modelSeam->points.size() << endl;
+    pcl::PCDWriter writer;
+    if(cloud_ptr_modelSeam->points.size() > 0)
+      writer.write("/home/rick/Documents/a_system/src/pointcloud_dataset/Cube/test/seam.pcd", *cloud_ptr_modelSeam, false) ;
+
 
     all_realsense_position.push_back(singleFrame_realsense_position);
     cout << "all_realsense_position: " << all_realsense_position.size() << endl;
@@ -83,6 +174,7 @@ bool welding_seam_location( Cloud::Ptr cloud_ptr,
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   cout << endl << "1.读入原始pointcloud" << endl << endl;
   // Cloud::Ptr cloud_ptr    = read_pointcloud(seam_detection_radius, cloud_ptr_show);
+
   SurfaceProfile_Reconstruction(seam_detection_radius, 
                                 cloud_ptr, 
                                 cloud_ptr_show);
@@ -219,19 +311,19 @@ vector< geometry_msgs::Pose > trajectory_planning(Cloud::Ptr cloud_ptr_modelSeam
   }
 
 
-  // ofstream outFile;
-	// outFile.open("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/box4.csv", ios::out); // 打开模式可省略
-  // for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
-  // {
-	//   outFile << Rviz_TrajectoryPose[i].position.x << ',' 
-  //           << Rviz_TrajectoryPose[i].position.y << ',' 
-  //           << Rviz_TrajectoryPose[i].position.z << ','
-  //           << Rviz_TrajectoryPose[i].orientation.x << ',' 
-  //           << Rviz_TrajectoryPose[i].orientation.y << ','
-  //           << Rviz_TrajectoryPose[i].orientation.z << ','
-  //           << Rviz_TrajectoryPose[i].orientation.w << endl;
-  // }
-	// outFile.close();
+  ofstream outFile;
+	outFile.open("/home/rick/Documents/a_system/src/motion_planning1executing/trajectory_planning/trajectoryRviz_csv/cad_test.csv", ios::out); // 打开模式可省略
+  for(int i = 0; i < Rviz_TrajectoryPose.size(); i++)
+  {
+	  outFile << Rviz_TrajectoryPose[i].position.x << ',' 
+            << Rviz_TrajectoryPose[i].position.y << ',' 
+            << Rviz_TrajectoryPose[i].position.z << ','
+            << Rviz_TrajectoryPose[i].orientation.x << ',' 
+            << Rviz_TrajectoryPose[i].orientation.y << ','
+            << Rviz_TrajectoryPose[i].orientation.z << ','
+            << Rviz_TrajectoryPose[i].orientation.w << endl;
+  }
+	outFile.close();
  
   return Rviz_TrajectoryPose;
 }

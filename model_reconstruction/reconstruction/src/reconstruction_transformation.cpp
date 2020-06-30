@@ -82,6 +82,9 @@ void analyze_realsense_data(PointCloud::Ptr cloud)
   {
     for (int n = 0; n < depth_pic.cols; n++) //640
     {
+    // int starttt = 250;
+    // for (int n = starttt; n < depth_pic.cols - starttt; n++) //640
+    // {
       // 获取深度图中(m,n)处的值
       float d = depth_pic.ptr<float>(m)[n]; 
       // d 可能没有值，若如此，跳过此点
@@ -151,10 +154,10 @@ pcl::PointXYZ camera_to_base_transform(geometry_msgs::Pose Base_End, pcl::PointX
 
   // End -> Camera
   Matrix4d T_E_C;
-  T_E_C <<   1,   2.7798e-18,            0,   -0.0361315,
-  -5.57321e-19,            1,  2.71051e-20,    -0.115202,
-    1.0842e-19,            0,            1,    0.069507,
-             0,            0,            0,            1;
+  T_E_C <<   1,   2.03288e-20,            0,   -0.0351962,
+    1.0554e-18,             1,            0,    -0.1162,
+             0,   4.33681e-19,            1,    0.0702501,
+             0,             0,            0,            1;  
   // cout << "T_E_C: " << endl << T_E_C << endl;
 
 
@@ -204,9 +207,9 @@ void coordinate_transformation(tf::StampedTransform transform, PointCloud::Ptr c
     pcl::PointXYZ p_cloud_ptr;
     pcl::PointXYZ Cam_Object;
 
-    Cam_Object.x    = camera_pointcloud->points[i].x; 
-    Cam_Object.y    = camera_pointcloud->points[i].y; 
-    Cam_Object.z    = camera_pointcloud->points[i].z; 
+    Cam_Object.x  = camera_pointcloud->points[i].x; 
+    Cam_Object.y  = camera_pointcloud->points[i].y; 
+    Cam_Object.z  = camera_pointcloud->points[i].z; 
 
     pcl::PointXYZ p_tranform = camera_to_base_transform(Base_End, Cam_Object);
     
