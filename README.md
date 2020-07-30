@@ -1,7 +1,7 @@
 # welding-robot  
 3D vision-based automatic welding robotic system.
 
-R. Peng, D. Navarro-Alarcon, V. Wu, and W Yang. A Point Cloud Based Method for Automatic Groove Detection and Trajectory Planning of Robotic Arc Welding Tasks. IEEE Int. Conf. on Ubiquitous Robots (UR 2020), pp. 1–7, 2020. https://arxiv.org/submit/3147664/view
+R. Peng, D. Navarro-Alarcon, V. Wu, and W Yang. A Point Cloud Based Method for Automatic Groove Detection and Trajectory Planning of Robotic Arc Welding Tasks. IEEE Int. Conf. on Ubiquitous Robots (UR 2020), pp. 1–7, 2020. https://ieeexplore.ieee.org/abstract/document/9144861
 
 Here are some of motion demos.
 
