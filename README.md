@@ -1,7 +1,7 @@
 # welding-robot  
 3D vision-based automatic welding robotic system.
 
-P. Zhou, R. Peng, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Automatic Seam Extraction over Point Cloud Models for Robotic Arc Welding," in IEEE Robotics and Automation Letters, [RA-L](doi: 10.1109/LRA.2021.3070828) .
+P. Zhou, R. Peng, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Automatic Seam Extraction over Point Cloud Models for Robotic Arc Welding," in IEEE Robotics and Automation Letters, https://ieeexplore.ieee.org/document/9394722.
 
 R. Peng, D. Navarro-Alarcon, V. Wu, and W Yang. A Point Cloud Based Method for Automatic Groove Detection and Trajectory Planning of Robotic Arc Welding Tasks. IEEE Int. Conf. on Ubiquitous Robots (UR 2020), pp. 1–7, 2020. https://ieeexplore.ieee.org/abstract/document/9144861
 
