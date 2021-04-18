@@ -11,16 +11,16 @@ R. Peng, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for 
 
 ## Here are some of motion demos. 
 
-**Tube**
+## Tube
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
 
-**Cube**
+## Cube 
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/cube.gif)
 
-**Y-shape**
+## Y-shape 
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/y-shape.gif)
 
-**Box**
+## Box 
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
 
 ## Command
