@@ -8,20 +8,21 @@ P. Zhou, R. Peng, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Au
 R. Peng, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for Automatic Groove Detection and Trajectory Generation of Robotic Arc Welding Tasks," 2020 17th International Conference on Ubiquitous Robots (UR), Kyoto, Japan, 2020, pp. 380-386, https://ieeexplore.ieee.org/document/9144861.
 
 
-
 ## Here are some of motion demos. 
 
-## Tube
+### Tube
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
 
-## Cube 
+### Cube 
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/cube.gif)
 
-## Y-shape 
+### Y-shape 
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/y-shape.gif)
 
-## Box 
+### Box 
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
+
+
 
 ## Command
 > roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
@@ -36,7 +37,8 @@ R. Peng, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for 
 
 
 ## Tutorial
-相机三维坐标转化为机械臂坐标需要标定相机与机械臂之间的位置关系，这个标定就称为手眼标定。
+
+**相机三维坐标转化为机械臂坐标需要标定相机与机械臂之间的位置关系，这个标定就称为手眼标定。**
 
 video link: : https://vimeo.com/371773986
  
@@ -44,150 +46,166 @@ video link: : https://vimeo.com/371773986
 
 /////////////////////////////
 
-cd src
+     cd src
 
-git clone https://github.com/IntelRealSense/realsense-ros.git
+     git clone https://github.com/IntelRealSense/realsense-ros.git
 
-cd realsense-ros/  然后delete realsense2_description文件夹
+     cd realsense-ros/  然后delete realsense2_description文件夹
 
-git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
-
-
-cd src
+     git checkout `git tag | sort -V | grep -P "^\d+\.\d+\.\d+" | tail -1`
 
 
-git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+     cd src
 
 
-git clone -b kinetic-devel https://github.com/ros-industrial/ur_modern_driver.git
+     git clone https://github.com/pal-robotics/ddynamic_reconfigure.git
+
+
+     git clone -b kinetic-devel https://github.com/ros-industrial/ur_modern_driver.git
 
 
 ///////////////////////////////////////////////////////////////////////////////////////
 
-moveit的使用方法，很详细
+### moveit的使用方法，很详细
 https://myyerrol.io/zh-cn/2017/04/20/ros_experience_2_xmbot_arm/
 
 
 
-moveit控制ur3：
+### moveit控制ur3：
 https://blog.csdn.net/qq_25267657/article/details/84871028 
  
  
 1) Install the dependencies
-  $ sudo apt-get install ros-kinetic-moveit
-  $ sudo apt-get install ros-kinetic-universal-robot
-  $ sudo apt-get install ros-kinetic-industrial-core
+
+        $ sudo apt-get install ros-kinetic-moveit
+        $ sudo apt-get install ros-kinetic-universal-robot
+        $ sudo apt-get install ros-kinetic-industrial-core
 
 2) Go to catkin_ws/src
-  $ git clone -b kinetic-devel https://github.com/ros-industrial/universal_robot.git
-  $ git clone -b kinetic-devel https://github.com/ros-industrial/ur_modern_driver.git
-  $ catkin_make
+
+
+       $ git clone -b kinetic-devel https://github.com/ros-industrial/universal_robot.git
+       $ git clone -b kinetic-devel https://github.com/ros-industrial/ur_modern_driver.git
+       $ catkin_make
 
 3) Noted that ur3_ip = 158.132.153.174
-  $ ping ur3_ip to test connection
+
+
+       $ ping ur3_ip to test connection
 
 4) Launch moveit assistant to create own controller
-  $ roslaunch moveit_setup_assistant setup_assistant.launch
+
+
+       $ roslaunch moveit_setup_assistant setup_assistant.launch
 
 5) Inside "moveit! assistant"
   
-  5.1) Create new or edit existing?
-       Choose "Create New Moveit"
-       Load /home/vincent/catkin_ws/src/universal_robot/ur_description/urdf/ur3_robot.urdf.xacro
-       **vincent shoudl be changed to your account name
+       5.1) Create new or edit existing?
+            Choose "Create New Moveit"
+            Load /home/vincent/catkin_ws/src/universal_robot/ur_description/urdf/ur3_robot.urdf.xacro
+            **vincent shoudl be changed to your account name
 
-  5.2) Optimize Self-Collision Checking
-       Choose "Generate Collision Matrix"
+       5.2) Optimize Self-Collision Checking
+            Choose "Generate Collision Matrix"
 
-  5.3) Define Planning Groups
-       Group Name: ur3
-       kinematic Solver: UR3KinematicsPlugin
-       Group Default PLANNER: RRT
-       Add Kin. Chain 
+       5.3) Define Planning Groups
+            Group Name: ur3
+            kinematic Solver: UR3KinematicsPlugin
+            Group Default PLANNER: RRT
+            Add Kin. Chain 
 
-       "Expand All"
-       Base Link = base_link
-       Tip Link = tool0
+            "Expand All"
+            Base Link = base_link
+            Tip Link = tool0
 
-  5.4) Define Robot Poses
-       You can define some pose here (optional)
+       5.4) Define Robot Poses
+            You can define some pose here (optional)
 
-  5.5) Setup ROS Controllers
-       Choose "Auto Add Follow Joints Trajectory ..."
+       5.5) Setup ROS Controllers
+            Choose "Auto Add Follow Joints Trajectory ..."
 
-  5.6) Specify Author Information
-       Name: "as you like"
-       Email: "as you like"
+       5.6) Specify Author Information
+            Name: "as you like"
+            Email: "as you like"
 
-  5.7) Generate Configuration Files
-       Open a new folder named "robot_moveit"
-       Configre this new folder as save path
-       Choose "Generate Package"
+       5.7) Generate Configuration Files
+            Open a new folder named "robot_moveit"
+            Configre this new folder as save path
+            Choose "Generate Package"
 
 6) Create controllers.yaml
-   Inside catkin_ws/src/robot_moveit/config, create a controllers.yaml
-   Copy the following to it:
-   //For name :(none for UR3, scaled_pos_traj_controller for UR5)
-   //Never put a spacebar in the name for UR3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-     controller_list:
-       - name: "" 
-         action_ns: follow_joint_trajectory
-         type: FollowJointTrajectory
-         joints:
-           - shoulder_pan_joint
-           - shoulder_lift_joint
-           - elbow_joint
-           - wrist_1_joint
-           - wrist_2_joint
-           - wrist_3_joint
+
+
+        Inside catkin_ws/src/robot_moveit/config, create a controllers.yaml
+        Copy the following to it:
+        //For name :(none for UR3, scaled_pos_traj_controller for UR5)
+        //Never put a spacebar in the name for UR3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+          controller_list:
+            - name: "" 
+              action_ns: follow_joint_trajectory
+              type: FollowJointTrajectory
+              joints:
+                - shoulder_pan_joint
+                - shoulder_lift_joint
+                - elbow_joint
+                - wrist_1_joint
+                - wrist_2_joint
+                - wrist_3_joint
 
 7) Create robot_planning.launch
-   Inside catkin_ws/src/robot_moveit/launch
-   Copy demo.launch and rename as robot_planning.launch
 
-   ****Please comment the following if you are connected to the robot
-    <!-- We do not have a robot connected, so publish fake joint states 
-      <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-      <param name="use_gui" value="$(arg use_gui)"/>
-      <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
-    </node>  -->   
 
-   This will give you a fake shaow which is used for simulation
+        Inside catkin_ws/src/robot_moveit/launch
+        Copy demo.launch and rename as robot_planning.launch
 
-   ****Change this parameter
-   fake_execution -> false (for real robot)      
+        ****Please comment the following if you are connected to the robot
+         <!-- We do not have a robot connected, so publish fake joint states 
+           <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+           <param name="use_gui" value="$(arg use_gui)"/>
+           <rosparam param="source_list">[move_group/fake_controller_joint_states]</rosparam>
+         </node>  -->   
+
+        This will give you a fake shaow which is used for simulation
+
+        ****Change this parameter
+        fake_execution -> false (for real robot)      
 
 
 8) Edit robot_moveit/launch/ur3_moveit_controller_manager.launch.xml
    Replace all content by:
-    <launch>
-      <rosparam file="$(find robot_moveit)/config/controllers.yaml"/>
-      <param name="use_controller_manager" value="false"/>
-      <param name="trajectory_execution/execution_duration_monitoring" value="false"/>
-      <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
-    </launch>
+   
+       <launch>
+         <rosparam file="$(find robot_moveit)/config/controllers.yaml"/>
+         <param name="use_controller_manager" value="false"/>
+         <param name="trajectory_execution/execution_duration_monitoring" value="false"/>
+         <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
+       </launch>
 
 9) Launch and test
-  $ source devel/setup.bash
-  $ roslaunch ur_modern_driver ur3_bringup.launch robot_ip:=158.132.153.174
-  $ roslaunch robot_moveit robot_planning.launch
- 
- 
- 加载自己创建的stl文件，如果出现 
-    It starts with the word 'solid', indicating that it's an ASCII STL file, 
-      but it does not contain the word 'endsolid' soit is either a malformed ASCII STL file or it is actually a binary STL file. 
-      Trying to interpret it as a binary STL file instead.
+
+
+       $ source devel/setup.bash
+       $ roslaunch ur_modern_driver ur3_bringup.launch robot_ip:=158.132.153.174
+       $ roslaunch robot_moveit robot_planning.launch
+
+
+**加载自己创建的stl文件，如果出现**
+
+      It starts with the word 'solid', indicating that it's an ASCII STL file, 
+        but it does not contain the word 'endsolid' soit is either a malformed ASCII STL file or it is actually a binary STL file. 
+        Trying to interpret it as a binary STL file instead.
 
   则进入该stl文件目录下开启一个终端，输入：
-   sed -i 's/^solid/robot/' *
+  
+     sed -i 's/^solid/robot/' *
 
 
  
  7.创建planning/planning.py   这里写你的控制命令
- 
- chmod +x planning.py
- 
- rosrun planning planning.py
+
+    chmod +x planning.py
+
+    rosrun planning planning.py
  
  (所有的pose都是相对于Reference frame: /world的!!!!!!!!!!!!!!! 注意初始化命令行给出的Reference frame！！！！)
  (所以可以把world frame 和 base-link frame合并，在urdf文件中标好位置)
@@ -195,37 +213,41 @@ https://blog.csdn.net/qq_25267657/article/details/84871028
 
 
  8.realsense-ros:
- roslaunch realsense2_camera rs_camera.launch 
+
+
+    roslaunch realsense2_camera rs_camera.launch 
 
 
 
  
- note:
- 1.有时候arm会出现莫名其妙的旋转比如ee在执行path时突然自转一圈，这是因为ur3.urdf.xacro里限制了关节的旋转范围！！！！！！！！！
- 当关节运动到临界点的时候需要越界，就会反方向旋转！！！！
- 
- 
- 2.加上cartisian path就能使运动十分平滑
+ **note:**
+
+     1.有时候arm会出现莫名其妙的旋转比如ee在执行path时突然自转一圈，这是因为ur3.urdf.xacro里限制了关节的旋转范围！！！！！！！！！
+     当关节运动到临界点的时候需要越界，就会反方向旋转！！！！
 
 
- 3.result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.25)
-   retime_trajectory函数用来调节cartisian path运动的速度
+     2.加上cartisian path就能使运动十分平滑
 
 
- 4.在urdf文件里，link-world只用一次！！！其他所有添加的物体全部以base_link为parent link
-   原因是world只是一个点，并没有指明方向，这会导致collision check失效！！！！！！！！！
-   
-   
- 5.尤其要注意urdf文件里的collision，一定一定要和visual里的size保持一致！！
-   后续添加的object link定义里，不要随便添加它的origin（xyz rpy）保持默认就好，而是尽量在joint里面修改相对位置
-  
-  
- 6. ur5.urdf 里的joint_limited可以适当修改，否则在实际过程中机械臂可能会出现奇怪的转动
+     3.result_plan = group.retime_trajectory(self.robot.get_current_state(), plan, 0.25)
+       retime_trajectory函数用来调节cartisian path运动的速度
+
+
+     4.在urdf文件里，link-world只用一次！！！其他所有添加的物体全部以base_link为parent link
+       原因是world只是一个点，并没有指明方向，这会导致collision check失效！！！！！！！！！
+
+
+     5.尤其要注意urdf文件里的collision，一定一定要和visual里的size保持一致！！
+       后续添加的object link定义里，不要随便添加它的origin（xyz rpy）保持默认就好，而是尽量在joint里面修改相对位置
+
+
+     6. ur5.urdf 里的joint_limited可以适当修改，否则在实际过程中机械臂可能会出现奇怪的转动
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 # 配置UR5与Moveit！（我用的版本是 UR5-URSoftware 3.11.0.81xxx）：
+
 1.ip设置：
 
  ur5设置静态IP： 192.168.0.2
