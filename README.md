@@ -1,42 +1,41 @@
 # 3D vision-based automatic welding robotic system.
 
 
-# Publication:
+## Publications:
 
-    P. Zhou, R. Peng, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Automatic Seam Extraction over Point Cloud Models for Robotic Arc Welding," in IEEE Robotics and Automation Letters, https://ieeexplore.ieee.org/document/9394722.
+P. Zhou, R. Peng, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Automatic Seam Extraction over Point Cloud Models for Robotic Arc Welding," in IEEE Robotics and Automation Letters, https://ieeexplore.ieee.org/document/9394722.
 
-    R. Peng, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for Automatic Groove Detection and Trajectory Generation of Robotic Arc Welding Tasks," 2020 17th International Conference on Ubiquitous Robots (UR), Kyoto, Japan, 2020, pp. 380-386, https://ieeexplore.ieee.org/document/9144861.
-
-Here are some of motion demos.
-
- 
+R. Peng, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for Automatic Groove Detection and Trajectory Generation of Robotic Arc Welding Tasks," 2020 17th International Conference on Ubiquitous Robots (UR), Kyoto, Japan, 2020, pp. 380-386, https://ieeexplore.ieee.org/document/9144861.
 
 
-# Tube
+
+## Here are some of motion demos. 
+
+**Tube**
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/tube.gif)
 
-# Cube
+**Cube**
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/cube.gif)
 
-# Y-shape
+**Y-shape**
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/y-shape.gif)
 
-# Box
+**Box**
 ![image](https://github.com/professor1996/welding-robot/blob/master/demo/box.gif)
 
-# Command
-roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
+## Command
+> roslaunch ur_robot_driver ur5_bringup.launch robot_ip:=192.168.0.2 kinematics_config:=$(rospack find ur_calibration)/my_robot_calibration.yaml
 
-roslaunch moveit_config execution_real.launch
+> roslaunch moveit_config execution_real.launch
 
-roslaunch model_reconstruction  model_reconstruction.launch
+> roslaunch model_reconstruction  model_reconstruction.launch
 
-rosrun  trajectory_planning trajectory_planning_node
+> rosrun  trajectory_planning trajectory_planning_node
 
-rosrun traj_control_execution control_URx.py 
+> rosrun traj_control_execution control_URx.py 
 
 
-# Tutorial
+## Tutorial
 相机三维坐标转化为机械臂坐标需要标定相机与机械臂之间的位置关系，这个标定就称为手眼标定。
 
 video link: : https://vimeo.com/371773986
