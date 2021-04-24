@@ -376,10 +376,10 @@ https://blog.csdn.net/qq_25267657/article/details/84871028
                <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
               </launch>
 
-   最后roslaunch robot_moveit robot_planning.launch就可以看到rViz里面的虚拟环境了
-   
-   可以用Motion Planning 模块 手动测试机械臂运动状态
-   
-   也可以用Planning Scene 通过代码来控制
+最后roslaunch robot_moveit robot_planning.launch就可以看到rViz里面的虚拟环境了
+
+可以用Motion Planning 模块 手动测试机械臂运动状态
+
+也可以用Planning Scene 通过代码来控制
 
 
