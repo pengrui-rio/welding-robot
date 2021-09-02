@@ -3,9 +3,9 @@
 
 ## Publications:
 
-P. Zhou, R. Peng, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Automatic Seam Extraction over Point Cloud Models for Robotic Arc Welding," in IEEE Robotics and Automation Letters, https://ieeexplore.ieee.org/document/9394722.
+P. Zhou, **R. Peng**, M. Xu, V. W. Wu and D. Navarro-Alarcon, "Path Planning with Automatic Seam Extraction over Point Cloud Models for Robotic Arc Welding," in IEEE Robotics and Automation Letters, https://ieeexplore.ieee.org/document/9394722.
 
-R. Peng, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for Automatic Groove Detection and Trajectory Generation of Robotic Arc Welding Tasks," 2020 17th International Conference on Ubiquitous Robots (UR), Kyoto, Japan, 2020, pp. 380-386, https://ieeexplore.ieee.org/document/9144861.
+**R. Peng**, D. Navarro-Alarcon, V. Wu and W. Yang, "A Point Cloud-Based Method for Automatic Groove Detection and Trajectory Generation of Robotic Arc Welding Tasks," 2020 17th International Conference on Ubiquitous Robots (UR), Kyoto, Japan, 2020, pp. 380-386, https://ieeexplore.ieee.org/document/9144861.
 
 
 ## Here are some of experimental demos. 
