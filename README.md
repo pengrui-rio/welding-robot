@@ -135,9 +135,12 @@ https://blog.csdn.net/qq_25267657/article/details/84871028
 
 6) Create controllers.yaml
 
-Inside catkin_ws/src/robot_moveit/config, create a controllers.yaml
+Inside catkin_ws/src/robot_moveit/config, create a **controllers.yaml**
+
 Copy the following to it:
+
 //For name :(none for UR3, scaled_pos_traj_controller for UR5)
+
 //Never put a spacebar in the name for UR3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     controller_list:
