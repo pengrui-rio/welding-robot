@@ -135,22 +135,22 @@ https://blog.csdn.net/qq_25267657/article/details/84871028
 
 6) Create controllers.yaml
 
+Inside catkin_ws/src/robot_moveit/config, create a controllers.yaml
+Copy the following to it:
+//For name :(none for UR3, scaled_pos_traj_controller for UR5)
+//Never put a spacebar in the name for UR3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-        Inside catkin_ws/src/robot_moveit/config, create a controllers.yaml
-        Copy the following to it:
-        //For name :(none for UR3, scaled_pos_traj_controller for UR5)
-        //Never put a spacebar in the name for UR3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-          controller_list:
-            - name: "" 
-              action_ns: follow_joint_trajectory
-              type: FollowJointTrajectory
-              joints:
-                - shoulder_pan_joint
-                - shoulder_lift_joint
-                - elbow_joint
-                - wrist_1_joint
-                - wrist_2_joint
-                - wrist_3_joint
+    controller_list:
+      - name: "" 
+        action_ns: follow_joint_trajectory
+        type: FollowJointTrajectory
+        joints:
+          - shoulder_pan_joint
+          - shoulder_lift_joint
+          - elbow_joint
+          - wrist_1_joint
+          - wrist_2_joint
+          - wrist_3_joint
 
 7) Create robot_planning.launch
 
