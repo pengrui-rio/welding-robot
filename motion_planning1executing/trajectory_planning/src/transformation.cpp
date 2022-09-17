@@ -1041,7 +1041,8 @@ void URx_Pose_generation( float trajectory_point_size,
     // cout << "count: " << i+1 << endl;
 
     //for URx：
-    // 旋转矩阵转换为四元数
+    // 已知两个坐标系的各自基向量，求他们之间的旋转矩阵
+    // 坐标系构造方法： x y z，竖直排列
     Eigen::Matrix3d origin_base_URx;
     origin_base_URx << -1,  0, 0,
                         0, -1, 0, 
