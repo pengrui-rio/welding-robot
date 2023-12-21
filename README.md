@@ -246,7 +246,8 @@ Copy the following to it:
 
      6. ur5.urdf 里的joint_limited可以适当修改，否则在实际过程中机械臂可能会出现奇怪的转动
 
-////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+---
 
 
 # 配置UR5与Moveit！（我用的版本是 UR5-URSoftware 3.11.0.81xxx）：
@@ -379,7 +380,9 @@ Copy the following to it:
                <param name="moveit_controller_manager" value="moveit_simple_controller_manager/MoveItSimpleControllerManager"/>
               </launch>
 
-最后roslaunch robot_moveit robot_planning.launch就可以看到rViz里面的虚拟环境了
+5. roslaunch robot_moveit robot_planning.launch
+ 
+就可以看到rViz里面的虚拟环境了
 
 可以用Motion Planning 模块 手动测试机械臂运动状态
 
